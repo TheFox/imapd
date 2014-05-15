@@ -1,0 +1,32 @@
+{
+	"name": "thefox/imapserver",
+	"description": "IMAP server in PHP.",
+	"license": "GPLv3",
+	"type": "library",
+	"keywords": [ "imap", "server", "email" ],
+	"homepage": "http://fox21.at",
+	"authors": [
+		{
+			"name": "Christian Mayer",
+			"email": "thefox21at@gmail.com",
+			"homepage": "http://fox21.at"
+		}
+	],
+	"require": {
+		"php": ">=5.3"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "4.1.*",
+		"thefox/phpcsrs": "1.*"
+	},
+	"autoload": {
+		"psr-0": {
+			"TheFox": "src"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "0.1.x-dev"
+		}
+	}
+}
