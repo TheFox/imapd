@@ -3,7 +3,7 @@
 	"description": "IMAP server in PHP.",
 	"license": "GPLv3",
 	"type": "library",
-	"keywords": [ "imap", "server", "email" ],
+	"keywords": [ "imap", "server", "email", "mail" ],
 	"homepage": "http://fox21.at",
 	"authors": [
 		{
