@@ -1,5 +1,5 @@
 # IMAPServer
-IMAP server in PHP.
+[IMAPv4](https://tools.ietf.org/html/rfc3501) server in PHP.
 
 ## Installation
 The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapserver) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
