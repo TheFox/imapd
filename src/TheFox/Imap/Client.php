@@ -120,15 +120,63 @@ class Client{
 	public function dataRecv(){
 		$data = $this->getSocket()->read();
 		
-		print __CLASS__.'->'.__FUNCTION__.': "'.$data.'"'."\n";
-		
-		
-		
+		#print __CLASS__.'->'.__FUNCTION__.': "'.$data.'"'."\n";
+		do{
+			$separatorPos = strpos($data, static::MSG_SEPARATOR);
+			if($separatorPos === false){
+				$this->recvBufferTmp .= $data;
+				$data = '';
+				
+				print __CLASS__.'->'.__FUNCTION__.': collect data'."\n";
+			}
+			else{
+				$msg = $this->recvBufferTmp.substr($data, 0, $separatorPos);
+				$this->recvBufferTmp = '';
+				
+				$this->msgHandle($msg);
+				
+				$data = substr($data, $separatorPos + strlen(static::MSG_SEPARATOR));
+				
+				#print __CLASS__.'->'.__FUNCTION__.': rest data "'.$data.'"'."\n";
+			}
+		}
+		while($data);
 	}
 	
 	private function msgHandle($msgRaw){
-		print __CLASS__.'->'.__FUNCTION__.': "'.$msgRaw.'"'."\n";
+		#print __CLASS__.'->'.__FUNCTION__.': "'.$msgRaw.'"'."\n";
 		
+		$pos = strpos($msgRaw, ' ');
+		if($pos !== false){
+			$tag = substr($msgRaw, 0, $pos);
+			
+			$command = substr($msgRaw, $pos + 1);
+			$commandcmp = strtolower($command);
+			
+			print __CLASS__.'->'.__FUNCTION__.': >'.$tag.'< >'.$command.'< '."\n";
+			
+			if($commandcmp == 'capability'){
+				$this->sendCapability($tag);
+			}
+			elseif(substr($commandcmp, 0, 12) == 'authenticate'){
+				$mechanism = substr($command, 13);
+				print __CLASS__.'->'.__FUNCTION__.' authenticate: "'.$mechanism.'"'."\n";
+				
+				$this->sendAuthenticate($tag, $mechanism);
+			}
+			elseif(substr($commandcmp, 0, 4) == 'lsub'){
+				$this->sendLsub($tag);
+			}
+			elseif(substr($commandcmp, 0, 4) == 'list'){
+				$this->sendList($tag);
+			}
+			elseif(substr($commandcmp, 0, 6) == 'create'){
+				$this->sendCreate($tag);
+			}
+			elseif(substr($commandcmp, 0, 6) == 'select'){
+				$this->sendSelect($tag);
+			}
+		}
 	}
 	
 	private function dataSend($msg){
@@ -140,9 +188,48 @@ class Client{
 		$this->dataSend('* OK IMAP4rev1 Service Ready');
 	}
 	
-	public function sendCapability($tag){
+	private function sendCapability($tag){
 		$this->dataSend('* CAPABILITY IMAP4rev1 AUTH=PLAIN');
-		$this->dataSend('1 OK CAPABILITY completed');
+		$this->dataSend($tag.' OK CAPABILITY completed');
+	}
+	
+	private function sendAuthenticate($tag, $mechanism){
+		$this->dataSend('+');
+		#$this->dataSend('+ '.base64_encode('hello'));
+		$this->dataSend($tag.' OK '.$mechanism.' authentication successful');
+	}
+	
+	private function sendLsub($tag){
+		#$this->dataSend('* LSUB () "." #new.test');
+		$this->dataSend($tag.' OK LSUB completed');
+	}
+	
+	private function sendList($tag){
+		$this->dataSend($tag.' OK LIST completed');
+	}
+	
+	private function sendCreate($tag){
+		$this->dataSend($tag.' OK CREATE completed');
+	}
+	
+	private function sendSelect($tag){
+		/*$this->dataSend('* 172 EXISTS');
+		$this->dataSend('* 1 RECENT');
+		$this->dataSend('* OK [UNSEEN 12] Message 12 is first unseen');
+		$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
+		$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
+		$this->dataSend('* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)');
+		$this->dataSend('* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited');
+		$this->dataSend($tag.' OK [READ-WRITE] SELECT completed');
+		*/
+		$this->dataSend('* 0 EXISTS');
+		$this->dataSend('* 0 RECENT');
+		#$this->dataSend('* OK [UNSEEN 0] Message 12 is first unseen');
+		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
+		#$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
+		$this->dataSend('* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)');
+		$this->dataSend('* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited');
+		$this->dataSend($tag.' OK [READ-WRITE] SELECT completed');
 	}
 	
 	public function shutdown(){
