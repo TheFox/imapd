@@ -2,7 +2,7 @@
 	"folders":[
 		{
 			"path": ".",
-			"name": "IMAPServer",
+			"name": "IMAPd",
 			"folder_exclude_patterns": [ ],
 			"file_exclude_patterns": [
 				"*.swp", "*.sublime-workspace", "composer.lock"

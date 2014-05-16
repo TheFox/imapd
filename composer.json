@@ -1,5 +1,5 @@
 {
-	"name": "thefox/imapserver",
+	"name": "thefox/imapd",
 	"description": "IMAP server in PHP.",
 	"license": "GPLv3",
 	"type": "library",

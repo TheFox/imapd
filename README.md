@@ -1,16 +1,16 @@
-# IMAPServer
-[IMAPv4](https://tools.ietf.org/html/rfc3501) server in PHP.
+# IMAPd
+IMAP server (library) written in PHP.
 
 ## Installation
-The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapserver) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
+The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapd) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
 
-`composer.phar require "thefox/imapserver=0.1.*"`
+`composer.phar require "thefox/imapd=0.1.*"`
 
 ## RFC references
 - [RFC 3501](https://tools.ietf.org/html/rfc3501) ([RFC 2060](https://tools.ietf.org/html/rfc2060), [RFC 1730](https://tools.ietf.org/html/rfc1730))
 
 ## Contribute
-You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapserver>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
+You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapd>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
 
 ## License
 Copyright (C) 2014 Christian Mayer (<thefox21at@gmail.com> - <http://fox21.at>)
