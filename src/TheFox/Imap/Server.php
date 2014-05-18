@@ -39,6 +39,10 @@ class Server extends Thread{
 		$this->datadir = $datadir;
 	}
 	
+	public function getLog(){
+		return $this->log;
+	}
+	
 	public function setIp($ip){
 		$this->ip = $ip;
 	}
