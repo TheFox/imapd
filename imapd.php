@@ -5,18 +5,18 @@ require_once __DIR__.'/bootstrap.php';
 use TheFox\Imap\Server;
 
 
-$imapserver = new Server('127.0.0.1', 20143);
+$server = new Server('127.0.0.1', 20143);
 
 $log->info('signal handler setup');
 declare(ticks = 1);
 $exit = 0;
 if(function_exists('pcntl_signal')){
 	function signalHandler($signo){
-		global $exit, $log, $imapserver;
+		global $exit, $log, $server;
 		$exit++;
 		print "\n";
 		$log->notice('main abort ['.$exit.']');
-		$imapserver->setExit($exit);
+		$server->setExit($exit);
 		if($exit >= 2)
 			exit(1);
 	}
@@ -25,7 +25,7 @@ if(function_exists('pcntl_signal')){
 }
 
 try{
-	$imapserver->init();
+	$server->init();
 }
 catch(Exception $e){
 	$log->error('init: '.$e->getMessage());
@@ -33,7 +33,7 @@ catch(Exception $e){
 }
 
 try{
-	$imapserver->loop();
+	$server->loop();
 }
 catch(Exception $e){
 	$log->error('run: '.$e->getMessage());
