@@ -5,6 +5,7 @@ namespace TheFox\Imap;
 use Exception;
 use RuntimeException;
 
+use TheFox\Imap\Exception\NotImplementedException;
 use TheFox\Logger\Logger;
 use TheFox\Logger\StreamHandler;
 use TheFox\Network\Socket;
