@@ -127,7 +127,7 @@ class Client{
 				$this->recvBufferTmp .= $data;
 				$data = '';
 				
-				print __CLASS__.'->'.__FUNCTION__.': collect data'."\n";
+				$this->log('debug', 'client '.$this->id.': collect data');
 			}
 			else{
 				$msg = $this->recvBufferTmp.substr($data, 0, $separatorPos);
@@ -153,14 +153,14 @@ class Client{
 			$command = substr($msgRaw, $pos + 1);
 			$commandcmp = strtolower($command);
 			
-			print __CLASS__.'->'.__FUNCTION__.': >'.$tag.'< >'.$command.'< '."\n";
+			$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
 			
 			if($commandcmp == 'capability'){
 				$this->sendCapability($tag);
 			}
 			elseif(substr($commandcmp, 0, 12) == 'authenticate'){
 				$mechanism = substr($command, 13);
-				print __CLASS__.'->'.__FUNCTION__.' authenticate: "'.$mechanism.'"'."\n";
+				$this->log('debug', 'client '.$this->id.': authenticate: "'.$mechanism.'"');
 				
 				$this->sendAuthenticate($tag, $mechanism);
 			}
@@ -176,11 +176,14 @@ class Client{
 			elseif(substr($commandcmp, 0, 6) == 'select'){
 				$this->sendSelect($tag);
 			}
+			else{
+				$this->log('debug', 'client '.$this->id.': not implemented >'.$tag.'< >'.$command.'<');
+			}
 		}
 	}
 	
 	private function dataSend($msg){
-		print __CLASS__.'->'.__FUNCTION__.': "'.$msg.'"'."\n";
+		$this->log('debug', 'client '.$this->id.': data send "'.$msg.'"');
 		$this->getSocket()->write($msg.static::MSG_SEPARATOR);
 	}
 	

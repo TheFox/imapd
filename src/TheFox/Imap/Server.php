@@ -21,7 +21,7 @@ class Server extends Thread{
 	private $clients = array();
 	
 	public function __construct($ip = '127.0.0.1', $port = 143){
-		print __CLASS__.'->'.__FUNCTION__.''."\n";
+		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
 		$this->log = new Logger('imapserver');
 		$this->log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -107,7 +107,7 @@ class Server extends Thread{
 						$client = $this->clientNew($socket);
 						$client->sendHello();
 						
-						$this->log->debug('new client: '.$client->getId().', '.$client->getIpPort());
+						#$this->log->debug('new client: '.$client->getId().', '.$client->getIpPort());
 					}
 				}
 				else{
@@ -118,7 +118,7 @@ class Server extends Thread{
 							$this->clientRemove($client);
 						}
 						else{
-							$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
+							#$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
 							$client->dataRecv();
 							
 							if($client->getStatus('hasShutdown')){
@@ -127,7 +127,7 @@ class Server extends Thread{
 						}
 					}
 					
-					$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
+					#$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
 					
 				}
 			}
@@ -145,13 +145,13 @@ class Server extends Thread{
 	}
 	
 	public function shutdown(){
-		print __CLASS__.'->'.__FUNCTION__.''."\n";
+		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
 	}
 	
 	private function clientNew($socket){
 		$this->clientsId++;
-		print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
+		#print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
 		
 		$client = new Client();
 		$client->setSocket($socket);
@@ -159,7 +159,7 @@ class Server extends Thread{
 		$client->setServer($this);
 		
 		$this->clients[$this->clientsId] = $client;
-		print __CLASS__.'->'.__FUNCTION__.' clients: '.count($this->clients)."\n";
+		#print __CLASS__.'->'.__FUNCTION__.' clients: '.count($this->clients)."\n";
 		
 		return $client;
 	}
