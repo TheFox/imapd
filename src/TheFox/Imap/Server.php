@@ -14,6 +14,7 @@ class Server extends Thread{
 	
 	const LOOP_USLEEP = 10000;
 	
+	private $datadir = 'data';
 	private $log;
 	private $isListening = false;
 	private $ip;
@@ -32,6 +33,10 @@ class Server extends Thread{
 		
 		$this->setIp($ip);
 		$this->setPort($port);
+	}
+	
+	public function setDatadir($datadir){
+		$this->datadir = $datadir;
 	}
 	
 	public function setIp($ip){

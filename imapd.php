@@ -5,7 +5,12 @@ require_once __DIR__.'/bootstrap.php';
 use TheFox\Imap\Server;
 
 
+if(!file_exists('datadir')){
+	mkdir('datadir');
+}
+
 $server = new Server('127.0.0.1', 20143);
+$server->setDatadir('datadir');
 
 $log->info('signal handler setup');
 declare(ticks = 1);
