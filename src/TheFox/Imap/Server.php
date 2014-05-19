@@ -4,6 +4,10 @@ namespace TheFox\Imap;
 
 use Exception;
 use RuntimeException;
+use InvalidArgumentException;
+
+use Zend\Mail\Storage\Writable\Maildir as WritableMaildir;
+use Zend\Mail\Storage\Folder\Maildir as FolderMaildir;
 
 use TheFox\Imap\Exception\NotImplementedException;
 use TheFox\Logger\Logger;
@@ -14,13 +18,14 @@ class Server extends Thread{
 	
 	const LOOP_USLEEP = 10000;
 	
-	private $datadir = 'data';
 	private $log;
 	private $isListening = false;
 	private $ip;
 	private $port;
 	private $clientsId = 0;
 	private $clients = array();
+	private $mails = array();
+	private $storages = array();
 	
 	public function __construct($ip = '127.0.0.1', $port = 143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
@@ -33,10 +38,6 @@ class Server extends Thread{
 		
 		$this->setIp($ip);
 		$this->setPort($port);
-	}
-	
-	public function setDatadir($datadir){
-		$this->datadir = $datadir;
 	}
 	
 	public function getLog(){
@@ -145,8 +146,32 @@ class Server extends Thread{
 	}
 	
 	public function loop(){
+		$s = time();
+		$r = 0;
+		
 		while(!$this->getExit()){
 			$this->run();
+			
+			if(time() - $s >= 0 && !$r){
+				$r = 1;
+				
+				$this->mailAdd("Date: Mon, 19 May 2014 14:20:50 +0200\nFrom: thefox21at@gmail.com\nTo: thefox@fox21.at\nCc: christian@flasheye.at\nBcc: christian@fox21.at\nSubject: test\n\nbody");
+				
+				$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
+				#$mailboxPath = './tmp_mailbox';
+				#$this->dirDelete('mailbox');
+				#WritableMaildir::initMaildir($mailboxPath);
+				#$this->storageAdd(new WritableMaildir(array('dirname' => $mailboxPath)), $mailboxPath, 'temp');
+				#$this->storageAddMaildir($mailboxPath);
+				
+				$this->storages[0]['object']->createFolder('test123');
+				$this->storages[0]['object']->createFolder('test123.x');
+				$this->storages[0]['object']->createFolder('test123.x.a');
+				$this->storages[0]['object']->createFolder('test123.y');
+				$this->storages[0]['object']->createFolder('test123.z');
+				$this->storages[0]['object']->createFolder('test123.z.b');
+				
+			}
 			
 			usleep(static::LOOP_USLEEP);
 		}
@@ -155,8 +180,14 @@ class Server extends Thread{
 	}
 	
 	public function shutdown(){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
+		$this->log->debug('shutdown');
 		
+		// Remove all temp files.
+		foreach($this->storages as $storage){
+			if($storage['object'] instanceof WritableMaildir && $storage['type'] == 'temp'){
+				$this->dirDelete($storage['path']);
+			}
+		}
 	}
 	
 	private function clientNew($socket){
@@ -191,6 +222,64 @@ class Server extends Thread{
 		
 		$clientsId = $client->getId();
 		unset($this->clients[$clientsId]);
+	}
+	
+	public function storageAdd($storage, $path, $type = 'normal'){
+		if($storage instanceof WritableMaildir){
+			$this->storages[] = array('object' => $storage, 'path' => $path, 'type' => $type);
+		}
+		else{
+			throw new NotImplementedException(''.( is_object($storage) ? 'Class '.get_class($storage) : 'Type '.gettype($storage) ).' not implemented yet.');
+		}
+	}
+	
+	public function storageAddMaildir($path, $type = 'normal'){
+		if(!file_exists($path)){
+			try{
+				WritableMaildir::initMaildir($path);
+			}
+			catch(Exception $e){
+				$log->error('initMaildir: '.$e->getMessage());
+			}
+		}
+		
+		try{
+			$this->storageAdd(new WritableMaildir(array('dirname' => $path)), $path, $type);
+		}
+		catch(Exception $e){
+			$log->error('storageAddMaildir: '.$e->getMessage());
+		}
+	}
+	
+	public function mailAdd($mail){
+		if(!$this->storages){
+			$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
+			$this->storageAddMaildir($mailboxPath, 'temp');
+		}
+		foreach($this->storages as $storage){
+			if($storage['object'] instanceof WritableMaildir){
+				$storage['object']->appendMessage($mail);
+			}
+		}
+	}
+	
+	private function dirDelete($path){
+		if(is_dir($path)){
+			$dh = opendir($path);
+			if($dh){
+				while(($file = readdir($dh)) !== false){
+					if($file != '.' && $file != '..'){
+						$this->dirDelete($path.'/'.$file);
+					}
+				}
+				closedir($dh);
+				
+				@rmdir($path);
+			}
+		}
+		else{
+			@unlink($path);
+		}
 	}
 	
 }

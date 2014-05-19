@@ -4,13 +4,16 @@ require_once __DIR__.'/bootstrap.php';
 
 use TheFox\Imap\Server;
 
-
-if(!file_exists('datadir')){
-	mkdir('datadir');
-}
+$mailboxPath = 'mailbox';
 
 $server = new Server('127.0.0.1', 20143);
-$server->setDatadir('datadir');
+try{
+	$server->storageAddMaildir($mailboxPath);
+}
+catch(Exception $e){
+	$log->error('storage: '.$e->getMessage());
+	exit(1);
+}
 
 $log->info('signal handler setup');
 declare(ticks = 1);
@@ -41,6 +44,8 @@ try{
 	$server->loop();
 }
 catch(Exception $e){
-	$log->error('run: '.$e->getMessage());
+	$log->error('loop: '.$e->getMessage());
 	exit(1);
 }
+
+exit(0);
