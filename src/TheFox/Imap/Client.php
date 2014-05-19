@@ -5,6 +5,8 @@ namespace TheFox\Imap;
 use Exception;
 use RuntimeException;
 
+use Zend\Mail\Storage;
+
 use TheFox\Network\AbstractSocket;
 
 class Client{
@@ -153,28 +155,58 @@ class Client{
 			$command = substr($msgRaw, $pos + 1);
 			$commandcmp = strtolower($command);
 			
-			$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
+			#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
 			
 			if($commandcmp == 'capability'){
+				#$this->log('debug', 'client '.$this->id.' capability: '.$tag.'');
+				
 				$this->sendCapability($tag);
 			}
 			elseif(substr($commandcmp, 0, 12) == 'authenticate'){
 				$mechanism = substr($command, 13);
-				$this->log('debug', 'client '.$this->id.': authenticate: "'.$mechanism.'"');
+				#$this->log('debug', 'client '.$this->id.' authenticate: "'.$mechanism.'"');
 				
 				$this->sendAuthenticate($tag, $mechanism);
 			}
 			elseif(substr($commandcmp, 0, 4) == 'lsub'){
+				$arg = substr($command, 5);
+				$this->log('debug', 'client '.$this->id.' lsub: '.$name);
+				
 				$this->sendLsub($tag);
 			}
 			elseif(substr($commandcmp, 0, 4) == 'list'){
+				$this->log('debug', 'client '.$this->id.' list');
+				
 				$this->sendList($tag);
 			}
 			elseif(substr($commandcmp, 0, 6) == 'create'){
+				$this->log('debug', 'client '.$this->id.' create');
+				
 				$this->sendCreate($tag);
 			}
 			elseif(substr($commandcmp, 0, 6) == 'select'){
-				$this->sendSelect($tag);
+				$name = substr($command, 7);
+				
+				if($name[0] == '"' && substr($name, -1) == '"'){
+					$name = substr(substr($name, 1), 0, -1);
+				}
+				
+				$this->log('debug', 'client '.$this->id.' select: "'.$name.'"');
+				
+				$this->sendSelect($tag, $name);
+			}
+			elseif(substr($commandcmp, 0, 3) == 'uid'){
+				$name = substr($command, 4);
+				$arg = '';
+				$pos = strpos($name, ' ');
+				if($pos !== false){
+					$arg = substr($name, $pos + 1);
+					$name = substr($name, 0, $pos);
+				}
+				
+				$this->log('debug', 'client '.$this->id.' uid: "'.$name.'" "'.$arg.'"');
+				
+				$this->sendUid($tag);
 			}
 			else{
 				$this->log('debug', 'client '.$this->id.': not implemented >'.$tag.'< >'.$command.'<');
@@ -183,7 +215,7 @@ class Client{
 	}
 	
 	private function dataSend($msg){
-		$this->log('debug', 'client '.$this->id.': data send "'.$msg.'"');
+		$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
 		$this->getSocket()->write($msg.static::MSG_SEPARATOR);
 	}
 	
@@ -203,7 +235,7 @@ class Client{
 	}
 	
 	private function sendLsub($tag){
-		#$this->dataSend('* LSUB () "." #new.test');
+		#$this->dataSend('* LSUB () "." "#news.test"');
 		$this->dataSend($tag.' OK LSUB completed');
 	}
 	
@@ -215,24 +247,52 @@ class Client{
 		$this->dataSend($tag.' OK CREATE completed');
 	}
 	
-	private function sendSelect($tag){
-		/*$this->dataSend('* 172 EXISTS');
-		$this->dataSend('* 1 RECENT');
-		$this->dataSend('* OK [UNSEEN 12] Message 12 is first unseen');
-		$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
-		$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
-		$this->dataSend('* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)');
-		$this->dataSend('* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited');
-		$this->dataSend($tag.' OK [READ-WRITE] SELECT completed');
-		*/
-		$this->dataSend('* 0 EXISTS');
-		$this->dataSend('* 0 RECENT');
-		#$this->dataSend('* OK [UNSEEN 0] Message 12 is first unseen');
+	private function sendSelect($tag, $folder){
+		
+		$storage = $this->getServer()->getRootStorage();
+		
+		#ve($storage);
+		#ve($storage->getCurrentFolder());
+		#ve(get_class_methods($storage));
+		
+		#foreach($storage->getFolders() as $folder){ print "name: ".$folder->getLocalName()."\n";}
+		
+		try{
+			$this->getServer()->getRootStorage()->selectFolder($folder);
+			#$storage->selectFolder($folder);
+			#$folder = $storage->INBOX;
+			#$folder = $storage->test2;
+			#ve($folder);
+			
+		}
+		catch(Exception $e){
+			print 'sendSelect: '.$e->getMessage()."\n";
+		}
+		
+		$count = $storage->countMessages();
+		for($n = 1; $n <= $count; $n++){
+			print 'sendSelect msg: '.$n.', '.$storage->getUniqueId($n)."\n";
+			
+			$message = $storage->getMessage($n);
+			#ve($message);
+			#ve(get_class_methods($message));
+		}
+		
+		$this->dataSend('* '.$count.' EXISTS');
+		$this->dataSend('* '.$storage->countMessages(Storage::FLAG_RECENT).' RECENT');
+		$this->dataSend('* OK [UNSEEN 1] Message 1 is first unseen');
 		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
 		#$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
-		$this->dataSend('* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)');
-		$this->dataSend('* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited');
+		
+		
+		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
+		#$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
 		$this->dataSend($tag.' OK [READ-WRITE] SELECT completed');
+		
+	}
+	
+	private function sendUid($tag){
+		
 	}
 	
 	public function shutdown(){

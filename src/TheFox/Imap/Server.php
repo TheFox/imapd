@@ -6,8 +6,7 @@ use Exception;
 use RuntimeException;
 use InvalidArgumentException;
 
-use Zend\Mail\Storage\Writable\Maildir as WritableMaildir;
-use Zend\Mail\Storage\Folder\Maildir as FolderMaildir;
+use Zend\Mail\Storage\Writable\Maildir;
 
 use TheFox\Imap\Exception\NotImplementedException;
 use TheFox\Logger\Logger;
@@ -24,8 +23,7 @@ class Server extends Thread{
 	private $port;
 	private $clientsId = 0;
 	private $clients = array();
-	private $mails = array();
-	private $storages = array();
+	public $storages = array();
 	
 	public function __construct($ip = '127.0.0.1', $port = 143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
@@ -50,6 +48,23 @@ class Server extends Thread{
 	
 	public function setPort($port){
 		$this->port = $port;
+	}
+	
+	public function getStorages(){
+		return $this->storages;
+	}
+	
+	public function getRootStorage(){
+		$this->storageInit();
+		
+		try{
+			#$this->storages[0]['object']->selectFolder('INBOX');
+		}
+		catch(Exception $e){
+			print 'getRootStorage: '.$e->getMessage()."\n";
+		}
+		
+		return $this->storages[0]['object'];
 	}
 	
 	public function init(){
@@ -155,21 +170,31 @@ class Server extends Thread{
 			if(time() - $s >= 0 && !$r){
 				$r = 1;
 				
-				$this->mailAdd("Date: Mon, 19 May 2014 14:20:50 +0200\nFrom: thefox21at@gmail.com\nTo: thefox@fox21.at\nCc: christian@flasheye.at\nBcc: christian@fox21.at\nSubject: test\n\nbody");
+				$this->mailAdd("Date: Mon, 19 May 2014 14:20:50 +0200\r\nFrom: thefox21at@gmail.com\r\nTo: thefox@fox21.at\r\nCc: christian@flasheye.at\r\nBcc: christian@fox21.at\r\nSubject: test\r\n\r\nbody");
+				$this->mailAdd("Date: Mon, 19 May 2014 14:20:50 +0200\r\nFrom: thefox21at@gmail.com\r\nTo: thefox@fox21.at\r\nCc: christian@flasheye.at\r\nBcc: christian@fox21.at\r\nSubject: test\r\n\r\nbody", null, null, true);
 				
-				$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
+				$this->storages[0]['object']->createFolder('test2');
+				
+				#$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
 				#$mailboxPath = './tmp_mailbox';
 				#$this->dirDelete('mailbox');
-				#WritableMaildir::initMaildir($mailboxPath);
-				#$this->storageAdd(new WritableMaildir(array('dirname' => $mailboxPath)), $mailboxPath, 'temp');
+				#Maildir::initMaildir($mailboxPath);
+				#$this->storageAdd(new Maildir(array('dirname' => $mailboxPath)), $mailboxPath, 'temp');
 				#$this->storageAddMaildir($mailboxPath);
 				
-				$this->storages[0]['object']->createFolder('test123');
-				$this->storages[0]['object']->createFolder('test123.x');
-				$this->storages[0]['object']->createFolder('test123.x.a');
-				$this->storages[0]['object']->createFolder('test123.y');
-				$this->storages[0]['object']->createFolder('test123.z');
-				$this->storages[0]['object']->createFolder('test123.z.b');
+				/*
+				try{
+					
+					$this->storages[0]['object']->createFolder('test123.x');
+					$this->storages[0]['object']->createFolder('test123.x.a');
+					$this->storages[0]['object']->createFolder('test123.y');
+					$this->storages[0]['object']->createFolder('test123.z');
+					$this->storages[0]['object']->createFolder('test123.z.b');
+				}
+				catch(Exception $e){
+					$this->log->error('createFolder: '.$e->getMessage());
+				}
+				*/
 				
 			}
 			
@@ -184,7 +209,7 @@ class Server extends Thread{
 		
 		// Remove all temp files.
 		foreach($this->storages as $storage){
-			if($storage['object'] instanceof WritableMaildir && $storage['type'] == 'temp'){
+			if($storage['object'] instanceof Maildir && $storage['type'] == 'temp'){
 				$this->dirDelete($storage['path']);
 			}
 		}
@@ -224,9 +249,17 @@ class Server extends Thread{
 		unset($this->clients[$clientsId]);
 	}
 	
+	private function storageInit(){
+		if(!$this->storages){
+			$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
+			$this->storageAddMaildir($mailboxPath, 'temp');
+		}
+	}
+	
 	public function storageAdd($storage, $path, $type = 'normal'){
-		if($storage instanceof WritableMaildir){
+		if($storage instanceof Maildir){
 			$this->storages[] = array('object' => $storage, 'path' => $path, 'type' => $type);
+			#ve($this->storages);
 		}
 		else{
 			throw new NotImplementedException(''.( is_object($storage) ? 'Class '.get_class($storage) : 'Type '.gettype($storage) ).' not implemented yet.');
@@ -236,29 +269,37 @@ class Server extends Thread{
 	public function storageAddMaildir($path, $type = 'normal'){
 		if(!file_exists($path)){
 			try{
-				WritableMaildir::initMaildir($path);
+				Maildir::initMaildir($path);
 			}
 			catch(Exception $e){
-				$log->error('initMaildir: '.$e->getMessage());
+				$this->log->error('initMaildir: '.$e->getMessage());
 			}
 		}
 		
 		try{
-			$this->storageAdd(new WritableMaildir(array('dirname' => $path)), $path, $type);
+			$this->storageAdd(new Maildir(array('dirname' => $path)), $path, $type);
 		}
 		catch(Exception $e){
-			$log->error('storageAddMaildir: '.$e->getMessage());
+			$this->log->error('storageAddMaildir: '.$e->getMessage());
 		}
 	}
 	
-	public function mailAdd($mail){
-		if(!$this->storages){
-			$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
-			$this->storageAddMaildir($mailboxPath, 'temp');
-		}
+	public function storageFolderAdd($path){
+		$this->storageInit();
+		
 		foreach($this->storages as $storage){
-			if($storage['object'] instanceof WritableMaildir){
-				$storage['object']->appendMessage($mail);
+			if($storage['object'] instanceof Maildir){
+				$storage['object']->createFolder($path);
+			}
+		}
+	}
+	
+	public function mailAdd($mail, $folder = null, $flags = null, $recent = false){
+		$this->storageInit();
+		
+		foreach($this->storages as $storage){
+			if($storage['object'] instanceof Maildir){
+				$storage['object']->appendMessage($mail, $folder, $flags, $recent);
 			}
 		}
 	}
