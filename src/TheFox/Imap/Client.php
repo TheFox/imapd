@@ -145,9 +145,10 @@ class Client{
 		while($data);
 	}
 	
-	public function msgGetArgs($msgRaw){
+	public function msgParseString($msgRaw){
 		$args = preg_split('/ /', $msgRaw);
-
+		
+		/*
 		$max = 0;
 		$tag = '';
 		while(!$tag && $max <= 100){
@@ -161,7 +162,8 @@ class Client{
 			$max++;
 			$command = array_shift($args);
 		}
-
+		*/
+		
 		$argsr = array();
 		$argsrc = -1;
 		$isStr = false;
@@ -266,15 +268,101 @@ class Client{
 		}
 		$argsr = array_values($argsr);
 		
+		return $argsr;
+	}
+	
+	public function msgGetArgs($msgRaw){
+		$args = $this->msgParseString($msgRaw);
+		
+		$tag = array_shift($args);
+		$command = array_shift($args);
+		
 		return array(
 			'tag' => $tag,
 			'command' => $command,
-			'args' => $argsr,
+			'args' => $args,
 		);
 	}
 	
+	public function msgGetParenthesizedlist($msgRaw, $level = 0){
+		#fwrite(STDOUT, str_repeat(' ', $level * 4)."raw '$msgRaw'\n");
+		#usleep(100000);
+		
+		#if($level >= 100){ exit(); } # TODO
+		
+		$rv = array();
+		$rvc = 0;
+		if($msgRaw){
+			if($msgRaw[0] == '('){
+				$msgRaw = substr($msgRaw, 1);
+			}
+			if(substr($msgRaw, -1) == ')'){
+				$msgRaw = substr($msgRaw, 0, -1);
+			}
+			
+			$str = '';
+			while($msgRaw){
+				if($msgRaw[0] == '('){
+					
+					// Find ')'
+					$pos = strlen($msgRaw);
+					while($pos > 0){
+						#fwrite(STDOUT, str_repeat(' ', $level * 4)."    find $pos '".substr($msgRaw, $pos, 1)."'\n");
+						if(substr($msgRaw, $pos, 1) == ')'){
+							break;
+						}
+						$pos--;
+						#usleep(100000);
+					}
+					
+					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c open\n");
+					$rvc++;
+					$rv[$rvc] = $this->msgGetParenthesizedlist(substr($msgRaw, 0, $pos + 1), $level + 1);
+					$msgRaw = substr($msgRaw, $pos + 1);
+					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    left '$msgRaw'\n");
+					$rvc++;
+				}
+				#elseif($msgRaw[0] == ')'){
+					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c close\n");
+					#break;
+				#}
+				else{
+					if(!isset($rv[$rvc])){
+						$rv[$rvc] = '';
+					}
+					$rv[$rvc] .= $msgRaw[0];
+					
+					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c '".$msgRaw[0]."' '".$rv[$rvc]."'\n");
+					$msgRaw = substr($msgRaw, 1);
+				}
+				
+				#usleep(100000);
+			}
+			
+			#fwrite(STDOUT, str_repeat(' ', $level * 4)."str '$str'\n");
+		}
+		
+		$rv2 = array();
+		foreach($rv as $n => $item){
+			if(is_string($item)){
+				#fwrite(STDOUT, str_repeat(' ', $level * 4)."item $n '$item'\n");
+				
+				foreach($this->msgParseString($item) as $j => $sitem){
+					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    sitem $j '$sitem'\n");
+					$rv2[] = $sitem;
+				}
+			}
+			else{
+				#fwrite(STDOUT, str_repeat(' ', $level * 4)."item $n is array\n");
+				$rv2[] = $item;
+			}
+		}
+		
+		return $rv2;
+	}
+	
 	private function msgHandle($msgRaw){
-		#print __CLASS__.'->'.__FUNCTION__.': "'.$msgRaw.'"'."\n";
+		#$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
 		
 		$args = $this->msgGetArgs($msgRaw);
 		
