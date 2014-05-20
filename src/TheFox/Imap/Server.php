@@ -133,6 +133,8 @@ class Server extends Thread{
 					if($socket){
 						$client = $this->clientNew($socket);
 						$client->sendHello();
+						#$client->sendPreauth('IMAP4rev1 server logged in as thefox');
+						#$client->sendPreauth('server logged in as thefox');
 						
 						#$this->log->debug('new client: '.$client->getId().', '.$client->getIpPort());
 					}
@@ -212,6 +214,12 @@ class Server extends Thread{
 	
 	public function shutdown(){
 		$this->log->debug('shutdown');
+		
+		// Notify all clients.
+		foreach($this->clients as $clientId => $client){
+			$client->sendBye('Server shutdown');
+			$this->clientRemove($client);
+		}
 		
 		// Remove all temp files.
 		foreach($this->storages as $storage){

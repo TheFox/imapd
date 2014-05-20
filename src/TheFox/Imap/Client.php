@@ -26,6 +26,10 @@ class Client{
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
 		$this->status['hasShutdown'] = false;
+		$this->status['hasAuth'] = false;
+		$this->status['authStep'] = 0;
+		$this->status['authTag'] = '';
+		$this->status['authMechanism'] = '';
 	}
 	
 	public function setId($id){
@@ -322,10 +326,6 @@ class Client{
 					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    left '$msgRaw'\n");
 					$rvc++;
 				}
-				#elseif($msgRaw[0] == ')'){
-					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c close\n");
-					#break;
-				#}
 				else{
 					if(!isset($rv[$rvc])){
 						$rv[$rvc] = '';
@@ -362,7 +362,7 @@ class Client{
 	}
 	
 	private function msgHandle($msgRaw){
-		#$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
+		$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
 		
 		$args = $this->msgGetArgs($msgRaw);
 		
@@ -375,75 +375,135 @@ class Client{
 		
 		#ve($args);
 		
-		#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
+		$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'< >"'.join('" "', $args).'"<');
 		
 		if($commandcmp == 'capability'){
 			$this->log('debug', 'client '.$this->id.' capability: '.$tag);
 			
 			$this->sendCapability($tag);
 		}
+		elseif($commandcmp == 'noop'){
+			$this->sendNoop($tag);
+		}
+		elseif($commandcmp == 'logout'){
+			$this->sendBye('IMAP4rev1 Server logging out');
+			$this->sendLogout($tag);
+			$this->shutdown();
+		}
 		elseif($commandcmp == 'authenticate'){
 			$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
 			
-			$this->sendAuthenticate($tag, $args[0]);
+			if(strtolower($args[0]) == 'plain'){
+				$this->setStatus('authTag', $tag);
+				$this->setStatus('authMechanism', $args[0]);
+				
+				$this->setStatus('authStep', 1);
+				$this->sendAuthenticate();
+			}
+			else{
+				$this->sendNo($args[0].' Unsupported authentication mechanism', $tag);
+			}
 		}
-		elseif($commandcmp == 'lsub'){
-			$this->log('debug', 'client '.$this->id.' lsub: '.$args[0]);
+		elseif($commandcmp == 'login'){
+			$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
 			
-			$this->sendLsub($tag);
+			if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
+				$this->sendLogin($tag);
+			}
+			else{
+				$this->sendBad('arguments invalid', $tag);
+			}
 		}
-		elseif($commandcmp == 'list'){
-			$this->log('debug', 'client '.$this->id.' list: '.$args[0]);
+		elseif($commandcmp == 'select'){
+			$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
 			
-			$this->sendList($tag);
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0]){
+					$this->sendSelect($tag, $args[0]);
+				}
+				else{
+					$this->sendBad('arguments invalid', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
 		}
 		elseif($commandcmp == 'create'){
 			$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
 			
-			$this->sendCreate($tag);
-		}
-		elseif($commandcmp == 'select'){
-			$name = $args[0];
-			
-			if($name[0] == '"' && substr($name, -1) == '"'){
-				$name = substr(substr($name, 1), 0, -1);
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0]){
+					$this->sendCreate($tag);
+				}
+				else{
+					$this->sendBad('arguments invalid', $tag);
+				}
 			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
+		elseif($commandcmp == 'list'){
+			$this->log('debug', 'client '.$this->id.' list: '.$args[0]);
 			
-			$this->log('debug', 'client '.$this->id.' select: "'.$name.'"');
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0]){
+					$this->sendList($tag);
+				}
+				else{
+					$this->sendBad('arguments invalid', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
+		elseif($commandcmp == 'lsub'){
+			$this->log('debug', 'client '.$this->id.' lsub: '.$args[0]);
 			
-			$this->sendSelect($tag, $name);
-			
-			$this->sendOk('Testmsg', null, 'ALERT');
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0]){
+					$this->sendLsub($tag);
+				}
+				else{
+					$this->sendBad('arguments invalid', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
 		}
 		elseif($commandcmp == 'uid'){
 			$this->log('debug', 'client '.$this->id.' uid: "'.$args[0].'" "'.$args[1].'"');
 			
-			$this->sendUid($tag);
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
+					$this->sendUid($tag, $args);
+				}
+				else{
+					$this->sendBad('arguments invalid', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
 		}
 		else{
-			$this->log('debug', 'client '.$this->id.' not implemented: "'.$tag.'" "'.$command.'"');
+			if($this->getStatus('authStep') == 1){
+				$this->setStatus('authStep', 2);
+				$this->sendAuthenticate();
+			}
+			else{
+				$this->log('debug', 'client '.$this->id.' not implemented: "'.$tag.'" "'.$command.'" >"'.join('" "', $args).'"<');
+				$this->sendBad('Not implemented: "'.$tag.'" "'.$command.'" >"'.join('" "', $args).'"<', $tag);
+			}
 		}
-		
 	}
 	
 	private function dataSend($msg){
 		$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
 		$this->getSocket()->write($msg.static::MSG_SEPARATOR);
-	}
-	
-	public function sendOk($text, $tag = '*', $code = ''){
-		if($tag === null){
-			$tag = '*';
-		}
-		$this->dataSend($tag.' OK'.($code ? ' ['.$code.']' : '').' '.$text);
-	}
-	
-	public function sendNo($text, $tag = '*', $code = ''){
-		$this->dataSend($tag.' NO'.($code ? ' ['.$code.']' : '').' '.$text);
-	}
-	
-	public function sendBad($text, $tag = '*', $code = ''){
-		$this->dataSend($tag.' BAD'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function sendHello(){
@@ -455,58 +515,47 @@ class Client{
 		$this->sendOk('CAPABILITY completed', $tag);
 	}
 	
-	private function sendAuthenticate($tag, $mechanism){
-		$this->dataSend('+');
-		#$this->dataSend('+ '.base64_encode('hello'));
-		$this->sendOk($mechanism.' authentication successful', $tag);
+	private function sendNoop($tag){
+		$this->sendOk('NOOP completed', $tag);
 	}
 	
-	private function sendLsub($tag){
-		#$this->dataSend('* LSUB () "." "#news.test"');
-		$this->sendOk('LSUB completed', $tag);
+	private function sendLogout($tag){
+		$this->sendOk('LOGOUT completed', $tag);
 	}
 	
-	private function sendList($tag){
-		$this->sendOk('LIST completed', $tag);
+	private function sendAuthenticate(){
+		if($this->getStatus('authStep') == 1){
+			$this->dataSend('+');
+		}
+		elseif($this->getStatus('authStep') == 2){
+			$this->setStatus('hasAuth', true);
+			$this->setStatus('authStep', 0);
+			$this->sendOk($this->getStatus('authMechanism').' authentication successful', $this->getStatus('authTag'));
+		}
 	}
 	
-	private function sendCreate($tag){
-		$this->sendOk('CREATE completed', $tag);
+	private function sendLogin($tag){
+		$this->sendOk('LOGIN completed', $tag);
 	}
 	
 	private function sendSelect($tag, $folder){
-		
 		$storage = $this->getServer()->getRootStorage();
 		
-		#ve($storage);
-		#ve($storage->getCurrentFolder());
-		#ve(get_class_methods($storage));
-		
-		#foreach($storage->getFolders() as $folder){ print "name: ".$folder->getLocalName()."\n";}
-		
 		try{
-			$this->getServer()->getRootStorage()->selectFolder($folder);
-			#$storage->selectFolder($folder);
-			#$folder = $storage->INBOX;
-			#$folder = $storage->test2;
-			#ve($folder);
-			
+			$storage->selectFolder($folder);
 		}
 		catch(Exception $e){
-			print 'sendSelect: '.$e->getMessage()."\n";
+			$this->sendNo('"'.$folder.'" no such mailbox', $tag);
+			return;
 		}
 		
 		$count = $storage->countMessages();
-		$firstUnseen = 1;
+		
+		// Search for first unseen msg.
+		$firstUnseen = 0;
 		for($n = 1; $n <= $count; $n++){
-			
 			$message = $storage->getMessage($n);
-			#ve($message);
-			#ve(get_class_methods($message));
-			
-			
-			print 'sendSelect msg: '.$n.', '.$message->subject.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.$storage->getUniqueId($n).''."\n";
-			
+			#print 'sendSelect msg: '.$n.', '.$message->subject.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.$storage->getUniqueId($n).''."\n";
 			if($message->hasFlag(Storage::FLAG_RECENT)){
 				$firstUnseen = $n;
 				break;
@@ -515,18 +564,127 @@ class Client{
 		
 		$this->dataSend('* '.$count.' EXISTS');
 		$this->dataSend('* '.$storage->countMessages(Storage::FLAG_RECENT).' RECENT');
-		$this->dataSend('* OK [UNSEEN '.$firstUnseen.'] Message '.$firstUnseen.' is first unseen');
+		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
 		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
 		#$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
-		
-		
 		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
-		#$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
-		$this->sendOk('[READ-WRITE] SELECT', 'completed', $tag);
+		$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
+		$this->sendOk('SELECT completed', $tag, 'READ-WRITE');
 	}
 	
-	private function sendUid($tag){
+	private function sendCreate($tag){
+		$this->sendOk('CREATE completed', $tag);
+	}
+	
+	private function sendList($tag){
+		$this->sendOk('LIST completed', $tag);
+	}
+	
+	private function sendLsub($tag){
+		#$this->dataSend('* LSUB () "." "#news.test"');
+		$this->sendOk('LSUB completed', $tag);
+	}
+	
+	private function sendUid($tag, $args){
+		$storage = $this->getServer()->getRootStorage();
 		
+		$commandcmp = strtolower($args[0]);
+		
+		$seqMin = 0;
+		$seqMax = 0;
+		if(isset($args[1])){
+			$items = preg_split('/:/', $args[1]);
+			if(isset($items[0])){
+				$seqMin = $items[0];
+				
+				if(isset($items[1])){
+					$seqMax = $items[1];
+				}
+			}
+		}
+		
+		if($seqMin == 0){
+			$this->sendBad('Invalid minimum sequence number: "'.$seqMin.'"', $tag);
+			return;
+		}
+		
+		$count = $storage->countMessages();
+		if(!$count){
+			$this->sendBad('No messages in selected mailbox', $tag);
+			return;
+		}
+		
+		ve($args);
+		
+		$msgItems = array();
+		if(isset($args[2])){
+			#$msgItems[]
+			foreach($this->msgGetParenthesizedlist($args[2]) as $item){
+				$this->log('debug', 'client '.$this->id.' wanted by '.$commandcmp.': "'.$item.'"');
+				$msgItems[] = strtolower($item);
+			}
+		}
+		
+		if($commandcmp == 'copy'){
+			$this->sendBad('Copy not implemented', $tag);
+		}
+		elseif($commandcmp == 'fetch'){
+			
+			for($n = 1; $n <= $count; $n++){
+				$message = $storage->getMessage($n);
+				$uid = $storage->getUniqueId($n);
+				
+				#$this->log('debug', 'sendUid msg: '.$n.', '.$message->subject.', '.$uid.', '.$storage->getNumberByUniqueId($uid));
+				
+				$output = array();
+				foreach($msgItems as $item){
+					if($item == 'flags'){
+						$output[] = 'FLAGS ('.join(' ', array_values($message->getFlags())).')';
+					}
+				}
+				
+				$output[] = 'UID '.$uid;
+				#$output[] = 'UID '.$n;
+				
+				$this->dataSend('* '.$n.' FETCH ('.join(' ', $output).')');
+			}
+			$this->sendOk('UID FETCH completed', $tag);
+		}
+		elseif($commandcmp == 'store'){
+			$this->sendBad('Store not implemented', $tag);
+		}
+		else{
+			$this->sendBad('arguments invalid', $tag);
+		}
+	}
+	
+	public function sendOk($text, $tag = null, $code = null){
+		if($tag === null){
+			$tag = '*';
+		}
+		$this->dataSend($tag.' OK'.($code ? ' ['.$code.']' : '').' '.$text);
+	}
+	
+	public function sendNo($text, $tag = null, $code = null){
+		if($tag === null){
+			$tag = '*';
+		}
+		$this->dataSend($tag.' NO'.($code ? ' ['.$code.']' : '').' '.$text);
+	}
+	
+	public function sendBad($text, $tag = null, $code = null){
+		if($tag === null){
+			$tag = '*';
+		}
+		$this->dataSend($tag.' BAD'.($code ? ' ['.$code.']' : '').' '.$text);
+	}
+	
+	public function sendPreauth($text, $code = null){
+		$this->dataSend('* PREAUTH'.($code ? ' ['.$code.']' : '').' '.$text);
+	}
+	
+	public function sendBye($text, $code = null){
+		$this->dataSend('* BYE'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function shutdown(){

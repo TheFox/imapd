@@ -9,6 +9,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 ## RFC 3501 Implementation
 ### Complete
 - 6.1.2 NOOP Command
+- 6.1.3 LOGOUT Command
 - 7.1.1 OK Response
 - 7.1.2 NO Response
 - 7.1.3 BAD Response
@@ -17,6 +18,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 ### Incomplete
 - 6.1.1 CAPABILITY Command
 - 6.2.2 AUTHENTICATE Command
+- 6.2.3 LOGIN Command
 - 6.3.1 SELECT Command
 - 6.3.8 LIST Command
 - 6.3.9 LSUB Command
