@@ -9,8 +9,8 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	processIsolation="false"
-	stopOnError="false"
-	stopOnFailure="false"
+	stopOnError="true"
+	stopOnFailure="true"
 	stopOnIncomplete="false"
 	stopOnSkipped="false"
 	timeoutForSmallTests="1"
@@ -21,7 +21,8 @@
 	
 	<testsuites>
 		<testsuite name="My Test Suite">
-			<file>tests/BasicTest.php</file>
+			<!--<file>tests/BasicTest.php</file>//-->
+			<file>tests/ClientTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
