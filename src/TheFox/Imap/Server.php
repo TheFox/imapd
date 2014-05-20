@@ -7,6 +7,7 @@ use RuntimeException;
 use InvalidArgumentException;
 
 use Zend\Mail\Storage\Writable\Maildir;
+use Zend\Mail\Message;
 
 use TheFox\Imap\Exception\NotImplementedException;
 use TheFox\Logger\Logger;
@@ -170,10 +171,15 @@ class Server extends Thread{
 			if(time() - $s >= 0 && !$r){
 				$r = 1;
 				
-				$this->mailAdd("Date: Mon, 19 May 2014 14:20:50 +0200\r\nFrom: thefox21at@gmail.com\r\nTo: thefox@fox21.at\r\nCc: christian@flasheye.at\r\nBcc: christian@fox21.at\r\nSubject: test\r\n\r\nbody");
-				$this->mailAdd("Date: Mon, 19 May 2014 14:20:50 +0200\r\nFrom: thefox21at@gmail.com\r\nTo: thefox@fox21.at\r\nCc: christian@flasheye.at\r\nBcc: christian@fox21.at\r\nSubject: test\r\n\r\nbody", null, null, true);
+				$message = new Message();
+				$message->addFrom('thefox21at@gmail.com');
+				$message->addTo('thefox@fox21.at');
+				$message->setSubject('test '.date('Y/m/d H:i:s'));
+				$message->setBody('body');
+				#$this->mailAdd($message->toString(), null, null, true);
+				#$this->mailAdd($message->toString());
 				
-				$this->storages[0]['object']->createFolder('test2');
+				#$this->storages[0]['object']->createFolder('test2');
 				
 				#$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
 				#$mailboxPath = './tmp_mailbox';
