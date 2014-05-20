@@ -202,10 +202,14 @@ class Client{
 			#else{ continue; }
 			
 			$new = false;
+			$empty = false;
 			if($isStrBegin && !$isStrEnd){
 				#fwrite(STDOUT, "    str begin\n");
 				$new = true;
 				$arg = substr($arg, 1);
+				if(!$arg){
+					$empty = true;
+				}
 			}
 			elseif(!$isStrBegin && $isStrEnd){
 				#fwrite(STDOUT, "    str end\n");
@@ -215,6 +219,9 @@ class Client{
 				#fwrite(STDOUT, "    str begin & end\n");
 				$new = true;
 				$arg = substr(substr($arg, 1), 0, -1);
+				if(!$arg){
+					$empty = true;
+				}
 			}
 			else{
 				if($isStr){
@@ -227,12 +234,20 @@ class Client{
 			}
 			
 			if($new){
-				#fwrite(STDOUT, "    new\n");
 				$argsrc++;
-				$argsr[$argsrc] = array($arg);
+				if($arg){
+					#fwrite(STDOUT, "    new A ".(int)$empty." '".$arg."'\n");
+					$argsr[$argsrc] = array($arg);
+				}
+				else{
+					#fwrite(STDOUT, "    new B ".(int)$empty." '".$arg."'\n");
+					if($empty){
+						$argsr[$argsrc] = array('');
+					}
+				}
 			}
 			else{
-				#fwrite(STDOUT, "    append\n");
+				#fwrite(STDOUT, "    append '".$arg."'\n");
 				$argsr[$argsrc][] = $arg;
 			}
 		}
@@ -245,18 +260,9 @@ class Client{
 			$argstr = join(' ', $arg);
 			#fwrite(STDOUT, "r arg $n '".$argstr."'\n");
 			
-			if($argstr){
-				$argsr[$n] = $argstr;
-				
-				foreach($arg as $j => $sarg){
-					#fwrite(STDOUT, "    s arg $j '".$sarg."'\n");
-				}
-			}
-			else{
-				#fwrite(STDOUT, "    unset\n");
-				unset($argsr[$n]);
-			}
+			$argsr[$n] = $argstr;
 			
+			#foreach($arg as $j => $sarg){ fwrite(STDOUT, "    s arg $j '".$sarg."'\n"); }
 		}
 		$argsr = array_values($argsr);
 		
