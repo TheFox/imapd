@@ -6,6 +6,27 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 
 `composer.phar require "thefox/imapd=0.1.*"`
 
+## RFC 3501 Implementation
+### Complete
+- 6.1.2 NOOP Command
+- 7.1.1 OK Response
+- 7.1.2 NO Response
+- 7.1.3 BAD Response
+- 7.1.5 BYE Response
+
+### Incomplete
+- 6.1.1 CAPABILITY Command
+- 6.2.2 AUTHENTICATE Command
+- 6.3.1 SELECT Command
+- 6.3.8 LIST Command
+- 6.3.9 LSUB Command
+- 6.4.8 UID Command
+- 7.1.4 PREAUTH Response
+- 7.2.1 CAPABILITY Response
+- 7.2.2 LIST Response
+- 7.2.3 LSUB Response
+- 7.4.2 FETCH Response
+
 ## RFC references
 - [RFC 3501](https://tools.ietf.org/html/rfc3501) ([RFC 2060](https://tools.ietf.org/html/rfc2060), [RFC 1730](https://tools.ietf.org/html/rfc1730))
 
