@@ -61,7 +61,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function providerMsgRawParenthesizedlist(){
-		return array(
+		$rv = array(
 			array('', array()),
 			array('aaa', array('aaa')),
 			array('()', array()),
@@ -73,6 +73,19 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			array('(a (bb ccc dddd) eeeee)', array('a', array('bb', 'ccc', 'dddd'), 'eeeee')),
 			array('(a ((bb ccc) dddd) eeeee)', array('a', array(array('bb', 'ccc'), 'dddd'), 'eeeee')),
 		);
+		
+		$raw = '(UID RFC822.SIZE FLAGS BODY.PEEK[HEADER.FIELDS (From To Cc Bcc Subject Date ';
+		$raw .= 'Message-ID Priority X-Priority References Newsgroups In-Reply-To Content-Type Reply-To)])';
+		
+		$expect = array(
+			'UID', 'RFC822.SIZE', 'FLAGS', 'BODY.PEEK[HEADER.FIELDS',
+			array('From', 'To', 'Cc', 'Bcc', 'Subject', 'Date', 'Message-ID', 'Priority', 'X-Priority',
+				'References', 'Newsgroups', 'In-Reply-To', 'Content-Type', 'Reply-To'),
+			']',
+		);
+		$rv[] = array($raw, $expect);
+		
+		return $rv;
 	}
 	
 	/**
