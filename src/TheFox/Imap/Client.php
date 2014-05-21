@@ -4,8 +4,10 @@ namespace TheFox\Imap;
 
 use Exception;
 use RuntimeException;
+use InvalidArgumentException;
 
 use Zend\Mail\Storage;
+use Zend\Mail\Headers;
 
 use TheFox\Network\AbstractSocket;
 
@@ -385,7 +387,7 @@ class Client{
 		$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
 		
 		if($commandcmp == 'capability'){
-			$this->log('debug', 'client '.$this->id.' capability: '.$tag);
+			#$this->log('debug', 'client '.$this->id.' capability: '.$tag);
 			
 			$this->sendCapability($tag);
 		}
@@ -401,7 +403,7 @@ class Client{
 			$args = $this->msgParseString($args, 1);
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
+			#$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
 			
 			if(strtolower($args[0]) == 'plain'){
 				$this->setStatus('authTag', $tag);
@@ -418,7 +420,7 @@ class Client{
 			$args = $this->msgParseString($args, 2);
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
+			#$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
 			
 			if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
 				$this->sendLogin($tag);
@@ -523,8 +525,8 @@ class Client{
 				$this->sendAuthenticate();
 			}
 			else{
-				$this->log('debug', 'client '.$this->id.' not implemented: "'.$tag.'" "'.$command.'" >"'.join('" "', $args).'"<');
-				$this->sendBad('Not implemented: "'.$tag.'" "'.$command.'" >"'.join('" "', $args).'"<', $tag);
+				$this->log('debug', 'client '.$this->id.' not implemented: "'.$tag.'" "'.$command.'" >"'.$args.'"<');
+				$this->sendBad('Not implemented: "'.$tag.'" "'.$command.'"', $tag);
 			}
 		}
 	}
@@ -567,23 +569,21 @@ class Client{
 	}
 	
 	private function sendSelect($tag, $folder){
-		$storage = $this->getServer()->getRootStorage();
-		
 		try{
-			$storage->selectFolder($folder);
+			$this->getServer()->getRootStorage()->selectFolder($folder);
 		}
 		catch(Exception $e){
 			$this->sendNo('"'.$folder.'" no such mailbox', $tag);
 			return;
 		}
 		
-		$count = $storage->countMessages();
+		$count = $this->getServer()->getRootStorage()->countMessages();
 		
 		// Search for first unseen msg.
 		$firstUnseen = 0;
 		for($n = 1; $n <= $count; $n++){
-			$message = $storage->getMessage($n);
-			#print 'sendSelect msg: '.$n.', '.$message->subject.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.$storage->getUniqueId($n).''."\n";
+			$message = $this->getServer()->getRootStorage()->getMessage($n);
+			#print 'sendSelect msg: '.$n.', '.$message->subject.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.$this->getServer()->getRootStorage()->getUniqueId($n).''."\n";
 			if($message->hasFlag(Storage::FLAG_RECENT)){
 				$firstUnseen = $n;
 				break;
@@ -591,7 +591,7 @@ class Client{
 		}
 		
 		$this->dataSend('* '.$count.' EXISTS');
-		$this->dataSend('* '.$storage->countMessages(Storage::FLAG_RECENT).' RECENT');
+		$this->dataSend('* '.$this->getServer()->getRootStorage()->countMessages(Storage::FLAG_RECENT).' RECENT');
 		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
 		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
 		#$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
@@ -613,69 +613,230 @@ class Client{
 		$this->sendOk('LSUB completed', $tag);
 	}
 	
-	private function sendUid($tag, $args){
-		$storage = $this->getServer()->getRootStorage();
+	private function sendFetchRaw($tag, $args, $isUid = false){
+		#ve($args);
 		
-		$commandcmp = strtolower($args[0]);
+		$argSeq = $args[0];
+		$argWanted = $args[1];
 		
-		$seqMin = 0;
-		$seqMax = 0;
-		if(isset($args[1])){
-			$items = preg_split('/:/', $args[1]);
+		$msgItems = array();
+		if($isUid){
+			$msgItems['uid'] = '';
+		}
+		if(isset($argWanted)){
+			$wanted = $this->msgGetParenthesizedlist($argWanted);
+			foreach($wanted as $n => $item){
+				if(is_string($item)){
+					$itemcmp = strtolower($item);
+					if($itemcmp == 'body.peek'){
+						$next = $wanted[$n + 1];
+						$nextr = array();
+						if(is_array($next)){
+							$keys = array();
+							$vals = array();
+							foreach($next as $n => $val){
+								if($n % 2 == 0){
+									$keys[] = strtolower($val);
+								}
+								else{
+									$vals[] = $val;
+								}
+							}
+							$nextr = array_combine($keys, $vals);
+						}
+						$msgItems[$itemcmp] = $nextr;
+					}
+					else{
+						$msgItems[$itemcmp] = '';
+					}
+				}
+				#$this->log('debug', 'client '.$this->id.' wanted by '.$commandcmp.': "'.$item.'"');
+			}
+		}
+		
+		// Collect messages with sequence-sets.
+		$msgSeqNums = array();
+		foreach(preg_split('/,/', $argSeq) as $seqItem){
+			$seqMin = 0;
+			$seqMax = 0;
+			
+			$items = preg_split('/:/', $seqItem);
 			if(isset($items[0])){
 				$seqMin = $items[0];
 				
 				if(isset($items[1])){
 					$seqMax = $items[1];
 				}
+				else{
+					$seqMax = $items[0];
+				}
+			}
+			if($seqMin == '*'){
+				$seqMin = $seqMax;
+				$seqMax = '*';
+			}
+			
+			$this->log('debug', 'sendUid seq: "'.$seqMin.'" - "'.$seqMax.'"');
+			
+			if($seqMin == 0){
+				$this->sendBad('Invalid minimum sequence number: "'.$seqMin.'"', $tag);
+				return;
+			}
+			
+			$count = $this->getServer()->getRootStorage()->countMessages();
+			if(!$count){
+				$this->sendBad('No messages in selected mailbox', $tag);
+				return;
+			}
+			
+			$msgSeqAdd = false;
+			$msgSeqIsEnd = false;
+			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+				#$uid = $this->getServer()->getRootStorage()->getUniqueId($msgSeqNum);
+				$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
+				
+				$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
+					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
+				
+				/*if(($isUid && ) || (!$isUid && )){
+					$msgSeqAdd = true;
+				}
+				if(($isUid && $seqMax != '*' && $uid == $seqMax) || (!$isUid && $seqMax != '*' && $msgSeqNum >= $)){
+					$this->log('debug', 'sendUid msg: '.$msgSeqNum.' break');
+					$msgSeqIsEnd = true;
+				}*/
+				
+				if($seqMin == '1' && $seqMax = '*'){
+					// All
+					$msgSeqAdd = true;
+				}
+				else{
+					// Part
+					if($isUid){
+						if($uid == $seqMin){
+							$msgSeqAdd = true;
+						}
+						if($uid == $seqMax){
+							$msgSeqIsEnd = true;
+						}
+					}
+					else{
+						if($msgSeqNum >= $seqMin){
+							$msgSeqAdd = true;
+						}
+						if($msgSeqNum >= $seqMax){
+							$msgSeqIsEnd = true;
+						}
+					}
+				}
+				
+				if($msgSeqAdd){
+					$this->log('debug', 'sendUid msg:       add');
+					$msgSeqNums[] = $msgSeqNum;
+				}
+				
+				if($msgSeqIsEnd){
+					break;
+				}
 			}
 		}
 		
-		if($seqMin == 0){
-			$this->sendBad('Invalid minimum sequence number: "'.$seqMin.'"', $tag);
-			return;
-		}
-		
-		$count = $storage->countMessages();
-		if(!$count){
-			$this->sendBad('No messages in selected mailbox', $tag);
-			return;
-		}
-		
-		ve($args);
-		
-		$msgItems = array();
-		if(isset($args[2])){
-			#$msgItems[]
-			foreach($this->msgGetParenthesizedlist($args[2]) as $item){
-				$this->log('debug', 'client '.$this->id.' wanted by '.$commandcmp.': "'.$item.'"');
-				$msgItems[] = strtolower($item);
+		// Process collected msgs.
+		$msgSeqNums = array_unique($msgSeqNums);
+		sort($msgSeqNums);
+		foreach($msgSeqNums as $msgSeqNum){
+			$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+			$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
+			
+			#$this->log('debug', 'sendUid msg: '.$msgSeqNum.', '.$message->subject.', '.$uid);
+			
+			$output = array();
+			$outputHasFlag = false;
+			$outputBody = '';
+			foreach($msgItems as $item => $val){
+				#$this->log('debug', 'client '.$this->id.' msg item: "'.$item.'"');
+				
+				if($item == 'flags'){
+					$outputHasFlag = true;
+				}
+				elseif($item == 'body' || $item == 'body.peek'){
+					$peek = $item == 'body.peek';
+					$section = '';
+					
+					if(!$peek){
+						$message->setFlag(Storage::FLAG_SEEN);
+					}
+					
+					$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
+					if(isset($val['header'])){
+						$this->log('debug', 'client '.$this->id.' fetch header');
+						$section = 'HEADER';
+						$msgStr = $message->getHeaders()->toString();
+					}
+					elseif(isset($val['header.fields'])){
+						$this->log('debug', 'client '.$this->id.' fetch header.fields');
+						$section = 'HEADER';
+						$msgStr = '';
+						
+						$headerStrs = array();
+						foreach($val['header.fields'] as $fieldNum => $field){
+							try{
+								$header = $message->getHeader($field);
+								#$this->log('debug', 'client '.$this->id.' field: "'.$header->getFieldName().'" => "'.$header->getFieldValue().'"');
+								$this->log('debug', 'client '.$this->id.' field: "'.$header->toString().'"');
+								$msgStr .= $header->toString().Headers::EOL;
+							}
+							catch(InvalidArgumentException $e){
+							}
+						}
+					}
+					else{
+						$this->log('debug', 'client '.$this->id.' fetch all');
+					}
+					
+					$msgStr .= Headers::EOL;
+					$msgStrLen = strlen($msgStr);
+					#$output[] = 'BODY['.$section.'] {'.$msgStrLen.'}'.Headers::EOL.$msgStr.Headers::EOL;
+					$outputBody = 'BODY['.$section.'] {'.$msgStrLen.'}'.Headers::EOL.$msgStr;
+				}
+				elseif($item == 'rfc822.size'){
+					#$size = $message->getSize();
+					$size = strlen($message->getHeaders()->toString().Headers::EOL.$message->getContent());
+					$output[] = 'RFC822.SIZE '.$size;
+					
+				}
+				elseif($item == 'uid'){
+					$output[] = 'UID '.$uid;
+				}
 			}
+			
+			if($outputHasFlag){
+				$output[] = 'FLAGS ('.join(' ', array_values($message->getFlags())).')';
+			}
+			if($outputBody){
+				$output[] = $outputBody;
+			}
+			
+			$this->dataSend('* '.$msgSeqNum.' FETCH ('.join(' ', $output).')');
 		}
+		
+	}
+	
+	private function sendFetch($tag, $args){
+		$this->sendFetchRaw($tag, $args, false);
+		$this->sendOk('FETCH completed', $tag);
+	}
+	
+	private function sendUid($tag, $args){
+		$command = array_shift($args);
+		$commandcmp = strtolower($command);
 		
 		if($commandcmp == 'copy'){
 			$this->sendBad('Copy not implemented', $tag);
 		}
 		elseif($commandcmp == 'fetch'){
-			
-			for($n = 1; $n <= $count; $n++){
-				$message = $storage->getMessage($n);
-				$uid = $storage->getUniqueId($n);
-				
-				#$this->log('debug', 'sendUid msg: '.$n.', '.$message->subject.', '.$uid.', '.$storage->getNumberByUniqueId($uid));
-				
-				$output = array();
-				foreach($msgItems as $item){
-					if($item == 'flags'){
-						$output[] = 'FLAGS ('.join(' ', array_values($message->getFlags())).')';
-					}
-				}
-				
-				$output[] = 'UID '.$uid;
-				#$output[] = 'UID '.$n;
-				
-				$this->dataSend('* '.$n.' FETCH ('.join(' ', $output).')');
-			}
+			$this->sendFetchRaw($tag, $args, true);
 			$this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){

@@ -22,11 +22,14 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 6.3.1 SELECT Command
 - 6.3.8 LIST Command
 - 6.3.9 LSUB Command
+- 6.4.5 FETCH Command
 - 6.4.8 UID Command
 - 7.1.4 PREAUTH Response
 - 7.2.1 CAPABILITY Response
 - 7.2.2 LIST Response
 - 7.2.3 LSUB Response
+- 7.3.1 EXISTS Response
+- 7.3.2 RECENT Response
 - 7.4.2 FETCH Response
 
 ## Contribute
