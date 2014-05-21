@@ -149,24 +149,8 @@ class Client{
 		while($data);
 	}
 	
-	public function msgParseString($msgRaw){
+	public function msgParseString($msgRaw, $argsMax = null){
 		$args = preg_split('/ /', $msgRaw);
-		
-		/*
-		$max = 0;
-		$tag = '';
-		while(!$tag && $max <= 100){
-			$max++;
-			$tag = array_shift($args);
-		}
-		
-		$max = 0;
-		$command = '';
-		while(!$command && $max <= 100){
-			$max++;
-			$command = array_shift($args);
-		}
-		*/
 		
 		$argsr = array();
 		$argsrc = -1;
@@ -239,16 +223,27 @@ class Client{
 				}
 			}
 			
-			if($new){
-				$argsrc++;
+			#fwrite(STDOUT, "    check new: ".(int)$new.", ".(int)($argsMax === null).", ".(int)count($argsr)." < ".(int)$argsMax."\n");
+			
+			if($new && ($argsMax === null || count($argsr) < $argsMax)){
+				
 				if($arg){
 					#fwrite(STDOUT, "    new A ".(int)$empty." '".$arg."'\n");
+					
+					$argsrc++;
 					$argsr[$argsrc] = array($arg);
+					
 				}
 				else{
-					#fwrite(STDOUT, "    new B ".(int)$empty." '".$arg."'\n");
 					if($empty){
+						#fwrite(STDOUT, "    new B empty '".$arg."'\n");
+						
+						$argsrc++;
 						$argsr[$argsrc] = array('');
+						
+					}
+					else{
+						#fwrite(STDOUT, "    new B else '".$arg."'\n");
 					}
 				}
 			}
@@ -260,7 +255,7 @@ class Client{
 		
 		$args = array_values($args);
 
-		#fwrite(STDOUT, "\n\n");
+		#fwrite(STDOUT, "\n");
 
 		foreach($argsr as $n => $arg){
 			$argstr = join(' ', $arg);
@@ -275,8 +270,10 @@ class Client{
 		return $argsr;
 	}
 	
-	public function msgGetArgs($msgRaw){
-		$args = $this->msgParseString($msgRaw);
+	public function msgGetArgs($msgRaw, $argsMax = null){
+		$args = $this->msgParseString($msgRaw, $argsMax);
+		
+		#ve($args);
 		
 		$tag = array_shift($args);
 		$command = array_shift($args);
@@ -297,22 +294,27 @@ class Client{
 		$rv = array();
 		$rvc = 0;
 		if($msgRaw){
-			if($msgRaw[0] == '('){
+			if($msgRaw[0] == '(' || $msgRaw[0] == '['){
 				$msgRaw = substr($msgRaw, 1);
 			}
-			if(substr($msgRaw, -1) == ')'){
+			if(substr($msgRaw, -1) == ')' || substr($msgRaw, -1) == ']'){
 				$msgRaw = substr($msgRaw, 0, -1);
 			}
 			
 			$str = '';
 			while($msgRaw){
-				if($msgRaw[0] == '('){
+				if($msgRaw[0] == '(' || $msgRaw[0] == '['){
+					
+					$pair = ')';
+					if($msgRaw[0] == '['){
+						$pair = ']';
+					}
 					
 					// Find ')'
 					$pos = strlen($msgRaw);
 					while($pos > 0){
 						#fwrite(STDOUT, str_repeat(' ', $level * 4)."    find $pos '".substr($msgRaw, $pos, 1)."'\n");
-						if(substr($msgRaw, $pos, 1) == ')'){
+						if(substr($msgRaw, $pos, 1) == $pair){
 							break;
 						}
 						$pos--;
@@ -364,18 +366,23 @@ class Client{
 	private function msgHandle($msgRaw){
 		$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
 		
-		$args = $this->msgGetArgs($msgRaw);
+		#$args = $this->msgGetArgs($msgRaw);
+		$args = $this->msgParseString($msgRaw, 3);
 		
-		$tag = $args['tag'];
-		$command = $args['command'];
+		
+		#$tag = $args['tag'];
+		$tag = array_shift($args);
+		#$command = $args['command'];
+		$command = array_shift($args);
 		$commandcmp = strtolower($command);
-		$args = $args['args'];
+		#$args = $args['args'];
+		$args = array_shift($args);
 		
 		
 		
-		#ve($args);
 		
-		$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'< >"'.join('" "', $args).'"<');
+		#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'< >"'.join('" "', $args).'"<');
+		$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
 		
 		if($commandcmp == 'capability'){
 			$this->log('debug', 'client '.$this->id.' capability: '.$tag);
@@ -391,6 +398,9 @@ class Client{
 			$this->shutdown();
 		}
 		elseif($commandcmp == 'authenticate'){
+			$args = $this->msgParseString($args, 1);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
 			
 			if(strtolower($args[0]) == 'plain'){
@@ -405,6 +415,9 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'login'){
+			$args = $this->msgParseString($args, 2);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
 			
 			if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
@@ -415,6 +428,9 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'select'){
+			$args = $this->msgParseString($args, 1);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
 			
 			if($this->getStatus('hasAuth')){
@@ -430,6 +446,9 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'create'){
+			$args = $this->msgParseString($args, 1);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
@@ -445,6 +464,9 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'list'){
+			$args = $this->msgParseString($args, 1);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' list: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
@@ -460,6 +482,9 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'lsub'){
+			$args = $this->msgParseString($args, 1);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' lsub: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
@@ -475,6 +500,9 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'uid'){
+			$args = $this->msgParseString($args, 3);
+			#ve($args);
+			
 			$this->log('debug', 'client '.$this->id.' uid: "'.$args[0].'" "'.$args[1].'"');
 			
 			if($this->getStatus('hasAuth')){

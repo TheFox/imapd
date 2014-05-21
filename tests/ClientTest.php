@@ -60,6 +60,30 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $client->msgGetArgs($msgRaw));
 	}
 	
+	public function providerMsgParseString(){
+		$rv = array();
+		
+		$expect = array('arg1', 'arg2', 'arg3 arg4');
+		$rv[] = array('arg1 arg2 arg3 arg4', $expect, 3);
+		$rv[] = array('arg1  arg2 arg3 arg4', $expect, 3);
+		$rv[] = array('arg1 arg2  arg3 arg4', $expect, 3);
+		$rv[] = array('arg1  arg2  arg3 arg4', $expect, 3);
+		
+		$expect = array('arg1', 'arg2', 'arg3  arg4');
+		$rv[] = array('arg1 arg2 arg3  arg4', $expect, 3);
+		$rv[] = array('arg1  arg2  arg3  arg4', $expect, 3);
+		
+		return $rv;
+	}
+	
+	/**
+     * @dataProvider providerMsgParseString
+     */
+	public function testMsgParseString($msgRaw, $expect, $argsMax){
+		$client = new Client();
+		$this->assertEquals($expect, $client->msgParseString($msgRaw, $argsMax));
+	}
+	
 	public function providerMsgRawParenthesizedlist(){
 		$rv = array(
 			array('', array()),
@@ -78,10 +102,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$raw .= 'Message-ID Priority X-Priority References Newsgroups In-Reply-To Content-Type Reply-To)])';
 		
 		$expect = array(
-			'UID', 'RFC822.SIZE', 'FLAGS', 'BODY.PEEK[HEADER.FIELDS',
-			array('From', 'To', 'Cc', 'Bcc', 'Subject', 'Date', 'Message-ID', 'Priority', 'X-Priority',
+			'UID', 'RFC822.SIZE', 'FLAGS', 'BODY.PEEK',
+			array(
+				'HEADER.FIELDS',
+				array('From', 'To', 'Cc', 'Bcc', 'Subject', 'Date', 'Message-ID', 'Priority', 'X-Priority',
 				'References', 'Newsgroups', 'In-Reply-To', 'Content-Type', 'Reply-To'),
-			']',
+			),
 		);
 		$rv[] = array($raw, $expect);
 		
@@ -94,7 +120,5 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	public function testMsgGetParenthesizedlist($msgRaw, $expect){
 		$client = new Client();
 		$this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
-		
-		#fwrite(STDOUT, "end raw '$msgRaw'\n");
 	}
 }
