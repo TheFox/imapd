@@ -18,7 +18,8 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "4.1.*",
-		"thefox/phpcsrs": "1.*"
+		"thefox/phpcsrs": "1.*",
+		"thefox/utilities": "1.1.*"
 	},
 	"autoload": {
 		"psr-0": {
