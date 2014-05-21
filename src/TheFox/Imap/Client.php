@@ -384,7 +384,7 @@ class Client{
 		
 		
 		#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'< >"'.join('" "', $args).'"<');
-		$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
+		#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
 		
 		if($commandcmp == 'capability'){
 			#$this->log('debug', 'client '.$this->id.' capability: '.$tag);
@@ -695,6 +695,8 @@ class Client{
 				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
 				#$uid = $this->getServer()->getRootStorage()->getUniqueId($msgSeqNum);
 				$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
+				#$uid = $msgSeqNum;
+				#$uid = $msgSeqNum + 10000;
 				
 				$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
 					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
@@ -707,17 +709,19 @@ class Client{
 					$msgSeqIsEnd = true;
 				}*/
 				
-				if($seqMin == '1' && $seqMax = '*'){
+				if($seqMin == '1' && $seqMax == '*'){
 					// All
 					$msgSeqAdd = true;
 				}
 				else{
 					// Part
 					if($isUid){
-						if($uid == $seqMin){
+						if($uid == $seqMin || $seqMax == '*'){
+						#if($uid >= $seqMin){
 							$msgSeqAdd = true;
 						}
 						if($uid == $seqMax){
+						#if($uid >= $seqMax){
 							$msgSeqIsEnd = true;
 						}
 					}
@@ -747,7 +751,10 @@ class Client{
 		sort($msgSeqNums);
 		foreach($msgSeqNums as $msgSeqNum){
 			$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+			#$uid = $this->getServer()->getRootStorage()->getUniqueId($msgSeqNum);
 			$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
+			#$uid = $msgSeqNum;
+			#$uid = $msgSeqNum + 10000;
 			
 			#$this->log('debug', 'sendUid msg: '.$msgSeqNum.', '.$message->subject.', '.$uid);
 			
