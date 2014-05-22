@@ -48,6 +48,8 @@ class MsgDb extends YamlStorage{
 				foreach($this->data['msgs'] as $msgId => $msgAr){
 					$this->msgIdByUid[$msgAr['uid']] = $msgAr['id'];
 					$this->msgUidById[$msgAr['id']] = $msgAr['uid'];
+					
+					#print __CLASS__.'->'.__FUNCTION__.': '.$msgAr['id'].' -> '.$msgAr['uid']."\n";
 				}
 			}
 			
@@ -65,16 +67,32 @@ class MsgDb extends YamlStorage{
 			'id' => $this->data['msgsId'],
 			'uid' => $uid,
 		);
+		$this->msgIdByUid[$uid] = $this->data['msgsId'];
+		$this->msgUidById[$this->data['msgsId']] = $uid;
 		
 		$this->setDataChanged(true);
 	}
 	
 	public function getMsgUidById($id){
-		return $this->msgIdByUid[$id];
+		if(isset($this->msgUidById[$id])){
+			return $this->msgUidById[$id];
+		}
+		return null;
 	}
 	
 	public function getMsgIdByUid($uid){
-		return $this->msgUidById[$uid];
+		#print __CLASS__.'->'.__FUNCTION__.': '.$uid."\n";
+		#ve($this->msgIdByUid);
+		#ve($this->msgUidById);
+		
+		if(isset($this->msgIdByUid[$uid])){
+			return $this->msgIdByUid[$uid];
+		}
+		return null;
+	}
+	
+	public function getNextId(){
+		return $this->data['msgsId'] + 1;
 	}
 	
 }
