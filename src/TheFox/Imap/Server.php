@@ -8,6 +8,7 @@ use InvalidArgumentException;
 
 use Zend\Mail\Storage\Writable\Maildir;
 use Zend\Mail\Message;
+use Symfony\Component\Yaml\Yaml;
 
 use TheFox\Imap\Exception\NotImplementedException;
 use TheFox\Logger\Logger;
@@ -24,7 +25,7 @@ class Server extends Thread{
 	private $port;
 	private $clientsId = 0;
 	private $clients = array();
-	public $storages = array();
+	private $storages = array();
 	
 	public function __construct($ip = '127.0.0.1', $port = 143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
@@ -221,12 +222,23 @@ class Server extends Thread{
 			$this->clientRemove($client);
 		}
 		
-		// Remove all temp files.
+		// Remove all temp files and save dbs.
 		foreach($this->storages as $storage){
-			if($storage['object'] instanceof Maildir && $storage['type'] == 'temp'){
-				$this->dirDelete($storage['path']);
+			if($storage['object'] instanceof Maildir){
+				if($storage['type'] == 'temp'){
+					$this->dirDelete($storage['path']);
+					if($storage['db']){
+						unlink($storage['db']->getFilePath());
+					}
+				}
+				else{
+					if($storage['db']){
+						$storage['db']->save();
+					}
+				}
 			}
 		}
+		
 	}
 	
 	private function clientNew($socket){
@@ -270,9 +282,14 @@ class Server extends Thread{
 		}
 	}
 	
-	public function storageAdd($storage, $path, $type = 'normal'){
+	public function storageAdd($storage, $path, $type = 'normal', $db = null){
 		if($storage instanceof Maildir){
-			$this->storages[] = array('object' => $storage, 'path' => $path, 'type' => $type);
+			$this->storages[] = array(
+				'object' => $storage,
+				'path' => $path,
+				'type' => $type,
+				'db' => $db,
+			);
 			#ve($this->storages);
 		}
 		else{
@@ -291,7 +308,14 @@ class Server extends Thread{
 		}
 		
 		try{
-			$this->storageAdd(new Maildir(array('dirname' => $path)), $path, $type);
+			$dbpath = $path;
+			if(substr($dbpath, -1) == '/'){
+				$dbpath = substr($dbpath, 0, -1);
+			}
+			$db = new MsgDb($dbpath.'.msgs.yml');
+			$db->load();
+			
+			$this->storageAdd(new Maildir(array('dirname' => $path)), $path, $type, $db);
 		}
 		catch(Exception $e){
 			$this->log->error('storageAddMaildir: '.$e->getMessage());
@@ -311,11 +335,27 @@ class Server extends Thread{
 	public function mailAdd($mail, $folder = null, $flags = null, $recent = false){
 		$this->storageInit();
 		
+		$uid = null;
 		foreach($this->storages as $storage){
 			if($storage['object'] instanceof Maildir){
 				$storage['object']->appendMessage($mail, $folder, $flags, $recent);
+				if($storage['db']){
+					
+					$messagesCount = $storage['object']->countMessages();
+					#$message = $storage['object']->getMessage($messagesCount);
+					$uid = $storage['object']->getUniqueId($messagesCount);
+					#ve($message);
+					#ve($uid);
+					#ve($storage['object']->getUniqueId());
+					#ve($storage['object']->getNumberByUniqueId($uid));
+					#ve($storage['object']->getNumberByUniqueId('1400770771.1713.22565.imac.home,S=129'));
+					#ve($storage['object']->getNumberByUniqueId('1400770771.1713.22565.imac.home,S=129:2,S'));
+					
+					$storage['db']->msgAdd($uid);
+				}
 			}
 		}
+		
 	}
 	
 	private function dirDelete($path){
