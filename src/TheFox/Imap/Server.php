@@ -69,6 +69,17 @@ class Server extends Thread{
 		return $this->storages[0]['object'];
 	}
 	
+	public function getRootStorageDbMsgIdBySeqNum($seqNum){
+		if($this->storages[0]['db']){
+			#print __CLASS__.'->'.__FUNCTION__.' seqNum: '.$seqNum."\n";
+			$uid = $this->storages[0]['object']->getUniqueId($seqNum);
+			#print __CLASS__.'->'.__FUNCTION__.' uid: '.$uid."\n";
+			return $this->storages[0]['db']->getMsgIdByUid($uid);
+		}
+		
+		return null;
+	}
+	
 	public function init(){
 		if($this->ip && $this->port){
 			$this->log->notice('listen on '.$this->ip.':'.$this->port);
@@ -166,23 +177,30 @@ class Server extends Thread{
 	
 	public function loop(){
 		$s = time();
-		$r = 0;
+		$r1 = 0;
+		$r2 = 0;
 		
 		while(!$this->getExit()){
 			$this->run();
 			
-			if(time() - $s >= 0 && !$r){
-				$r = 1;
+			if(time() - $s >= 0 && !$r1){
+				$r1 = 1;
+				
+				try{
+					$this->storages[0]['object']->createFolder('test2');
+				}
+				catch(Exception $e){}
 				
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
 				$message->addTo('thefox@fox21.at');
 				$message->setSubject('test '.date('Y/m/d H:i:s'));
 				$message->setBody('body');
-				#$this->mailAdd($message->toString(), null, null, true);
-				#$this->mailAdd($message->toString());
 				
-				#$this->storages[0]['object']->createFolder('test2');
+				#$this->mailAdd($message->toString(), 'test2', null, true);
+				#$this->mailAdd($message->toString(), null, array(), true);
+				
+				
 				
 				#$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
 				#$mailboxPath = './tmp_mailbox';
@@ -205,6 +223,19 @@ class Server extends Thread{
 				}
 				*/
 				
+			}
+			
+			if(time() - $s >= 2 && !$r2){
+				$r2 = 1;
+				
+				$message = new Message();
+				$message->addFrom('thefox21at@gmail.com');
+				$message->addTo('thefox@fox21.at');
+				$message->setSubject('test '.date('Y/m/d H:i:s'));
+				$message->setBody('body');
+				
+				#$this->mailAdd($message->toString(), null, null, true);
+				#$this->mailAdd($message->toString(), null, null, true);
 			}
 			
 			usleep(static::LOOP_USLEEP);
@@ -332,26 +363,48 @@ class Server extends Thread{
 		}
 	}
 	
-	public function mailAdd($mail, $folder = null, $flags = null, $recent = false){
+	public function mailAdd($mail, $folder = null, $flags = array(), $recent = true){
 		$this->storageInit();
 		
 		$uid = null;
 		foreach($this->storages as $storage){
 			if($storage['object'] instanceof Maildir){
+				ve($flags);
 				$storage['object']->appendMessage($mail, $folder, $flags, $recent);
+				
 				if($storage['db']){
+					// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317) in the Zendframework we must reselect the current folder.
+					$oldFolder = $storage['object']->getCurrentFolder();
+					print "old: $oldFolder\n";
+					$storage['object']->selectFolder($folder);
 					
-					$messagesCount = $storage['object']->countMessages();
-					#$message = $storage['object']->getMessage($messagesCount);
-					$uid = $storage['object']->getUniqueId($messagesCount);
+					$lastId = $storage['object']->countMessages();
+					#$message = $storage['object']->getMessage($lastId);
+					
+					try{
+						$uid = $storage['object']->getUniqueId($lastId);
+						$storage['db']->msgAdd($uid);
+						#print "uid: $uid\n";
+					}
+					catch(Exception $e){
+						#print "ERROR: ".$e->getMessage()."\n";
+					}
+					
+					
 					#ve($message);
 					#ve($uid);
+					#ve($storage['object']->getUniqueId($uid));
 					#ve($storage['object']->getUniqueId());
+					#ve($storage['object']->countMessages());
 					#ve($storage['object']->getNumberByUniqueId($uid));
 					#ve($storage['object']->getNumberByUniqueId('1400770771.1713.22565.imac.home,S=129'));
 					#ve($storage['object']->getNumberByUniqueId('1400770771.1713.22565.imac.home,S=129:2,S'));
 					
-					$storage['db']->msgAdd($uid);
+					
+					
+					$storage['object']->selectFolder($oldFolder);
+					
+					#ve($storage['object']->getUniqueId());
 				}
 			}
 		}

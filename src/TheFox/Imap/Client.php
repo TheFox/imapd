@@ -694,12 +694,11 @@ class Client{
 			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
 				#$uid = $this->getServer()->getRootStorage()->getUniqueId($msgSeqNum);
-				$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
+				#$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
 				#$uid = $msgSeqNum;
 				#$uid = $msgSeqNum + 10000;
+				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
 				
-				$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
-					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
 				
 				/*if(($isUid && ) || (!$isUid && )){
 					$msgSeqAdd = true;
@@ -736,7 +735,7 @@ class Client{
 				}
 				
 				if($msgSeqAdd){
-					$this->log('debug', 'sendUid msg:       add');
+					#$this->log('debug', 'sendUid msg:       add');
 					$msgSeqNums[] = $msgSeqNum;
 				}
 				
@@ -751,12 +750,22 @@ class Client{
 		sort($msgSeqNums);
 		foreach($msgSeqNums as $msgSeqNum){
 			$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+			$flags = $message->getFlags();
+			
 			#$uid = $this->getServer()->getRootStorage()->getUniqueId($msgSeqNum);
-			$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
+			#$uid = crc32($this->getServer()->getRootStorage()->getUniqueId($msgSeqNum));
 			#$uid = $msgSeqNum;
 			#$uid = $msgSeqNum + 10000;
+			$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
+			if(!$uid){
+				$this->log('error', 'Can not get ID for seq num '.$msgSeqNum.' from root storage.');
+				continue;
+			}
 			
 			#$this->log('debug', 'sendUid msg: '.$msgSeqNum.', '.$message->subject.', '.$uid);
+			
+			$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
+					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
 			
 			$output = array();
 			$outputHasFlag = false;
@@ -772,7 +781,7 @@ class Client{
 					$section = '';
 					
 					if(!$peek){
-						$message->setFlag(Storage::FLAG_SEEN);
+						$flags[Storage::FLAG_SEEN] = Storage::FLAG_SEEN;
 					}
 					
 					$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
@@ -791,7 +800,7 @@ class Client{
 							try{
 								$header = $message->getHeader($field);
 								#$this->log('debug', 'client '.$this->id.' field: "'.$header->getFieldName().'" => "'.$header->getFieldValue().'"');
-								$this->log('debug', 'client '.$this->id.' field: "'.$header->toString().'"');
+								#$this->log('debug', 'client '.$this->id.' field: "'.$header->toString().'"');
 								$msgStr .= $header->toString().Headers::EOL;
 							}
 							catch(InvalidArgumentException $e){
@@ -811,7 +820,6 @@ class Client{
 					#$size = $message->getSize();
 					$size = strlen($message->getHeaders()->toString().Headers::EOL.$message->getContent());
 					$output[] = 'RFC822.SIZE '.$size;
-					
 				}
 				elseif($item == 'uid'){
 					$output[] = 'UID '.$uid;
@@ -826,6 +834,9 @@ class Client{
 			}
 			
 			$this->dataSend('* '.$msgSeqNum.' FETCH ('.join(' ', $output).')');
+			
+			unset($flags[Storage::FLAG_RECENT]);
+			$this->getServer()->getRootStorage()->setFlags($msgSeqNum, $flags);
 		}
 		
 	}
