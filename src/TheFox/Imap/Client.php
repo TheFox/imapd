@@ -476,7 +476,7 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendList($tag);
+					$this->sendList($tag, $args[0]);
 				}
 				else{
 					$this->sendBad('Arguments invalid.', $tag);
@@ -612,8 +612,29 @@ class Client{
 		$this->sendOk('CREATE completed', $tag);
 	}
 	
-	private function sendList($tag){
-		$this->sendOk('LIST completed', $tag);
+	private function sendList($tag, $folder){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
+		try{
+			foreach($this->getServer()->getRootStorage()->getFolders($folder) as $folder){
+				$attrs = array();
+				$namePrefix = '';
+				if(strtolower($folder->getGlobalName()) == 'inbox'){
+					$attrs[] = '\\Noinferiors';
+				}
+				else{
+					#$namePrefix = '.';
+				}
+				print "name: ".$folder->getGlobalName()."\n";
+				
+				$this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$namePrefix.$folder->getGlobalName().'"');
+			}
+			$this->sendOk('LIST completed', $tag);
+		}
+		catch(Exception $e){
+			$this->sendNo('"'.$folder.'" no such folder.', $tag);
+		}
 	}
 	
 	private function sendLsub($tag){
