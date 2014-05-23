@@ -808,10 +808,6 @@ class Client{
 					$peek = $item == 'body.peek';
 					$section = '';
 					
-					if(!$peek){
-						$flags[Storage::FLAG_SEEN] = Storage::FLAG_SEEN;
-					}
-					
 					$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
 					if(isset($val['header'])){
 						$this->log('debug', 'client '.$this->id.' fetch header');
