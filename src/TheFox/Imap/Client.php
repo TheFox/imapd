@@ -644,7 +644,7 @@ class Client{
 				else{
 					#$namePrefix = '.';
 				}
-				print "name: ".$folder->getGlobalName()."\n";
+				#print "name: ".$folder->getGlobalName()."\n";
 				
 				$this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$namePrefix.$folder->getGlobalName().'"');
 			}

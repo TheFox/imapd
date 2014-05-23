@@ -63,9 +63,7 @@ class Server extends Thread{
 	
 	public function getRootStorageDbMsgIdBySeqNum($seqNum){
 		if($this->storages[0]['db']){
-			#print __CLASS__.'->'.__FUNCTION__.' seqNum: '.$seqNum."\n";
 			$uid = $this->storages[0]['object']->getUniqueId($seqNum);
-			#print __CLASS__.'->'.__FUNCTION__.' uid: '.$uid."\n";
 			return $this->storages[0]['db']->getMsgIdByUid($uid);
 		}
 		
