@@ -195,8 +195,13 @@ class Server extends Thread{
 				$message->setSubject('test '.date('Y/m/d H:i:s'));
 				$message->setBody('body');
 				
-				#$this->mailAdd($message->toString(), 'test2', null, true);
 				#$this->mailAdd($message->toString(), null, array(), true);
+				#$this->mailAdd($message->toString(), null, array(), true);
+				#$this->mailAdd($message->toString(), null, array(), true);
+				#$this->mailAdd($message->toString(), null, array(), true);
+				#$this->mailAdd($message->toString(), null, array(), false);
+				#$this->mailAdd($message->toString(), null, array(), false);
+				#$this->mailAdd($message->toString(), null, array(), false);
 				
 				
 				

@@ -716,7 +716,7 @@ class Client{
 				$seqMax = '*';
 			}
 			
-			#$this->log('debug', 'sendUid seq: "'.$seqMin.'" - "'.$seqMax.'"');
+			#$this->log('debug', 'sendUid seq: '.(int)$isUid.' "'.$seqMin.'" - "'.$seqMax.'"');
 			
 			if($seqMin === null){
 				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'" ('.$seqMax.')', 1);
@@ -732,8 +732,7 @@ class Client{
 			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
 				
-				#$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
-				#	.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
+				#$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid .' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
 				
 				if($seqMin == '1' && $seqMax == '*' || $seqMin == '*' && $seqMax == '*'){
 					// All
