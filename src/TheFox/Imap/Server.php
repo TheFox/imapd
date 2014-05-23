@@ -62,17 +62,21 @@ class Server extends Thread{
 	}
 	
 	public function getRootStorageDbMsgIdBySeqNum($seqNum){
-		if($this->storages[0]['db']){
-			$uid = $this->storages[0]['object']->getUniqueId($seqNum);
-			return $this->storages[0]['db']->getMsgIdByUid($uid);
+		$rootStorage = $this->getRootStorage();
+		
+		if($rootStorage['db']){
+			$uid = $rootStorage['object']->getUniqueId($seqNum);
+			return $rootStorage['db']->getMsgIdByUid($uid);
 		}
 		
 		return null;
 	}
 	
 	public function getRootStorageDbNextId(){
-		if($this->storages[0]['db']){
-			return $this->storages[0]['db']->getNextId();
+		$rootStorage = $this->getRootStorage();
+		
+		if($rootStorage['db']){
+			return $rootStorage['db']->getNextId();
 		}
 		
 		return null;
