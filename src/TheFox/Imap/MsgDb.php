@@ -74,6 +74,8 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function msgRemove($id){
+		print __CLASS__.'->'.__FUNCTION__.': '.$id."\n";
+		
 		unset($this->msgIdByUid[$this->msgUidById[$id]]);
 		unset($this->msgUidById[$id]);
 		unset($this->data['msgs'][$id]);
@@ -89,13 +91,19 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function getMsgIdByUid($uid){
-		#print __CLASS__.'->'.__FUNCTION__.': '.$uid."\n";
+		print __CLASS__.'->'.__FUNCTION__.': '.$uid."\n";
 		#ve($this->msgIdByUid);
 		#ve($this->msgUidById);
 		
 		if(isset($this->msgIdByUid[$uid])){
+			print __CLASS__.'->'.__FUNCTION__.': is set '.$uid."\n";
 			return $this->msgIdByUid[$uid];
 		}
+		
+		print __CLASS__.'->'.__FUNCTION__.': not found '.$uid."\n";
+		ve($this->msgIdByUid);
+		print '   '.$uid."\n";
+		
 		return null;
 	}
 	

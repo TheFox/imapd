@@ -599,15 +599,24 @@ class Client{
 		}
 		
 		$count = $this->getServer()->getRootStorage()->countMessages();
+		$this->log('debug', 'client '.$this->id.' count: '.$count);
+		
+		ve($this->getServer()->getRootStorage()->getUniqueId());
 		
 		// Search for first unseen msg.
 		$firstUnseen = 0;
-		for($n = 1; $n <= $count; $n++){
-			$message = $this->getServer()->getRootStorage()->getMessage($n);
-			#print 'sendSelect msg: '.$n.', '.$message->subject.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.$this->getServer()->getRootStorage()->getUniqueId($n).''."\n";
-			if($message->hasFlag(Storage::FLAG_RECENT)){
-				$firstUnseen = $n;
-				break;
+		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
+			
+			try{
+				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+				if($message->hasFlag(Storage::FLAG_RECENT)){
+					$firstUnseen = $msgSeqNum;
+					break;
+				}
+			}
+			catch(Exception $e){
+				$this->log('error', $e->getMessage());
 			}
 		}
 		
@@ -1087,7 +1096,7 @@ class Client{
 			// Select a new folder.
 			$this->getServer()->getRootStorage()->selectFolder($folder);
 			
-			$this->log('debug', 'client '.$this->id.' prev select folder: '.$this->selectedFolder);
+			$this->log('debug', 'client '.$this->id.' prev select folder: "'.$this->selectedFolder.'"');
 			$this->selectedFolder = $folder;
 		}
 	}

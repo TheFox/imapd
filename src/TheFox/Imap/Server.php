@@ -30,9 +30,9 @@ class Server extends Thread{
 	public function __construct($ip = '127.0.0.1', $port = 143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
-		$this->log = new Logger('imapserver');
+		$this->log = new Logger('server');
 		$this->log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-		#$this->log->pushHandler(new StreamHandler('log/imapserver.log', Logger::DEBUG));
+		#$this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
 		
 		$this->log->info('start');
 		
@@ -57,28 +57,43 @@ class Server extends Thread{
 	}
 	
 	public function getRootStorage(){
+		$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
 		$this->storageInit();
 		return $this->storages[0]['object'];
 	}
 	
 	public function getRootStorageDbMsgIdBySeqNum($seqNum){
-		$rootStorage = $this->getRootStorage();
+		$this->log->debug(__CLASS__.'->'.__FUNCTION__.': '.$seqNum);
 		
-		if($rootStorage['db']){
-			$uid = $rootStorage['object']->getUniqueId($seqNum);
-			return $rootStorage['db']->getMsgIdByUid($uid);
+		if($this->storages[0]['db']){
+			$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok '.$seqNum);
+			
+			ve($this->storages[0]['object']->getUniqueId());
+			
+			try{
+				$uid = $this->storages[0]['object']->getUniqueId($seqNum);
+				$this->log->debug(__CLASS__.'->'.__FUNCTION__.': uid '.$uid);
+				return $this->storages[0]['db']->getMsgIdByUid($uid);
+			}
+			catch(Exception $e){
+				$this->log->error($e->getMessage());
+			}
+			
+			return null;
 		}
 		
 		return null;
 	}
 	
 	public function getRootStorageDbNextId(){
-		$rootStorage = $this->getRootStorage();
+		$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
 		
-		if($rootStorage['db']){
-			return $rootStorage['db']->getNextId();
+		if($this->storages[0]['db']){
+			$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok');
+			return $this->storages[0]['db']->getNextId();
 		}
 		
+		$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db failed');
 		return null;
 	}
 	
@@ -314,7 +329,10 @@ class Server extends Thread{
 	}
 	
 	private function storageInit(){
+		$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
 		if(!$this->storages){
+			$this->log->debug(__CLASS__.'->'.__FUNCTION__.': no storage is set. create one...');
+			
 			$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
 			$this->storageAddMaildir($mailboxPath, 'temp');
 		}
@@ -418,6 +436,8 @@ class Server extends Thread{
 	}
 	
 	public function mailRemove($seqNum){
+		print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
+		
 		$this->storageInit();
 		
 		$this->getRootStorage()->removeMessage($seqNum);
