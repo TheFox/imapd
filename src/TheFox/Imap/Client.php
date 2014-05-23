@@ -612,7 +612,7 @@ class Client{
 		$this->select();
 		
 		#$this->sendOk('CREATE completed', $tag);
-		$this->sendBad('CREATE not implemented.', $tag, 'ALERT');
+		$this->sendBad('CREATE not implemented.', $tag);
 	}
 	
 	private function sendList($tag, $folder){
@@ -647,7 +647,7 @@ class Client{
 		#$this->dataSend('* LSUB () "." "#news.test"');
 		#$this->sendOk('LSUB completed', $tag);
 		
-		$this->sendBad('LSUB not implemented.', $tag, 'ALERT');
+		$this->sendBad('LSUB not implemented.', $tag);
 	}
 	
 	private function createSequenceSet($setStr, $isUid = false){
