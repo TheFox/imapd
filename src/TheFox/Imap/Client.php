@@ -25,7 +25,7 @@ class Client{
 	private $recvBufferTmp = '';
 	
 	// Remember the selected mailbox for each client.
-	private $selectedFolder = 'INBOX';
+	private $selectedFolder = null;
 	
 	public function __construct(){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
@@ -443,10 +443,12 @@ class Client{
 					$this->sendSelect($tag, $args[0]);
 				}
 				else{
+					$this->selectedFolder = null;
 					$this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
+				$this->selectedFolder = null;
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
@@ -581,6 +583,7 @@ class Client{
 			$this->select($folder);
 		}
 		catch(Exception $e){
+			$this->selectedFolder = null;
 			$this->sendNo('"'.$folder.'" no such mailbox', $tag);
 			return;
 		}
@@ -621,9 +624,6 @@ class Client{
 	}
 	
 	private function sendList($tag, $folder){
-		$this->select();
-		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
-		
 		try{
 			foreach($this->getServer()->getRootStorage()->getFolders($folder) as $folder){
 				$attrs = array();
@@ -646,9 +646,6 @@ class Client{
 	}
 	
 	private function sendLsub($tag){
-		$this->select();
-		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
-		
 		#$this->dataSend('* LSUB () "." "#news.test"');
 		#$this->sendOk('LSUB completed', $tag);
 		
@@ -974,15 +971,25 @@ class Client{
 			$this->select();
 			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
-			$this->sendFetchRaw($tag, $args, true);
-			$this->sendOk('UID FETCH completed', $tag);
+			if($this->selectedFolder !== null){
+				$this->sendFetchRaw($tag, $args, true);
+				$this->sendOk('UID FETCH completed', $tag);
+			}
+			else{
+				$this->sendNo('No mailbox selected.', $tag);
+			}
 		}
 		elseif($commandcmp == 'store'){
 			$this->select();
 			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
-			$this->sendStoreRaw($tag, $args, true);
-			$this->sendOk('UID STORE completed', $tag);
+			if($this->selectedFolder !== null){
+				$this->sendStoreRaw($tag, $args, true);
+				$this->sendOk('UID STORE completed', $tag);
+			}
+			else{
+				$this->sendNo('No mailbox selected.', $tag);
+			}
 		}
 		else{
 			$this->sendBad('Arguments invalid.', $tag);
@@ -1032,7 +1039,9 @@ class Client{
 			// Restore the previous selected mailbox. Maybe another client has
 			// selected another mailbox so we must jump back to the folder for
 			// this client.
-			$this->getServer()->getRootStorage()->selectFolder($this->selectedFolder);
+			if($this->selectedFolder !== null){
+				$this->getServer()->getRootStorage()->selectFolder($this->selectedFolder);
+			}
 		}
 		else{
 			// Select a new folder.
