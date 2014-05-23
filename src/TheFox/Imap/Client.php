@@ -24,6 +24,9 @@ class Client{
 	private $port = 0;
 	private $recvBufferTmp = '';
 	
+	// Remember the selected mailbox for each client.
+	private $selectedFolder = 'INBOX';
+	
 	public function __construct(){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
@@ -575,7 +578,7 @@ class Client{
 			$folder = 'INBOX';
 		}
 		try{
-			$this->getServer()->getRootStorage()->selectFolder($folder);
+			$this->select($folder);
 		}
 		catch(Exception $e){
 			$this->sendNo('"'.$folder.'" no such mailbox', $tag);
@@ -614,6 +617,9 @@ class Client{
 	}
 	
 	private function sendLsub($tag){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
 		#$this->dataSend('* LSUB () "." "#news.test"');
 		$this->sendOk('LSUB completed', $tag);
 	}
@@ -847,6 +853,9 @@ class Client{
 	}
 	
 	private function sendFetch($tag, $args){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
 		$this->sendFetchRaw($tag, $args, false);
 		$this->sendOk('FETCH completed', $tag);
 	}
@@ -859,6 +868,9 @@ class Client{
 			$this->sendBad('Copy not implemented', $tag);
 		}
 		elseif($commandcmp == 'fetch'){
+			$this->select();
+			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+			
 			$this->sendFetchRaw($tag, $args, true);
 			$this->sendOk('UID FETCH completed', $tag);
 		}
@@ -905,6 +917,22 @@ class Client{
 			
 			$this->getSocket()->shutdown();
 			$this->getSocket()->close();
+		}
+	}
+	
+	public function select($folder = null){
+		if($folder === null){
+			// Restore the previous selected mailbox. Maybe another client has
+			// selected another mailbox so we must jump back to the folder for
+			// this client.
+			$this->getServer()->getRootStorage()->selectFolder($this->selectedFolder);
+		}
+		else{
+			// Select a new folder.
+			$this->getServer()->getRootStorage()->selectFolder($folder);
+			
+			$this->log('debug', 'client '.$this->id.' prev select folder: '.$this->selectedFolder);
+			$this->selectedFolder = $folder;
 		}
 	}
 	
