@@ -594,7 +594,7 @@ class Client{
 		$this->dataSend('* '.$this->getServer()->getRootStorage()->countMessages(Storage::FLAG_RECENT).' RECENT');
 		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
 		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
-		#$this->dataSend('* OK [UIDNEXT 4392] Predicted next UID');
+		$this->dataSend('* OK [UIDNEXT '.$this->getServer()->getRootStorageDbNextId().'] Predicted next UID');
 		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
 		$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
 		$this->sendOk('SELECT completed', $tag, 'READ-WRITE');
