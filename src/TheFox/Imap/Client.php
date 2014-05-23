@@ -645,7 +645,9 @@ class Client{
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		#$this->dataSend('* LSUB () "." "#news.test"');
-		$this->sendOk('LSUB completed', $tag);
+		#$this->sendOk('LSUB completed', $tag);
+		
+		$this->sendBad('LSUB not implemented.', $tag, 'ALERT');
 	}
 	
 	private function createSequenceSet($setStr, $isUid = false){
