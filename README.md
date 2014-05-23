@@ -16,6 +16,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 7.1.5 BYE Response
 
 ### Incomplete
+- 2.3.2 Flags Message Attribute
 - 6.1.1 CAPABILITY Command
 - 6.2.2 AUTHENTICATE Command
 - 6.2.3 LOGIN Command

@@ -57,6 +57,11 @@ class Server extends Thread{
 	}
 	
 	public function getRootStorage(){
+		// TODO: move storage to client base, not server base. Each client can
+		//       select a folder. See RFC3501 6.3.1 SELECT Command, page 33.
+		//         "Only one mailbox can be selected at a time in a connection;
+		//         simultaneous access to multiple mailboxes requires multiple
+		//         connections."
 		$this->storageInit();
 		
 		try{
