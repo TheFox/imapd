@@ -689,6 +689,9 @@ class Client{
 			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
 				
+				$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
+					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
+				
 				if($seqMin == '1' && $seqMax == '*'){
 					// All
 					$msgSeqAdd = true;
@@ -790,8 +793,7 @@ class Client{
 				continue;
 			}
 			
-			$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
-					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
+			$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid));
 			
 			$output = array();
 			$outputHasFlag = false;
