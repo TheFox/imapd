@@ -609,7 +609,10 @@ class Client{
 	}
 	
 	private function sendCreate($tag){
-		$this->sendOk('CREATE completed', $tag);
+		$this->select();
+		
+		#$this->sendOk('CREATE completed', $tag);
+		$this->sendBad('CREATE not implemented.', $tag, 'ALERT');
 	}
 	
 	private function sendList($tag, $folder){
