@@ -73,6 +73,14 @@ class MsgDb extends YamlStorage{
 		$this->setDataChanged(true);
 	}
 	
+	public function msgRemove($id){
+		unset($this->msgIdByUid[$this->msgUidById[$id]]);
+		unset($this->msgUidById[$id]);
+		unset($this->data['msgs'][$id]);
+		
+		$this->setDataChanged(true);
+	}
+	
 	public function getMsgUidById($id){
 		if(isset($this->msgUidById[$id])){
 			return $this->msgUidById[$id];

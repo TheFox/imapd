@@ -410,6 +410,21 @@ class Server extends Thread{
 		
 	}
 	
+	public function mailRemove($seqNum){
+		$this->storageInit();
+		
+		$this->getRootStorage()->removeMessage($seqNum);
+		
+		foreach($this->storages as $storage){
+			if($storage['object'] instanceof Maildir){
+				if($storage['db']){
+					$id = $this->getRootStorageDbMsgIdBySeqNum($seqNum);
+					$storage['db']->msgRemove($id);
+				}
+			}
+		}
+	}
+	
 	private function dirDelete($path){
 		if(is_dir($path)){
 			$dh = opendir($path);

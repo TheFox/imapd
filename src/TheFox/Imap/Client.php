@@ -506,6 +506,16 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'close'){
+			$this->log('debug', 'client '.$this->id.' close');
+			
+			if($this->getStatus('hasAuth')){
+				$this->sendClose($tag);
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'uid'){
 			$args = $this->msgParseString($args, 3);
 			#ve($args);
@@ -650,6 +660,37 @@ class Client{
 		#$this->sendOk('LSUB completed', $tag);
 		
 		$this->sendBad('LSUB not implemented.', $tag);
+	}
+	
+	private function sendClose($tag){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
+		if($this->selectedFolder !== null){
+			
+			try{
+				$msgSeqNums = $this->createSequenceSet('*');
+				ve($msgSeqNums);
+				foreach($msgSeqNums as $msgSeqNum){
+					$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+					
+					$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+					if($message->hasFlag(Storage::FLAG_DELETED)){
+						$this->log('debug', 'client '.$this->id.'      del msg: '.$msgSeqNum);
+						$this->getServer()->mailRemove($msgSeqNum);
+					}
+				}
+			}
+			catch(Exception $e){
+				$this->log('warning', 'client '.$this->id.' close: '.$e->getMessage());
+			}
+			
+			$this->selectedFolder = null;
+			$this->sendOk('CLOSE completed', $tag);
+		}
+		else{
+			$this->sendNo('No mailbox selected.', $tag);
+		}
 	}
 	
 	private function createSequenceSet($setStr, $isUid = false){
