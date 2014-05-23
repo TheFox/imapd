@@ -85,6 +85,14 @@ class Server extends Thread{
 		return null;
 	}
 	
+	public function getRootStorageDbNextId(){
+		if($this->storages[0]['db']){
+			return $this->storages[0]['db']->getNextId();
+		}
+		
+		return null;
+	}
+	
 	public function init(){
 		if($this->ip && $this->port){
 			$this->log->notice('listen on '.$this->ip.':'.$this->port);
