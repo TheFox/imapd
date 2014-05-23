@@ -458,7 +458,7 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendCreate($tag);
+					$this->sendCreate($tag, $args[0]);
 				}
 				else{
 					$this->sendBad('Arguments invalid.', $tag);
@@ -608,11 +608,16 @@ class Client{
 		$this->sendOk('SELECT completed', $tag, 'READ-WRITE');
 	}
 	
-	private function sendCreate($tag){
+	private function sendCreate($tag, $folder){
 		$this->select();
 		
-		#$this->sendOk('CREATE completed', $tag);
-		$this->sendBad('CREATE not implemented.', $tag);
+		try{
+			$this->getServer()->getRootStorage()->createFolder($folder);
+			$this->sendOk('CREATE completed', $tag);
+		}
+		catch(Exception $e){
+			$this->sendNo('CREATE failure: '.$e->getMessage(), $tag);
+		}
 	}
 	
 	private function sendList($tag, $folder){
