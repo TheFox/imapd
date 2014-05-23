@@ -673,7 +673,7 @@ class Client{
 				$seqMax = '*';
 			}
 			
-			$this->log('debug', 'sendUid seq: "'.$seqMin.'" - "'.$seqMax.'"');
+			#$this->log('debug', 'sendUid seq: "'.$seqMin.'" - "'.$seqMax.'"');
 			
 			if($seqMin == 0){
 				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'"', 1);
@@ -689,8 +689,8 @@ class Client{
 			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
 				
-				$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
-					.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
+				#$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
+				#	.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
 				
 				if($seqMin == '1' && $seqMax == '*'){
 					// All
@@ -793,7 +793,7 @@ class Client{
 				continue;
 			}
 			
-			$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid));
+			#$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid));
 			
 			$output = array();
 			$outputHasFlag = false;
@@ -810,12 +810,12 @@ class Client{
 					
 					$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
 					if(isset($val['header'])){
-						$this->log('debug', 'client '.$this->id.' fetch header');
+						#$this->log('debug', 'client '.$this->id.' fetch header');
 						$section = 'HEADER';
 						$msgStr = $message->getHeaders()->toString();
 					}
 					elseif(isset($val['header.fields'])){
-						$this->log('debug', 'client '.$this->id.' fetch header.fields');
+						#$this->log('debug', 'client '.$this->id.' fetch header.fields');
 						$section = 'HEADER';
 						$msgStr = '';
 						
@@ -832,7 +832,7 @@ class Client{
 						}
 					}
 					else{
-						$this->log('debug', 'client '.$this->id.' fetch all');
+						#$this->log('debug', 'client '.$this->id.' fetch all');
 					}
 					
 					$msgStr .= Headers::EOL;

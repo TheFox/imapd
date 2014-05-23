@@ -369,7 +369,6 @@ class Server extends Thread{
 		$uid = null;
 		foreach($this->storages as $storage){
 			if($storage['object'] instanceof Maildir){
-				ve($flags);
 				$storage['object']->appendMessage($mail, $folder, $flags, $recent);
 				
 				if($storage['db']){
