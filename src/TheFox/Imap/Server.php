@@ -375,7 +375,7 @@ class Server extends Thread{
 				if($storage['db']){
 					// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317) in the Zendframework we must reselect the current folder.
 					$oldFolder = $storage['object']->getCurrentFolder();
-					print "old: $oldFolder\n";
+					#print "old: $oldFolder\n";
 					$storage['object']->selectFolder($folder);
 					
 					$lastId = $storage['object']->countMessages();

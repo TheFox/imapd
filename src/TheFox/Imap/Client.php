@@ -429,7 +429,7 @@ class Client{
 				$this->sendLogin($tag);
 			}
 			else{
-				$this->sendBad('arguments invalid', $tag);
+				$this->sendBad('Arguments invalid.', $tag);
 			}
 		}
 		elseif($commandcmp == 'select'){
@@ -443,7 +443,7 @@ class Client{
 					$this->sendSelect($tag, $args[0]);
 				}
 				else{
-					$this->sendBad('arguments invalid', $tag);
+					$this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
@@ -461,7 +461,7 @@ class Client{
 					$this->sendCreate($tag);
 				}
 				else{
-					$this->sendBad('arguments invalid', $tag);
+					$this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
@@ -479,7 +479,7 @@ class Client{
 					$this->sendList($tag);
 				}
 				else{
-					$this->sendBad('arguments invalid', $tag);
+					$this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
@@ -497,7 +497,7 @@ class Client{
 					$this->sendLsub($tag);
 				}
 				else{
-					$this->sendBad('arguments invalid', $tag);
+					$this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
@@ -515,7 +515,7 @@ class Client{
 					$this->sendUid($tag, $args);
 				}
 				else{
-					$this->sendBad('arguments invalid', $tag);
+					$this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
@@ -696,7 +696,7 @@ class Client{
 			
 			$count = $this->getServer()->getRootStorage()->countMessages();
 			if(!$count){
-				$this->sendBad('No messages in selected mailbox', $tag);
+				$this->sendBad('No messages in selected mailbox.', $tag);
 				return;
 			}
 			
@@ -865,7 +865,7 @@ class Client{
 		$commandcmp = strtolower($command);
 		
 		if($commandcmp == 'copy'){
-			$this->sendBad('Copy not implemented', $tag);
+			$this->sendBad('Copy not implemented.', $tag);
 		}
 		elseif($commandcmp == 'fetch'){
 			$this->select();
@@ -875,10 +875,10 @@ class Client{
 			$this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
-			$this->sendBad('Store not implemented', $tag);
+			$this->sendBad('Store not implemented.', $tag);
 		}
 		else{
-			$this->sendBad('arguments invalid', $tag);
+			$this->sendBad('Arguments invalid.', $tag);
 		}
 	}
 	
