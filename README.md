@@ -24,6 +24,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 6.3.8 LIST Command
 - 6.3.9 LSUB Command
 - 6.4.5 FETCH Command
+- 6.4.6 STORE Command
 - 6.4.8 UID Command
 - 7.1.4 PREAUTH Response
 - 7.2.1 CAPABILITY Response

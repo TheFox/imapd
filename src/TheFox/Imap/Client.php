@@ -873,6 +873,91 @@ class Client{
 		$this->sendOk('FETCH completed', $tag);
 	}
 	
+	private function sendStoreRaw($tag, $args, $isUid = false){
+		#ve('sendStoreRaw');
+		#ve($args);
+		#ve($isUid);
+		
+		$argSeq = $args[0];
+		
+		$args = $this->msgParseString($args[1]);
+		#ve($args);
+		
+		$type = strtolower($args[0]);
+		$flags = $this->msgGetParenthesizedlist($args[1]);
+		unset($flags[Storage::FLAG_RECENT]);
+		$flags = array_combine($flags, $flags);
+		#ve($flags);
+		
+		$add = false;
+		$rem = false;
+		$silent = false;
+		switch($type){
+			case '+flags.silent':
+				$silent = true;
+			case '+flags':
+				$add = true;
+				break;
+			
+			case '-flags.silent':
+				$silent = true;
+			case '-flags':
+				$rem = true;
+				break;
+		}
+		
+		$msgSeqNums = array();
+		try{
+			$msgSeqNums = $this->createSequenceSet($argSeq, $isUid);
+		}
+		catch(Exception $e){
+			$this->sendBad($e->getMessage(), $tag);
+		}
+		
+		#ve('sendStoreRaw msgSeqNums');
+		#ve($msgSeqNums);
+		
+		
+		// Process collected msgs.
+		foreach($msgSeqNums as $msgSeqNum){
+			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
+			
+			$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+			$messageFlags = $message->getFlags();
+			
+			if(!$add && !$rem){
+				$messageFlags = $flags;
+				$this->log('debug', 'client '.$this->id.'     set flags');
+			}
+			elseif($add){
+				$messageFlags = array_merge($messageFlags, $flags);
+				$this->log('debug', 'client '.$this->id.'     add flags');
+			}
+			elseif($rem){
+				$this->log('debug', 'client '.$this->id.'     rem flags');
+				foreach($flags as $flag){
+					unset($messageFlags[$flag]);
+					$this->log('debug', 'client '.$this->id.'     unset flag: '.$flag);
+				}
+			}
+			
+			$this->getServer()->getRootStorage()->setFlags($msgSeqNum, $messageFlags);
+			
+			if(!$silent){
+				$this->dataSend('* '.$msgSeqNum.' FETCH (FLAGS ('.join(' ', $messageFlags).'))');
+			}
+		}
+		
+	}
+	
+	private function sendStore($tag, $args){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
+		$this->sendStoreRaw($tag, $args, false);
+		$this->sendOk('STORE completed', $tag);
+	}
+	
 	private function sendUid($tag, $args){
 		$command = array_shift($args);
 		$commandcmp = strtolower($command);
@@ -888,7 +973,11 @@ class Client{
 			$this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
-			$this->sendBad('Store not implemented.', $tag);
+			$this->select();
+			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+			
+			$this->sendStoreRaw($tag, $args, true);
+			$this->sendOk('UID STORE completed', $tag);
 		}
 		else{
 			$this->sendBad('Arguments invalid.', $tag);
