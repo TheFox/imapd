@@ -569,6 +569,11 @@ class Client{
 	}
 	
 	private function sendSelect($tag, $folder){
+		if(strtolower($folder) == 'inbox' && $folder != 'INBOX'){
+			// Set folder to INBOX if folder is not INBOX
+			// e.g. Inbox, INbOx or something like this.
+			$folder = 'INBOX';
+		}
 		try{
 			$this->getServer()->getRootStorage()->selectFolder($folder);
 		}
