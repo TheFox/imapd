@@ -697,8 +697,8 @@ class Client{
 		// Collect messages with sequence-sets.
 		$msgSeqNums = array();
 		foreach(preg_split('/,/', $setStr) as $seqItem){
-			$seqMin = 0;
-			$seqMax = 0;
+			$seqMin = null;
+			$seqMax = null;
 			
 			$items = preg_split('/:/', $seqItem);
 			if(isset($items[0])){
@@ -718,8 +718,8 @@ class Client{
 			
 			#$this->log('debug', 'sendUid seq: "'.$seqMin.'" - "'.$seqMax.'"');
 			
-			if($seqMin == 0){
-				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'"', 1);
+			if($seqMin === null){
+				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'" ('.$seqMax.')', 1);
 			}
 			
 			$count = $this->getServer()->getRootStorage()->countMessages();
@@ -735,7 +735,7 @@ class Client{
 				#$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid
 				#	.' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
 				
-				if($seqMin == '1' && $seqMax == '*'){
+				if($seqMin == '1' && $seqMax == '*' || $seqMin == '*' && $seqMax == '*'){
 					// All
 					$msgSeqAdd = true;
 				}
