@@ -520,7 +520,12 @@ class Client{
 			$this->log('debug', 'client '.$this->id.' close');
 			
 			if($this->getStatus('hasAuth')){
-				$this->sendClose($tag);
+				if($this->selectedFolder !== null){
+					$this->sendClose($tag);
+				}
+				else{
+					$this->sendNo('No mailbox selected.', $tag);
+				}
 			}
 			else{
 				$this->sendNo($commandcmp.' failure', $tag);
@@ -756,32 +761,27 @@ class Client{
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
-		if($this->selectedFolder !== null){
-			try{
-				$msgSeqNums = $this->createSequenceSet('*');
-				#$this->log('debug', 'client '.$this->id.' msgSeqNums');
-				#ve($msgSeqNums);
-				foreach($msgSeqNums as $msgSeqNum){
-					#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
-					
-					$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
-					#ve($message->getFlags());
-					if($message->hasFlag(Storage::FLAG_DELETED)){
-						$this->log('debug', 'client '.$this->id.'      del msg: '.$msgSeqNum);
-						$this->getServer()->mailRemove($msgSeqNum);
-					}
+		try{
+			$msgSeqNums = $this->createSequenceSet('*');
+			#$this->log('debug', 'client '.$this->id.' msgSeqNums');
+			#ve($msgSeqNums);
+			foreach($msgSeqNums as $msgSeqNum){
+				#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+				
+				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+				#ve($message->getFlags());
+				if($message->hasFlag(Storage::FLAG_DELETED)){
+					$this->log('debug', 'client '.$this->id.'      del msg: '.$msgSeqNum);
+					$this->getServer()->mailRemove($msgSeqNum);
 				}
 			}
-			catch(Exception $e){
-				$this->log('warning', 'client '.$this->id.' close: '.$e->getMessage());
-			}
-			
-			$this->selectedFolder = null;
-			$this->sendOk('CLOSE completed', $tag);
 		}
-		else{
-			$this->sendNo('No mailbox selected.', $tag);
+		catch(Exception $e){
+			$this->log('warning', 'client '.$this->id.' close: '.$e->getMessage());
 		}
+		
+		$this->selectedFolder = null;
+		$this->sendOk('CLOSE completed', $tag);
 	}
 	
 	private function createSequenceSet($setStr, $isUid = false){
