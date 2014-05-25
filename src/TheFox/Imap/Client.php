@@ -507,7 +507,7 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'check'){
-			$this->log('debug', 'client '.$this->id.' check');
+			#$this->log('debug', 'client '.$this->id.' check');
 			
 			if($this->getStatus('hasAuth')){
 				$this->sendCheck($tag);
@@ -530,7 +530,7 @@ class Client{
 			$args = $this->msgParseString($args, 3);
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' uid: "'.$args[0].'" "'.$args[1].'"');
+			#$this->log('debug', 'client '.$this->id.' uid: "'.$args[0].'" "'.$args[1].'"');
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
@@ -614,14 +614,14 @@ class Client{
 		}
 		
 		$count = $this->getServer()->getRootStorage()->countMessages();
-		$this->log('debug', 'client '.$this->id.' count: '.$count);
+		#$this->log('debug', 'client '.$this->id.' count: '.$count);
 		
-		ve($this->getServer()->getRootStorage()->getUniqueId());
+		#ve($this->getServer()->getRootStorage()->getUniqueId());
 		
 		// Search for first unseen msg.
 		$firstUnseen = 0;
 		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
+			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
 			try{
 				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
@@ -875,7 +875,7 @@ class Client{
 				continue;
 			}
 			
-			#$this->log('debug', 'sendUid msg: '.$msgSeqNum.' '.sprintf('%10s', $uid));
+			#$this->log('debug', 'sendFetchRaw msg: '.$msgSeqNum.' '.sprintf('%10s', $uid));
 			
 			$output = array();
 			$outputHasFlag = false;

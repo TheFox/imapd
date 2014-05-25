@@ -329,9 +329,9 @@ class Server extends Thread{
 	}
 	
 	private function storageInit(){
-		$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
+		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
 		if(!$this->storages){
-			$this->log->debug(__CLASS__.'->'.__FUNCTION__.': no storage is set. create one...');
+			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': no storage is set. create one...');
 			
 			$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
 			$this->storageAddMaildir($mailboxPath, 'temp');
@@ -407,32 +407,14 @@ class Server extends Thread{
 					$storage['object']->selectFolder($folder);
 					
 					$lastId = $storage['object']->countMessages();
+					$storage['object']->selectFolder($oldFolder);
 					#$message = $storage['object']->getMessage($lastId);
 					
 					try{
 						$uid = $storage['object']->getUniqueId($lastId);
 						$storage['db']->msgAdd($uid);
-						#print "uid: $uid\n";
 					}
-					catch(Exception $e){
-						#print "ERROR: ".$e->getMessage()."\n";
-					}
-					
-					
-					#ve($message);
-					#ve($uid);
-					#ve($storage['object']->getUniqueId($uid));
-					#ve($storage['object']->getUniqueId());
-					#ve($storage['object']->countMessages());
-					#ve($storage['object']->getNumberByUniqueId($uid));
-					#ve($storage['object']->getNumberByUniqueId('1400770771.1713.22565.imac.home,S=129'));
-					#ve($storage['object']->getNumberByUniqueId('1400770771.1713.22565.imac.home,S=129:2,S'));
-					
-					
-					
-					$storage['object']->selectFolder($oldFolder);
-					
-					#ve($storage['object']->getUniqueId());
+					catch(Exception $e){}
 				}
 			}
 		}
@@ -440,7 +422,7 @@ class Server extends Thread{
 	}
 	
 	public function mailRemove($seqNum){
-		print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
+		#print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
 		
 		$this->storageInit();
 		
