@@ -339,6 +339,10 @@ class Server extends Thread{
 	}
 	
 	public function storageAdd($storage, $path, $type = 'normal', $db = null){
+		if(isset($this->storage[0])){
+			throw new NotImplementedException('More than one maildir not supported.', 1);
+		}
+		
 		if($storage instanceof Maildir){
 			$this->storages[] = array(
 				'object' => $storage,
@@ -349,7 +353,7 @@ class Server extends Thread{
 			#ve($this->storages);
 		}
 		else{
-			throw new NotImplementedException(''.( is_object($storage) ? 'Class '.get_class($storage) : 'Type '.gettype($storage) ).' not implemented yet.');
+			throw new NotImplementedException(''.( is_object($storage) ? 'Class '.get_class($storage) : 'Type '.gettype($storage) ).' not implemented yet.', 2);
 		}
 	}
 	
