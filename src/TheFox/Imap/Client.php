@@ -757,7 +757,6 @@ class Client{
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		if($this->selectedFolder !== null){
-			
 			try{
 				$msgSeqNums = $this->createSequenceSet('*');
 				#$this->log('debug', 'client '.$this->id.' msgSeqNums');
