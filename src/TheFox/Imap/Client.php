@@ -526,6 +526,29 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'store'){
+			$args = $this->msgParseString($args, 2);
+			
+			$this->log('debug', 'client '.$this->id.' store: "'.$args[0].'" "'.$args[1].'"');
+			
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
+					if($this->selectedFolder !== null){
+						$this->sendStoreRaw($tag, $args, true);
+						$this->sendOk('STORE completed', $tag);
+					}
+					else{
+						$this->sendNo('No mailbox selected.', $tag);
+					}
+				}
+				else{
+					$this->sendBad('Arguments invalid.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'copy'){
 			$args = $this->msgParseString($args, 2);
 			
