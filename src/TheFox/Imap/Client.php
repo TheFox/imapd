@@ -657,17 +657,14 @@ class Client{
 		$count = $this->getServer()->getRootStorage()->countMessages();
 		
 		$firstUnseen = 0;
-		$deleted = 0;
 		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
 			try{
 				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
-				if($message->hasFlag(Storage::FLAG_RECENT) && !$firstUnseen){
+				if(!$message->hasFlag(Storage::FLAG_SEEN) && !$firstUnseen){
 					$firstUnseen = $msgSeqNum;
-				}
-				if($message->hasFlag(Storage::FLAG_DELETED)){
-					$deleted++;
+					break;
 				}
 			}
 			catch(Exception $e){
