@@ -957,7 +957,7 @@ class Client{
 		
 		$argSeq = $args[0];
 		
-		$args = $this->msgParseString($args[1]);
+		$args = $this->msgParseString($args[1], 2);
 		#ve($args);
 		
 		#$this->log('debug', 'client '.$this->id.' flags');
