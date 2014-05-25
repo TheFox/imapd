@@ -10,6 +10,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 ### Complete
 - 6.1.2 NOOP Command
 - 6.1.3 LOGOUT Command
+- 6.4.1 CHECK Command
 - 7.1.1 OK Response
 - 7.1.2 NO Response
 - 7.1.3 BAD Response

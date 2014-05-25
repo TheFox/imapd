@@ -506,6 +506,16 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'check'){
+			$this->log('debug', 'client '.$this->id.' check');
+			
+			if($this->getStatus('hasAuth')){
+				$this->sendCheck($tag);
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'close'){
 			$this->log('debug', 'client '.$this->id.' close');
 			
@@ -674,6 +684,15 @@ class Client{
 		#$this->sendOk('LSUB completed', $tag);
 		
 		$this->sendBad('LSUB not implemented.', $tag);
+	}
+	
+	private function sendCheck($tag){
+		if($this->selectedFolder !== null){
+			$this->sendOk('CHECK completed', $tag);
+		}
+		else{
+			$this->sendNo('No mailbox selected.', $tag);
+		}
 	}
 	
 	private function sendClose($tag){
