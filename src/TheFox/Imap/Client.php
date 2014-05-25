@@ -23,6 +23,7 @@ class Client{
 	private $ip = '';
 	private $port = 0;
 	private $recvBufferTmp = '';
+	private $expunge = array(); # TODO
 	
 	// Remember the selected mailbox for each client.
 	private $selectedFolder = null;
@@ -531,6 +532,21 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'expunge'){
+			$this->log('debug', 'client '.$this->id.' expunge');
+			
+			if($this->getStatus('hasAuth')){
+				if($this->selectedFolder !== null){
+					$this->sendExpunge($tag);
+				}
+				else{
+					$this->sendNo('No mailbox selected.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'store'){
 			$args = $this->msgParseString($args, 2);
 			
@@ -611,7 +627,7 @@ class Client{
 		}
 	}
 	
-	private function dataSend($msg){
+	public function dataSend($msg){
 		$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
 		$this->getSocket()->write($msg.static::MSG_SEPARATOR);
 	}
@@ -672,9 +688,10 @@ class Client{
 			}
 		}
 		
-		if($deleted){
-			$this->dataSend('* '.$count.' EXPUNGE');
+		foreach($this->expunge as $msgSeqNum){
+			$this->dataSend('* '.$msgSeqNum.' EXPUNGE');
 		}
+		
 		$this->dataSend('* '.$count.' EXISTS');
 		$this->dataSend('* '.$this->getServer()->getRootStorage()->countMessages(Storage::FLAG_RECENT).' RECENT');
 		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
@@ -758,27 +775,53 @@ class Client{
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
-		try{
-			$msgSeqNums = $this->createSequenceSet('*');
-			#$this->log('debug', 'client '.$this->id.' msgSeqNums');
-			#ve($msgSeqNums);
-			foreach($msgSeqNums as $msgSeqNum){
-				#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
-				
-				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
-				#ve($message->getFlags());
-				if($message->hasFlag(Storage::FLAG_DELETED)){
-					$this->log('debug', 'client '.$this->id.'      del msg: '.$msgSeqNum);
-					$this->getServer()->mailRemove($msgSeqNum);
-				}
-			}
-		}
-		catch(Exception $e){
-			$this->log('warning', 'client '.$this->id.' close: '.$e->getMessage());
-		}
+		$this->sendExpungeRaw();
 		
 		$this->selectedFolder = null;
 		$this->sendOk('CLOSE completed', $tag);
+	}
+	
+	private function sendExpungeRaw(){
+		$msgSeqNumsExpunge = array();
+		$expungeDiff = 0;
+		
+		$msgSeqNums = $this->createSequenceSet('*');
+		foreach($msgSeqNums as $msgSeqNum){
+			$expungeSeqNum = $msgSeqNum - $expungeDiff;
+			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$expungeDiff.', '.$expungeSeqNum);
+			
+			$message = null;
+			try{
+				$message = $this->getServer()->getRootStorage()->getMessage($expungeSeqNum);
+			}
+			catch(Exception $e){
+				$this->log('error', 'client '.$this->id.' getMessage: '.$e->getMessage());
+			}
+			
+			if($message && $message->hasFlag(Storage::FLAG_DELETED)){
+				$this->log('debug', 'client '.$this->id.'      del msg');
+				$this->getServer()->mailRemove($expungeSeqNum);
+				
+				$msgSeqNumsExpunge[] = $expungeSeqNum;
+				$expungeDiff++;
+			}
+		}
+		
+		return $msgSeqNumsExpunge;
+	}
+	
+	private function sendExpunge($tag){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
+		$msgSeqNumsExpunge = $this->sendExpungeRaw();
+		
+		foreach($msgSeqNumsExpunge as $msgSeqNum){
+			$this->dataSend('* '.$msgSeqNum.' EXPUNGE');
+		}
+		$this->sendOk('EXPUNGE completed', $tag);
+		
+		$this->expunge = array();
 	}
 	
 	private function createSequenceSet($setStr, $isUid = false){
@@ -1052,26 +1095,26 @@ class Client{
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
-			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
+			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
 			$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
 			$messageFlags = $message->getFlags();
 			
 			if(!$add && !$rem){
 				$messageFlags = $flags;
-				$this->log('debug', 'client '.$this->id.'     set flags');
+				#$this->log('debug', 'client '.$this->id.'     set flags');
 			}
 			elseif($add){
-				$this->log('debug', 'client '.$this->id.'     add flags');
+				#$this->log('debug', 'client '.$this->id.'     add flags');
 				#ve($messageFlags);
 				$messageFlags = array_merge($messageFlags, $flags);
 				#ve($messageFlags);
 			}
 			elseif($rem){
-				$this->log('debug', 'client '.$this->id.'     rem flags');
+				#$this->log('debug', 'client '.$this->id.'     rem flags');
 				foreach($flags as $flag){
 					unset($messageFlags[$flag]);
-					$this->log('debug', 'client '.$this->id.'     unset flag: '.$flag);
+					#$this->log('debug', 'client '.$this->id.'     unset flag: '.$flag);
 				}
 			}
 			
@@ -1202,6 +1245,7 @@ class Client{
 			
 			$this->log('debug', 'client '.$this->id.' prev select folder: "'.$this->selectedFolder.'"');
 			$this->selectedFolder = $folder;
+			$this->log('debug', 'client '.$this->id.' new select folder:  "'.$this->selectedFolder.'"');
 		}
 	}
 	

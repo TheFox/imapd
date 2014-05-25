@@ -16,6 +16,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 7.1.2 NO Response
 - 7.1.3 BAD Response
 - 7.1.5 BYE Response
+- 7.4.1 EXPUNGE Response
 
 ### Incomplete
 - 2.3.2 Flags Message Attribute

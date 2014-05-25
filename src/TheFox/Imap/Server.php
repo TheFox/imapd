@@ -76,7 +76,7 @@ class Server extends Thread{
 				return $this->storages[0]['db']->getMsgIdByUid($uid);
 			}
 			catch(Exception $e){
-				$this->log->error($e->getMessage());
+				$this->log->error('getRootStorageDbMsgIdBySeqNum: '.$e->getMessage());
 			}
 			
 			return null;
@@ -211,7 +211,7 @@ class Server extends Thread{
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
 				$message->addTo('thefox@fox21.at');
-				$message->setSubject('test '.date('Y/m/d H:i:s'));
+				#$message->setSubject('test '.date('Y/m/d H:i:s'));
 				$message->setBody('body');
 				
 				#$this->mailAdd($message->toString(), null, array(), true);
@@ -222,6 +222,17 @@ class Server extends Thread{
 				#$this->mailAdd($message->toString(), null, array(), false);
 				#$this->mailAdd($message->toString(), null, array(), false);
 				
+				$message->setSubject('t1 '.date('H:i:s'));
+				$this->mailAdd($message->toString());
+				
+				$message->setSubject('t2 '.date('H:i:s'));
+				$this->mailAdd($message->toString());
+				
+				$message->setSubject('t3 '.date('H:i:s'));
+				$this->mailAdd($message->toString());
+				
+				$message->setSubject('t4 '.date('H:i:s'));
+				$this->mailAdd($message->toString());
 				
 				
 				#$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
@@ -247,17 +258,19 @@ class Server extends Thread{
 				
 			}
 			
-			if(time() - $s >= 2 && !$r2){
+			if(time() - $s >= 5 && !$r2){
 				$r2 = 1;
 				
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
 				$message->addTo('thefox@fox21.at');
-				$message->setSubject('test '.date('Y/m/d H:i:s'));
+				$message->setSubject('test '.date('H:i:s'));
 				$message->setBody('body');
 				
 				#$this->mailAdd($message->toString(), null, null, true);
 				#$this->mailAdd($message->toString(), null, null, true);
+				
+				#$this->clients[1]->dataSend('* 2 EXPUNGE');
 			}
 			
 			usleep(static::LOOP_USLEEP);
@@ -296,7 +309,7 @@ class Server extends Thread{
 	
 	private function clientNew($socket){
 		$this->clientsId++;
-		#print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
+		print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
 		
 		$client = new Client();
 		$client->setSocket($socket);
@@ -422,17 +435,28 @@ class Server extends Thread{
 	}
 	
 	public function mailRemove($seqNum){
-		#print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
+		print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
 		
 		$this->storageInit();
-		
-		$this->getRootStorage()->removeMessage($seqNum);
 		
 		foreach($this->storages as $storage){
 			if($storage['object'] instanceof Maildir){
 				if($storage['db']){
-					$id = $this->getRootStorageDbMsgIdBySeqNum($seqNum);
-					$storage['db']->msgRemove($id);
+					try{
+						$id = $this->getRootStorageDbMsgIdBySeqNum($seqNum);
+						$storage['db']->msgRemove($id);
+					}
+					catch(Exception $e){
+						$this->log->error('db remove: '.$e->getMessage());
+					}
+					
+					try{
+						$this->getRootStorage()->removeMessage($seqNum);
+						ve($this->getRootStorage()->getUniqueId());
+					}
+					catch(Exception $e){
+						$this->log->error('root storage remove: '.$e->getMessage());
+					}
 				}
 			}
 		}
