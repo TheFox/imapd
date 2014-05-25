@@ -18,27 +18,6 @@ class MsgDb extends YamlStorage{
 		$this->data['timeCreated'] = time();
 	}
 	
-	/*public function save(){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
-		
-		$this->data['msgs'] = array();
-		foreach($this->msgs as $msgId => $msg){
-			#print __CLASS__.'->'.__FUNCTION__.': '.$msgId."\n";
-			
-			$this->data['msgs'][$msgId] = array(
-				'id' => $msg['id'],
-				'uid' => $msg['uid'],
-			);
-			$msg->save();
-		}
-		
-		$rv = parent::save();
-		unset($this->data['msgs']);
-		
-		return $rv;
-	}
-	*/
-	
 	public function load(){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
@@ -74,7 +53,7 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function msgRemove($id){
-		print __CLASS__.'->'.__FUNCTION__.': '.$id."\n";
+		#print __CLASS__.'->'.__FUNCTION__.': '.$id."\n";
 		
 		unset($this->msgIdByUid[$this->msgUidById[$id]]);
 		unset($this->msgUidById[$id]);
@@ -91,19 +70,13 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function getMsgIdByUid($uid){
-		print __CLASS__.'->'.__FUNCTION__.': '.$uid."\n";
-		#ve($this->msgIdByUid);
-		#ve($this->msgUidById);
-		
+		#print __CLASS__.'->'.__FUNCTION__.': '.$uid."\n";
 		if(isset($this->msgIdByUid[$uid])){
-			print __CLASS__.'->'.__FUNCTION__.':     is set '."\n";
+			#print __CLASS__.'->'.__FUNCTION__.':     is set '."\n";
 			return $this->msgIdByUid[$uid];
 		}
 		
-		print __CLASS__.'->'.__FUNCTION__.':     not found '."\n";
-		#ve($this->msgIdByUid);
-		#print '   '.$uid."\n";
-		
+		#print __CLASS__.'->'.__FUNCTION__.':     not found '."\n";
 		return null;
 	}
 	
