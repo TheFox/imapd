@@ -438,6 +438,38 @@ class Server extends Thread{
 		}
 	}
 	
+	public function mailCopy($seqNum, $folder){
+		#print __CLASS__.'->'.__FUNCTION__.': '.$seqNum.', '.$folder."\n";
+		
+		$this->storageInit();
+		
+		#ve($this->getRootStorage()->getUniqueId());
+		
+		foreach($this->storages as $storage){
+			if($storage['object'] instanceof Maildir){
+				if($storage['db']){
+					$id = $this->getRootStorageDbMsgIdBySeqNum($seqNum);
+					#$storage['db']->msgRemove($id);
+					
+					#print __CLASS__.'->'.__FUNCTION__.': '.$id."\n";
+					
+					$storage['object']->copyMessage($seqNum, $folder);
+					
+					$oldFolder = $storage['object']->getCurrentFolder();
+					$storage['object']->selectFolder($folder);
+					$lastId = $storage['object']->countMessages();
+					$uid = $this->storages[0]['object']->getUniqueId($lastId);
+					#ve($this->getRootStorage()->getUniqueId());
+					$storage['object']->selectFolder($oldFolder);
+					
+					$storage['db']->msgAdd($uid);
+				}
+			}
+		}
+		
+		#ve($this->getRootStorage()->getUniqueId());
+	}
+	
 	private function dirDelete($path){
 		if(is_dir($path)){
 			$dh = opendir($path);

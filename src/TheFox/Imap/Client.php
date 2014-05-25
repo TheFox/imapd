@@ -526,6 +526,28 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'copy'){
+			$args = $this->msgParseString($args, 2);
+			
+			$this->log('debug', 'client '.$this->id.' copy: "'.$args[0].'" "'.$args[1].'"');
+			
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
+					if($this->selectedFolder !== null){
+						$this->sendCopy($tag, $args[0], $args[1]);
+					}
+					else{
+						$this->sendNo('No mailbox selected.', $tag);
+					}
+				}
+				else{
+					$this->sendBad('Arguments invalid.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'uid'){
 			$args = $this->msgParseString($args, 3);
 			#ve($args);
@@ -1044,12 +1066,43 @@ class Client{
 		$this->sendOk('STORE completed', $tag);
 	}
 	
+	private function sendCopy($tag, $seq, $folder, $isUid = false){
+		$msgSeqNums = array();
+		try{
+			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
+		}
+		catch(Exception $e){
+			$this->sendBad($e->getMessage(), $tag);
+		}
+		
+		try{
+			$this->getServer()->getRootStorage()->getFolders($folder);
+		}
+		catch(Exception $e){
+			$this->sendNo('Can not get folder: '.$e->getMessage(), $tag, 'TRYCREATE');
+			return;
+		}
+		
+		foreach($msgSeqNums as $msgSeqNum){
+			try{
+				$this->getServer()->mailCopy($msgSeqNum, $folder);
+			}
+			catch(Exception $e){
+				$this->sendNo('Can not copy message: '.$msgSeqNum, $tag);
+				return;
+			}
+		}
+		
+		$this->sendOk('COPY completed', $tag);
+	}
+	
 	private function sendUid($tag, $args){
 		$command = array_shift($args);
 		$commandcmp = strtolower($command);
 		
 		if($commandcmp == 'copy'){
-			$this->sendBad('Copy not implemented.', $tag);
+			#$this->sendBad('Copy not implemented.', $tag);
+			$this->sendCopy($tag, $args[0], $args[1], true);
 		}
 		elseif($commandcmp == 'fetch'){
 			$this->select();
