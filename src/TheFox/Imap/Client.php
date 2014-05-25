@@ -703,11 +703,13 @@ class Client{
 			
 			try{
 				$msgSeqNums = $this->createSequenceSet('*');
-				ve($msgSeqNums);
+				#$this->log('debug', 'client '.$this->id.' msgSeqNums');
+				#ve($msgSeqNums);
 				foreach($msgSeqNums as $msgSeqNum){
-					$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+					#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
 					
 					$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+					#ve($message->getFlags());
 					if($message->hasFlag(Storage::FLAG_DELETED)){
 						$this->log('debug', 'client '.$this->id.'      del msg: '.$msgSeqNum);
 						$this->getServer()->mailRemove($msgSeqNum);
@@ -958,8 +960,10 @@ class Client{
 		$args = $this->msgParseString($args[1]);
 		#ve($args);
 		
+		#$this->log('debug', 'client '.$this->id.' flags');
 		$type = strtolower($args[0]);
 		$flags = $this->msgGetParenthesizedlist($args[1]);
+		#ve($flags);
 		unset($flags[Storage::FLAG_RECENT]);
 		$flags = array_combine($flags, $flags);
 		#ve($flags);
@@ -995,7 +999,7 @@ class Client{
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
-			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
+			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
 			$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
 			$messageFlags = $message->getFlags();
@@ -1005,8 +1009,10 @@ class Client{
 				$this->log('debug', 'client '.$this->id.'     set flags');
 			}
 			elseif($add){
-				$messageFlags = array_merge($messageFlags, $flags);
 				$this->log('debug', 'client '.$this->id.'     add flags');
+				#ve($messageFlags);
+				$messageFlags = array_merge($messageFlags, $flags);
+				#ve($messageFlags);
 			}
 			elseif($rem){
 				$this->log('debug', 'client '.$this->id.'     rem flags');

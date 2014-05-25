@@ -57,22 +57,22 @@ class Server extends Thread{
 	}
 	
 	public function getRootStorage(){
-		$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
+		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
 		$this->storageInit();
 		return $this->storages[0]['object'];
 	}
 	
 	public function getRootStorageDbMsgIdBySeqNum($seqNum){
-		$this->log->debug(__CLASS__.'->'.__FUNCTION__.': '.$seqNum);
+		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': '.$seqNum);
 		
 		if($this->storages[0]['db']){
-			$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok '.$seqNum);
+			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok '.$seqNum);
 			
-			ve($this->storages[0]['object']->getUniqueId());
+			#ve($this->storages[0]['object']->getUniqueId());
 			
 			try{
 				$uid = $this->storages[0]['object']->getUniqueId($seqNum);
-				$this->log->debug(__CLASS__.'->'.__FUNCTION__.': uid '.$uid);
+				#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': uid '.$uid);
 				return $this->storages[0]['db']->getMsgIdByUid($uid);
 			}
 			catch(Exception $e){
@@ -86,20 +86,20 @@ class Server extends Thread{
 	}
 	
 	public function getRootStorageDbNextId(){
-		$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
+		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
 		
 		if($this->storages[0]['db']){
-			$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok');
+			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok');
 			return $this->storages[0]['db']->getNextId();
 		}
 		
-		$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db failed');
+		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db failed');
 		return null;
 	}
 	
 	public function init(){
 		if($this->ip && $this->port){
-			$this->log->notice('listen on '.$this->ip.':'.$this->port);
+			#$this->log->notice('listen on '.$this->ip.':'.$this->port);
 			
 			$this->socket = new Socket();
 			
@@ -204,7 +204,7 @@ class Server extends Thread{
 				$r1 = 1;
 				
 				try{
-					$this->storages[0]['object']->createFolder('test2');
+					#$this->storages[0]['object']->createFolder('test2');
 				}
 				catch(Exception $e){}
 				
