@@ -598,6 +598,7 @@ class Client{
 	}
 	
 	private function sendNoop($tag){
+		$this->sendSelectedFolderInfos();
 		$this->sendOk('NOOP completed', $tag);
 	}
 	
@@ -620,6 +621,43 @@ class Client{
 		$this->sendOk('LOGIN completed', $tag);
 	}
 	
+	private function sendSelectedFolderInfos(){
+		$nextId = $this->getServer()->getRootStorageDbNextId();
+		$count = $this->getServer()->getRootStorage()->countMessages();
+		
+		$firstUnseen = 0;
+		$deleted = 0;
+		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
+			
+			try{
+				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
+				if($message->hasFlag(Storage::FLAG_RECENT) && !$firstUnseen){
+					$firstUnseen = $msgSeqNum;
+				}
+				if($message->hasFlag(Storage::FLAG_DELETED)){
+					$deleted++;
+				}
+			}
+			catch(Exception $e){
+				$this->log('error', $e->getMessage());
+			}
+		}
+		
+		if($deleted){
+			$this->dataSend('* '.$count.' EXPUNGE');
+		}
+		$this->dataSend('* '.$count.' EXISTS');
+		$this->dataSend('* '.$this->getServer()->getRootStorage()->countMessages(Storage::FLAG_RECENT).' RECENT');
+		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
+		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
+		if($nextId){
+			$this->dataSend('* OK [UIDNEXT '.$nextId.'] Predicted next UID');
+		}
+		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
+		$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
+	}
+	
 	private function sendSelect($tag, $folder){
 		if(strtolower($folder) == 'inbox' && $folder != 'INBOX'){
 			// Set folder to INBOX if folder is not INBOX
@@ -635,40 +673,8 @@ class Client{
 			return;
 		}
 		
-		$count = $this->getServer()->getRootStorage()->countMessages();
-		#$this->log('debug', 'client '.$this->id.' count: '.$count);
+		$this->sendSelectedFolderInfos();
 		
-		#ve($this->getServer()->getRootStorage()->getUniqueId());
-		
-		// Search for first unseen msg.
-		$firstUnseen = 0;
-		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
-			
-			try{
-				$message = $this->getServer()->getRootStorage()->getMessage($msgSeqNum);
-				if($message->hasFlag(Storage::FLAG_RECENT)){
-					$firstUnseen = $msgSeqNum;
-					break;
-				}
-			}
-			catch(Exception $e){
-				$this->log('error', $e->getMessage());
-			}
-		}
-		
-		$nextId = $this->getServer()->getRootStorageDbNextId();
-		$this->log('debug', 'client '.$this->id.' nextId: '.$nextId);
-		
-		$this->dataSend('* '.$count.' EXISTS');
-		$this->dataSend('* '.$this->getServer()->getRootStorage()->countMessages(Storage::FLAG_RECENT).' RECENT');
-		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
-		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
-		if($nextId){
-			$this->dataSend('* OK [UIDNEXT '.$nextId.'] Predicted next UID');
-		}
-		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
-		$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
 		$this->sendOk('SELECT completed', $tag, 'READ-WRITE');
 	}
 	
