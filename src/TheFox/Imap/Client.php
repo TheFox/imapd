@@ -679,8 +679,6 @@ class Client{
 	}
 	
 	private function sendCreate($tag, $folder){
-		$this->select();
-		
 		try{
 			$this->getServer()->getRootStorage()->createFolder($folder);
 			$this->sendOk('CREATE completed', $tag);
