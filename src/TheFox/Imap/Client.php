@@ -621,8 +621,11 @@ class Client{
 	}
 	
 	private function sendNoop($tag){
-		$this->sendSelectedFolderInfos();
-		$this->sendOk('NOOP completed', $tag);
+		$this->select();
+		if($this->selectedFolder !== null){
+			$this->sendSelectedFolderInfos();
+		}
+		$this->sendOk('NOOP completed client '.$this->getId().', '.$this->selectedFolder, $tag);
 	}
 	
 	private function sendLogout($tag){
