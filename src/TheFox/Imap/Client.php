@@ -534,7 +534,12 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
-					$this->sendUid($tag, $args);
+					if($this->selectedFolder !== null){
+						$this->sendUid($tag, $args);
+					}
+					else{
+						$this->sendNo('No mailbox selected.', $tag);
+					}
 				}
 				else{
 					$this->sendBad('Arguments invalid.', $tag);
@@ -1048,27 +1053,17 @@ class Client{
 		}
 		elseif($commandcmp == 'fetch'){
 			$this->select();
-			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
-			if($this->selectedFolder !== null){
-				$this->sendFetchRaw($tag, $args, true);
-				$this->sendOk('UID FETCH completed', $tag);
-			}
-			else{
-				$this->sendNo('No mailbox selected.', $tag);
-			}
+			$this->sendFetchRaw($tag, $args, true);
+			$this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
 			$this->select();
-			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
-			if($this->selectedFolder !== null){
-				$this->sendStoreRaw($tag, $args, true);
-				$this->sendOk('UID STORE completed', $tag);
-			}
-			else{
-				$this->sendNo('No mailbox selected.', $tag);
-			}
+			$this->sendStoreRaw($tag, $args, true);
+			$this->sendOk('UID STORE completed', $tag);
 		}
 		else{
 			$this->sendBad('Arguments invalid.', $tag);
