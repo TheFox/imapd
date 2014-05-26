@@ -1144,10 +1144,17 @@ class Client{
 		#ve($args);
 		#ve($isUid);
 		
+		ve('sendStoreRaw A');
+		ve($args);
+		
 		$argSeq = $args[0];
 		
 		$args = $this->msgParseString($args[1], 2);
-		#ve($args);
+		
+		if(!isset($args[1])){
+			ve('sendStoreRaw B');
+			ve($args);
+		}
 		
 		#$this->log('debug', 'client '.$this->id.' flags');
 		$type = strtolower($args[0]);
@@ -1263,7 +1270,6 @@ class Client{
 		$commandcmp = strtolower($command);
 		
 		if($commandcmp == 'copy'){
-			#$this->sendBad('Copy not implemented.', $tag);
 			$this->sendCopy($tag, $args[0], $args[1], true);
 		}
 		elseif($commandcmp == 'fetch'){
