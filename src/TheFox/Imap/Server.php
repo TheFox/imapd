@@ -62,6 +62,31 @@ class Server extends Thread{
 		return $this->storages[0]['object'];
 	}
 	
+	public function getRootStorageFolders($folder, $recursive = false, $level = 0){
+		$this->log->debug(__CLASS__.'->'.__FUNCTION__.': "'.$folder.'" '.(int)$recursive.', '.$level);
+		#sleep(1);
+		
+		if($level >= 100){
+			return array();
+		}
+		if($folder == '*' || strtolower($folder) == 'inbox'){
+			$folder = null;
+		}
+		
+		$rv = array();
+		$folders = $this->getRootStorage()->getFolders($folder);
+		foreach($folders as $folder){
+			$name = $folder->getGlobalName();
+			#$rv[] = $name;
+			$rv[] = $folder;
+			if($recursive && strtolower($name) != 'inbox'){
+				#$rv = array_merge($rv, $this->getRootStorageFolders($name, $recursive));
+				$rv = array_merge($rv, $this->getRootStorageFolders($name, $recursive, $level + 1));
+			}
+		}
+		return $rv;
+	}
+	
 	public function getRootStorageDbMsgIdBySeqNum($seqNum){
 		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': '.$seqNum);
 		
@@ -435,7 +460,7 @@ class Server extends Thread{
 	}
 	
 	public function mailRemove($seqNum){
-		print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
+		#print __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n";
 		
 		$this->storageInit();
 		
@@ -452,7 +477,7 @@ class Server extends Thread{
 					
 					try{
 						$this->getRootStorage()->removeMessage($seqNum);
-						ve($this->getRootStorage()->getUniqueId());
+						#ve($this->getRootStorage()->getUniqueId());
 					}
 					catch(Exception $e){
 						$this->log->error('root storage remove: '.$e->getMessage());

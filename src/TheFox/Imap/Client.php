@@ -24,6 +24,7 @@ class Client{
 	private $port = 0;
 	private $recvBufferTmp = '';
 	private $expunge = array(); # TODO
+	private $subscriptions = array();
 	
 	// Remember the selected mailbox for each client.
 	private $selectedFolder = null;
@@ -471,11 +472,45 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'subscribe'){
+			$args = $this->msgParseString($args, 1);
+			
+			$this->log('debug', 'client '.$this->id.' subscribe: '.$args[0]);
+			
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0]){
+					$this->sendSubscribe($tag, $args[0]);
+				}
+				else{
+					$this->sendBad('Arguments invalid.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
+		elseif($commandcmp == 'unsubscribe'){
+			$args = $this->msgParseString($args, 1);
+			
+			$this->log('debug', 'client '.$this->id.' unsubscribe: '.$args[0]);
+			
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0]){
+					$this->sendUnsubscribe($tag, $args[0]);
+				}
+				else{
+					$this->sendBad('Arguments invalid.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'list'){
 			$args = $this->msgParseString($args, 1);
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' list: '.$args[0]);
+			#$this->log('debug', 'client '.$this->id.' list: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
@@ -697,10 +732,12 @@ class Client{
 		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
 		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
 		if($nextId){
-			$this->dataSend('* OK [UIDNEXT '.$nextId.'] Predicted next UID');
+			#$this->dataSend('* OK [UIDNEXT '.$nextId.'] Predicted next UID');
+			$this->sendOk('Predicted next UID', null, 'UIDNEXT '.$nextId);
 		}
 		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
-		$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
+		#$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
+		$this->sendOk('Limited', null, 'PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)');
 	}
 	
 	private function sendSelect($tag, $folder){
@@ -733,33 +770,89 @@ class Client{
 		}
 	}
 	
-	private function sendList($tag, $folder){
+	private function sendSubscribe($tag, $folder){
 		try{
-			foreach($this->getServer()->getRootStorage()->getFolders($folder) as $folder){
-				$attrs = array();
-				$namePrefix = '';
-				if(strtolower($folder->getGlobalName()) == 'inbox'){
-					$attrs[] = '\\Noinferiors';
-				}
-				else{
-					#$namePrefix = '.';
-				}
-				#print "name: ".$folder->getGlobalName()."\n";
-				
-				$this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$namePrefix.$folder->getGlobalName().'"');
-			}
-			$this->sendOk('LIST completed', $tag);
+			$folder = $this->getServer()->getRootStorage()->getFolders($folder);
+			$this->sendOk('SUBSCRIBE completed', $tag);
+			
+			#ve($folder);
+			
+			$this->subscriptions[] = $folder->getGlobalName();
+			$this->subscriptions = array_unique($this->subscriptions);
+			ve($this->subscriptions);
+			
 		}
 		catch(Exception $e){
-			$this->sendNo('"'.$folder.'" no such folder.', $tag);
+			$this->sendNo('SUBSCRIBE failure: '.$e->getMessage(), $tag);
 		}
 	}
 	
-	private function sendLsub($tag){
-		#$this->dataSend('* LSUB () "." "#news.test"');
-		#$this->sendOk('LSUB completed', $tag);
+	private function sendUnsubscribe($tag, $folder){
+		try{
+			$folder = $this->getServer()->getRootStorage()->getFolders($folder);
+			$this->sendOk('UNSUBSCRIBE completed', $tag);
+			
+			#ve($folder);
+			
+			unset($this->subscriptions[$folder->getGlobalName()]);
+			ve($this->subscriptions);
+			
+		}
+		catch(Exception $e){
+			$this->sendNo('UNSUBSCRIBE failure: '.$e->getMessage(), $tag);
+		}
+	}
+	
+	private function sendList($tag, $folder){
+		$this->log('debug', 'client '.$this->id.' list: "'.$folder.'"');
 		
-		$this->sendBad('LSUB not implemented.', $tag);
+		$folder = str_replace('%', '*', $folder); # TODO
+		
+		$folders = array();
+		if(strpos($folder, '*') === false){
+			$this->log('debug', 'client '.$this->id.' list found no *');
+			$folders = $this->getServer()->getRootStorage()->getFolders($folder);
+		}
+		else{
+			$this->log('debug', 'client '.$this->id.' list found a *');
+			$items = preg_split('/\*/', $folder, 2);
+			#ve($items);
+			
+			$search = '';
+			if(count($items) <= 1){
+				$search = null;
+			}
+			else{
+				$search = $items[0];
+			}
+			
+			#$this->log('debug', 'client '.$this->id.' list search: "'.$search.'"');
+			$folders = $this->getServer()->getRootStorageFolders($search, true);
+		}
+		
+		#ve($folders);
+		
+		foreach($folders as $cfolder){
+			#$this->log('debug', 'client '.$this->id.'    folder '.$cfolder->getGlobalName());
+			
+			#if(fnmatch($folder, $cfolder->getGlobalName(), FNM_CASEFOLD)){
+				$attrs = array();
+				if(strtolower($cfolder->getGlobalName()) == 'inbox'){
+					#$attrs[] = '\\Noinferiors';
+				}
+				
+				$this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$cfolder->getGlobalName().'"');
+			#}
+		}
+		$this->sendOk('LIST completed', $tag);
+	}
+	
+	private function sendLsub($tag){
+		foreach($this->subscriptions as $subscription){
+			$this->dataSend('* LSUB () "." "'.$subscription.'"');
+		}
+		
+		$this->sendOk('LSUB completed', $tag);
 	}
 	
 	private function sendCheck($tag){

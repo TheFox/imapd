@@ -24,6 +24,8 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 6.2.2 AUTHENTICATE Command
 - 6.2.3 LOGIN Command
 - 6.3.1 SELECT Command
+- 6.3.6 SUBSCRIBE Command
+- 6.3.7 UNSUBSCRIBE Command
 - 6.3.8 LIST Command
 - 6.3.9 LSUB Command
 - 6.4.2 CLOSE Command
