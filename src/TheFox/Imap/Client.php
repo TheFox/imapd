@@ -1280,6 +1280,9 @@ class Client{
 			$this->sendStoreRaw($tag, $args, true);
 			$this->sendOk('UID STORE completed', $tag);
 		}
+		elseif($commandcmp == 'search'){
+			$this->sendBad('search not implemented.', $tag);
+		}
 		else{
 			$this->sendBad('Arguments invalid.', $tag);
 		}
