@@ -8,6 +8,7 @@ use InvalidArgumentException;
 
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
+use Zend\Mail\Message;
 
 use TheFox\Network\AbstractSocket;
 
@@ -37,6 +38,13 @@ class Client{
 		$this->status['authStep'] = 0;
 		$this->status['authTag'] = '';
 		$this->status['authMechanism'] = '';
+		$this->status['appendStep'] = 0;
+		$this->status['appendTag'] = '';
+		$this->status['appendFolder'] = '';
+		$this->status['appendFlags'] = array();
+		$this->status['appendDate'] = '';
+		$this->status['appendLiteral'] = 0;
+		$this->status['appendMsg'] = '';
 	}
 	
 	public function setId($id){
@@ -411,10 +419,10 @@ class Client{
 			#$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
 			
 			if(strtolower($args[0]) == 'plain'){
+				$this->setStatus('authStep', 1);
 				$this->setStatus('authTag', $tag);
 				$this->setStatus('authMechanism', $args[0]);
 				
-				$this->setStatus('authStep', 1);
 				$this->sendAuthenticate();
 			}
 			else{
@@ -526,13 +534,84 @@ class Client{
 		}
 		elseif($commandcmp == 'lsub'){
 			$args = $this->msgParseString($args, 1);
-			#ve($args);
 			
 			$this->log('debug', 'client '.$this->id.' lsub: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
 					$this->sendLsub($tag);
+				}
+				else{
+					$this->sendBad('Arguments invalid.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
+		elseif($commandcmp == 'append'){
+			$args = $this->msgParseString($args, 4);
+			
+			#ve($args);
+			
+			$this->log('debug', 'client '.$this->id.' append: "'.$args[0].'" "'.$args[1].'"');
+			
+			if($this->getStatus('hasAuth')){
+				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
+					if($this->selectedFolder !== null){
+						$this->setStatus('appendStep', 1);
+						$this->setStatus('appendTag', $tag);
+						$this->setStatus('appendFolder', $args[0]);
+						$this->setStatus('appendFlags', array());
+						$this->setStatus('appendDate', '');
+						$this->setStatus('appendLiteral', 0);
+						$this->setStatus('appendMsg', '');
+						
+						$flags = array();
+						$literal = 0;
+						
+						if(!isset($args[2]) && !isset($args[3])){
+							$this->log('debug', 'client '.$this->id.' append: 2 not set, 3 not set');
+							$literal = $args[1];
+						}
+						elseif(isset($args[2]) && !isset($args[3])){
+							$this->log('debug', 'client '.$this->id.' append: 2 set, 3 not set, A');
+							
+							if($args[1][0] == '(' && substr($args[1], -1) == ')'){
+								$this->log('debug', 'client '.$this->id.' append: 2 set, 3 not set, B');
+								
+								$flags = $this->msgGetParenthesizedlist($args[1]);
+							}
+							else{
+								$this->log('debug', 'client '.$this->id.' append: 2 set, 3 not set, C');
+								
+								$this->setStatus('appendDate', $args[1]);
+							}
+							$literal = $args[2];
+						}
+						elseif(isset($args[2]) && isset($args[3])){
+							$this->log('debug', 'client '.$this->id.' append: 2 set, 3 set');
+							
+							$flags = $this->msgGetParenthesizedlist($args[1]);
+							$this->setStatus('appendDate', $args[2]);
+							$literal = $args[3];
+						}
+						
+						$flags = array_combine($flags, $flags);
+						$this->setStatus('appendFlags', $flags);
+						#ve('flags');
+						#ve($flags);
+						
+						if($literal[0] == '{' && substr($literal, -1) == '}'){
+							$literal = (int)substr(substr($literal, 1), 0, -1);
+						}
+						$this->setStatus('appendLiteral', $literal);
+						
+						$this->sendAppend();
+					}
+					else{
+						$this->sendNo('No mailbox selected.', $tag);
+					}
 				}
 				else{
 					$this->sendBad('Arguments invalid.', $tag);
@@ -654,6 +733,12 @@ class Client{
 			if($this->getStatus('authStep') == 1){
 				$this->setStatus('authStep', 2);
 				$this->sendAuthenticate();
+			}
+			elseif($this->getStatus('appendStep') >= 1){
+				
+				#ve('appendStep data '.$this->getStatus('appendStep').' '.strlen($args));
+				
+				$this->sendAppend($msgRaw);
 			}
 			else{
 				$this->log('debug', 'client '.$this->id.' not implemented: "'.$tag.'" "'.$command.'" >"'.$args.'"<');
@@ -853,6 +938,43 @@ class Client{
 		}
 		
 		$this->sendOk('LSUB completed', $tag);
+	}
+	
+	private function sendAppend($data = ''){
+		#ve('sendAppend');
+		#ve($data);
+		
+		$this->log('debug', 'client '.$this->id.' append: '.$this->getStatus('appendStep').', '.$this->getStatus('appendTag').', '.$this->getStatus('appendFolder').', '.count($this->getStatus('appendFlags')).', '.$this->getStatus('appendDate').', '.$this->getStatus('appendLiteral').' '.strlen($this->getStatus('appendMsg')).' "'.$data.'"');
+		
+		if($this->getStatus('appendStep') == 1){
+			$this->status['appendStep']++;
+			
+			$this->dataSend('+ Ready for literal data');
+		}
+		elseif($this->getStatus('appendStep') == 2){
+			if(strlen($this->getStatus('appendMsg')) < $this->getStatus('appendLiteral')){
+				$this->status['appendMsg'] .= $data.Headers::EOL;
+			}
+			
+			if(strlen($this->getStatus('appendMsg')) >= $this->getStatus('appendLiteral')){
+				$this->status['appendStep']++;
+				
+				$message = Message::fromString($this->getStatus('appendMsg'));
+				
+				#ve($message);
+				#ve($message->toString());
+				
+				try{
+					$this->getServer()->mailAdd($message->toString(), $this->getStatus('appendFolder'), $this->getStatus('appendFlags'));
+					$this->sendOk('APPEND completed', $this->getStatus('appendTag'));
+				}
+				catch(Exception $e){
+					$this->sendNo('Can not get folder: '.$e->getMessage(), $this->getStatus('appendTag'), 'TRYCREATE');
+				}
+				
+				
+			}
+		}
 	}
 	
 	private function sendCheck($tag){

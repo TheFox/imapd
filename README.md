@@ -28,6 +28,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 6.3.7 UNSUBSCRIBE Command
 - 6.3.8 LIST Command
 - 6.3.9 LSUB Command
+- 6.3.11 APPEND Command
 - 6.4.2 CLOSE Command
 - 6.4.5 FETCH Command
 - 6.4.6 STORE Command
