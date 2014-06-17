@@ -1262,10 +1262,6 @@ class Client{
 	}
 	
 	private function sendStoreRaw($tag, $args, $isUid = false){
-		#ve('sendStoreRaw');
-		#ve($args);
-		#ve($isUid);
-		
 		ve('sendStoreRaw A');
 		ve($args);
 		

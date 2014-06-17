@@ -239,47 +239,17 @@ class Server extends Thread{
 				#$message->setSubject('test '.date('Y/m/d H:i:s'));
 				$message->setBody('body');
 				
-				#$this->mailAdd($message->toString(), null, array(), true);
-				#$this->mailAdd($message->toString(), null, array(), true);
-				#$this->mailAdd($message->toString(), null, array(), true);
-				#$this->mailAdd($message->toString(), null, array(), true);
-				#$this->mailAdd($message->toString(), null, array(), false);
-				#$this->mailAdd($message->toString(), null, array(), false);
-				#$this->mailAdd($message->toString(), null, array(), false);
-				
 				$message->setSubject('t1 '.date('H:i:s'));
-				$this->mailAdd($message->toString());
+				#$this->mailAdd($message->toString());
 				
 				$message->setSubject('t2 '.date('H:i:s'));
-				$this->mailAdd($message->toString());
+				#$this->mailAdd($message->toString());
 				
 				$message->setSubject('t3 '.date('H:i:s'));
-				$this->mailAdd($message->toString());
+				#$this->mailAdd($message->toString());
 				
 				$message->setSubject('t4 '.date('H:i:s'));
-				$this->mailAdd($message->toString());
-				
-				
-				#$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
-				#$mailboxPath = './tmp_mailbox';
-				#$this->dirDelete('mailbox');
-				#Maildir::initMaildir($mailboxPath);
-				#$this->storageAdd(new Maildir(array('dirname' => $mailboxPath)), $mailboxPath, 'temp');
-				#$this->storageAddMaildir($mailboxPath);
-				
-				/*
-				try{
-					
-					$this->storages[0]['object']->createFolder('test123.x');
-					$this->storages[0]['object']->createFolder('test123.x.a');
-					$this->storages[0]['object']->createFolder('test123.y');
-					$this->storages[0]['object']->createFolder('test123.z');
-					$this->storages[0]['object']->createFolder('test123.z.b');
-				}
-				catch(Exception $e){
-					$this->log->error('createFolder: '.$e->getMessage());
-				}
-				*/
+				#$this->mailAdd($message->toString());
 				
 			}
 			
