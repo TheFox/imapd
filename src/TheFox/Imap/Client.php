@@ -1244,13 +1244,13 @@ class Client{
 		
 	}
 	
-	private function sendFetch($tag, $args){
+	/*private function sendFetch($tag, $seq, $name){
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
-		$this->sendFetchRaw($tag, $args, false);
+		$this->sendFetchRaw($tag, $seq, $name, false);
 		$this->sendOk('FETCH completed', $tag);
-	}
+	}*/
 	
 	private function sendStoreRaw($tag, $seq, $name, $flagsStr, $isUid = false){
 		#ve('sendStoreRaw');
