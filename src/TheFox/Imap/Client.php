@@ -940,7 +940,7 @@ class Client{
 		#ve('sendAppend');
 		#ve($data);
 		
-		$this->log('debug', 'client '.$this->id.' append: '.$this->getStatus('appendStep').', '.$this->getStatus('appendTag').', '.$this->getStatus('appendFolder').', '.count($this->getStatus('appendFlags')).', '.$this->getStatus('appendDate').', '.$this->getStatus('appendLiteral').' '.strlen($this->getStatus('appendMsg')).' "'.$data.'"');
+		#$this->log('debug', 'client '.$this->id.' append: '.$this->getStatus('appendStep').', '.$this->getStatus('appendTag').', '.$this->getStatus('appendFolder').', '.count($this->getStatus('appendFlags')).', '.$this->getStatus('appendDate').', '.$this->getStatus('appendLiteral').' '.strlen($this->getStatus('appendMsg')).' "'.$data.'"');
 		
 		if($this->getStatus('appendStep') == 1){
 			$this->status['appendStep']++;
@@ -1204,8 +1204,6 @@ class Client{
 						foreach($val['header.fields'] as $fieldNum => $field){
 							try{
 								$header = $message->getHeader($field);
-								#$this->log('debug', 'client '.$this->id.' field: "'.$header->getFieldName().'" => "'.$header->getFieldValue().'"');
-								#$this->log('debug', 'client '.$this->id.' field: "'.$header->toString().'"');
 								$msgStr .= $header->toString().Headers::EOL;
 							}
 							catch(InvalidArgumentException $e){
@@ -1287,10 +1285,6 @@ class Client{
 		catch(Exception $e){
 			$this->sendBad($e->getMessage(), $tag);
 		}
-		
-		#ve('sendStoreRaw msgSeqNums');
-		#ve($msgSeqNums);
-		
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
