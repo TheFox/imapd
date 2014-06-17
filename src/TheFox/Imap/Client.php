@@ -171,11 +171,12 @@ class Client{
 		$argsrc = -1;
 		$isStr = false;
 		foreach($args as $n => $arg){
-			#fwrite(STDOUT, "arg $n ".(int)$isStr." '$arg'\n");
+			$argLen = strlen($arg);
+			#fwrite(STDOUT, "arg $n ".(int)$isStr." ".$argLen." '".$arg."'\n");
 			
 			$isStrBegin = false;
 			$isStrEnd = false;
-			if($arg){
+			if($argLen){
 				#fwrite(STDOUT, "    is arg\n");
 				if($isStr){
 					#fwrite(STDOUT, "    is str A\n");
@@ -184,7 +185,7 @@ class Client{
 						$isStr = false;
 						$isStrEnd = true;
 					}
-					if(strlen($arg) > 1 && substr($arg, -1) == '"'){
+					if($argLen > 1 && substr($arg, -1) == '"'){
 						#fwrite(STDOUT, "    last char is \"\n");
 						$isStr = false;
 						$isStrEnd = true;
@@ -197,7 +198,7 @@ class Client{
 						$isStr = true;
 						$isStrBegin = true;
 					}
-					if(strlen($arg) > 1 && substr($arg, -1) == '"'){
+					if($argLen > 1 && substr($arg, -1) == '"'){
 						#fwrite(STDOUT, "    last char is \"\n");
 						$isStr = false;
 						$isStrEnd = true;
@@ -212,7 +213,8 @@ class Client{
 				#fwrite(STDOUT, "    str begin\n");
 				$new = true;
 				$arg = substr($arg, 1);
-				if(!$arg){
+				$argLen = strlen($arg);
+				if($argLen == 0){
 					$empty = true;
 				}
 			}
@@ -224,7 +226,8 @@ class Client{
 				#fwrite(STDOUT, "    str begin & end\n");
 				$new = true;
 				$arg = substr(substr($arg, 1), 0, -1);
-				if(!$arg){
+				$argLen = strlen($arg);
+				if($argLen == 0){
 					$empty = true;
 				}
 			}
@@ -242,7 +245,7 @@ class Client{
 			
 			if($new && ($argsMax === null || count($argsr) < $argsMax)){
 				
-				if($arg){
+				if($argLen){
 					#fwrite(STDOUT, "    new A ".(int)$empty." '".$arg."'\n");
 					
 					$argsrc++;
