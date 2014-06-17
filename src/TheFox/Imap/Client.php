@@ -662,15 +662,17 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'store'){
-			$args = $this->msgParseString($args, 2);
+			$args = $this->msgParseString($args, 3);
 			
-			$this->log('debug', 'client '.$this->id.' store: "'.$args[0].'" "'.$args[1].'"');
+			$this->log('debug', 'client '.$this->id.' store: "'.$args[0].'" "'.$args[1].'" "'.$args[2].'"');
 			
 			if($this->getStatus('hasAuth')){
-				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
+				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1] && isset($args[2]) && $args[2]){
 					if($this->selectedFolder !== null){
-						$this->sendStoreRaw($tag, $args, true);
-						$this->sendOk('STORE completed', $tag);
+						$seq = $args[0];
+						$name = $args[1];
+						$flagsStr = $args[2];
+						$this->sendStore($tag, $seq, $name, $flagsStr);
 					}
 					else{
 						$this->sendNo('No mailbox selected.', $tag);
@@ -692,7 +694,9 @@ class Client{
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
 					if($this->selectedFolder !== null){
-						$this->sendCopy($tag, $args[0], $args[1]);
+						$seq = $args[0];
+						$folder = $args[1];
+						$this->sendCopy($tag, $seq, $folder);
 					}
 					else{
 						$this->sendNo('No mailbox selected.', $tag);
@@ -707,22 +711,14 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'uid'){
-			$args = $this->msgParseString($args, 3);
-			#ve($args);
-			
-			#$this->log('debug', 'client '.$this->id.' uid: "'.$args[0].'" "'.$args[1].'"');
+			#ve('uid');
 			
 			if($this->getStatus('hasAuth')){
-				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
-					if($this->selectedFolder !== null){
-						$this->sendUid($tag, $args);
-					}
-					else{
-						$this->sendNo('No mailbox selected.', $tag);
-					}
+				if($this->selectedFolder !== null){
+					$this->sendUid($tag, $args);
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					$this->sendNo('No mailbox selected.', $tag);
 				}
 			}
 			else{
@@ -1122,18 +1118,15 @@ class Client{
 		return $msgSeqNums;
 	}
 	
-	private function sendFetchRaw($tag, $args, $isUid = false){
-		#ve($args);
-		
-		$argSeq = $args[0];
-		$argWanted = $args[1];
+	private function sendFetchRaw($tag, $seq, $name, $isUid = false){
+		#ve('fetchRaw');
 		
 		$msgItems = array();
 		if($isUid){
 			$msgItems['uid'] = '';
 		}
-		if(isset($argWanted)){
-			$wanted = $this->msgGetParenthesizedlist($argWanted);
+		if(isset($name)){
+			$wanted = $this->msgGetParenthesizedlist($name);
 			foreach($wanted as $n => $item){
 				if(is_string($item)){
 					$itemcmp = strtolower($item);
@@ -1165,7 +1158,7 @@ class Client{
 		
 		$msgSeqNums = array();
 		try{
-			$msgSeqNums = $this->createSequenceSet($argSeq, $isUid);
+			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
 		}
 		catch(Exception $e){
 			$this->sendBad($e->getMessage(), $tag);
@@ -1261,31 +1254,19 @@ class Client{
 		$this->sendOk('FETCH completed', $tag);
 	}
 	
-	private function sendStoreRaw($tag, $args, $isUid = false){
-		ve('sendStoreRaw A');
-		ve($args);
+	private function sendStoreRaw($tag, $seq, $name, $flagsStr, $isUid = false){
+		#ve('sendStoreRaw');
 		
-		$argSeq = $args[0];
-		
-		$args = $this->msgParseString($args[1], 2);
-		
-		if(!isset($args[1])){
-			ve('sendStoreRaw B');
-			ve($args);
-		}
-		
-		#$this->log('debug', 'client '.$this->id.' flags');
-		$type = strtolower($args[0]);
-		$flags = $this->msgGetParenthesizedlist($args[1]);
+		$flags = $this->msgGetParenthesizedlist($flagsStr);
+		#ve('sendStoreRaw flags');
 		#ve($flags);
 		unset($flags[Storage::FLAG_RECENT]);
 		$flags = array_combine($flags, $flags);
-		#ve($flags);
 		
 		$add = false;
 		$rem = false;
 		$silent = false;
-		switch($type){
+		switch(strtolower($name)){
 			case '+flags.silent':
 				$silent = true;
 			case '+flags':
@@ -1301,7 +1282,7 @@ class Client{
 		
 		$msgSeqNums = array();
 		try{
-			$msgSeqNums = $this->createSequenceSet($argSeq, $isUid);
+			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
 		}
 		catch(Exception $e){
 			$this->sendBad($e->getMessage(), $tag);
@@ -1345,11 +1326,11 @@ class Client{
 		
 	}
 	
-	private function sendStore($tag, $args){
+	private function sendStore($tag, $seq, $name, $flagsStr){
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
-		$this->sendStoreRaw($tag, $args, false);
+		$this->sendStoreRaw($tag, $seq, $name, $flagsStr, false);
 		$this->sendOk('STORE completed', $tag);
 	}
 	
@@ -1384,28 +1365,51 @@ class Client{
 	}
 	
 	private function sendUid($tag, $args){
-		$command = array_shift($args);
+		$args = $this->msgParseString($args, 2);
+		
+		#ve('sendUid A');ve($args);
+		
+		$command = $args[0];
 		$commandcmp = strtolower($command);
+		$args = $args[1];
+		
+		#ve('sendUid B');ve($args);
 		
 		if($commandcmp == 'copy'){
-			$this->sendCopy($tag, $args[0], $args[1], true);
+			$args = $this->msgParseString($args, 2);
+			$seq = $args[0];
+			$folder = $args[1];
+			$this->sendCopy($tag, $seq, $folder, true);
 		}
 		elseif($commandcmp == 'fetch'){
 			$this->select();
 			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
-			$this->sendFetchRaw($tag, $args, true);
+			$args = $this->msgParseString($args, 2);
+			$seq = $args[0];
+			$name = $args[1];
+			$this->sendFetchRaw($tag, $seq, $name, true);
 			$this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
 			$this->select();
 			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
-			$this->sendStoreRaw($tag, $args, true);
+			$args = $this->msgParseString($args, 3);
+			$seq = $args[0];
+			$name = $args[1];
+			$flagsStr = $args[2];
+			$this->sendStoreRaw($tag, $seq, $name, $flagsStr, true);
 			$this->sendOk('UID STORE completed', $tag);
 		}
 		elseif($commandcmp == 'search'){
-			$this->sendBad('search not implemented.', $tag);
+			#$this->sendBad('search not implemented.', $tag);
+			$this->select();
+			
+			ve($args);
+			
+			#$this->sendSearchRaw($tag, $args, true); # TODO
+			$this->sendOk('UID SEARCH completed', $tag);
 		}
 		else{
 			$this->sendBad('Arguments invalid.', $tag);
