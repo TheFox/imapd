@@ -242,23 +242,17 @@ class Client{
 			}
 			
 			#fwrite(STDOUT, "    check new: ".(int)$new.", ".(int)($argsMax === null).", ".(int)count($argsr)." < ".(int)$argsMax."\n");
-			
 			if($new && ($argsMax === null || count($argsr) < $argsMax)){
-				
 				if($argLen){
 					#fwrite(STDOUT, "    new A ".(int)$empty." '".$arg."'\n");
-					
 					$argsrc++;
 					$argsr[$argsrc] = array($arg);
-					
 				}
 				else{
 					if($empty){
 						#fwrite(STDOUT, "    new B empty '".$arg."'\n");
-						
 						$argsrc++;
 						$argsr[$argsrc] = array('');
-						
 					}
 					else{
 						#fwrite(STDOUT, "    new B else '".$arg."'\n");
@@ -274,13 +268,10 @@ class Client{
 		$args = array_values($args);
 
 		#fwrite(STDOUT, "\n");
-
 		foreach($argsr as $n => $arg){
 			$argstr = join(' ', $arg);
 			#fwrite(STDOUT, "r arg $n '".$argstr."'\n");
-			
 			$argsr[$n] = $argstr;
-			
 			#foreach($arg as $j => $sarg){ fwrite(STDOUT, "    s arg $j '".$sarg."'\n"); }
 		}
 		$argsr = array_values($argsr);
