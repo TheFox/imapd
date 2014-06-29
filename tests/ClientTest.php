@@ -1,5 +1,9 @@
 <?php
 
+use Zend\Mail\Message;
+use Zend\Mail\Storage;
+
+use TheFox\Imap\Server;
 use TheFox\Imap\Client;
 
 class ClientTest extends PHPUnit_Framework_TestCase{
@@ -136,4 +140,376 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client = new Client();
 		$this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
 	}
+	
+	public function providerMsgHandle(){
+		$rv = array(
+			array('NO_COMMAND', 'NO_COMMAND BAD Not implemented: "NO_COMMAND" ""'),
+			array('1 NO_COMMAND', '1 BAD Not implemented: "1" "NO_COMMAND"'),
+			array('1 capability', '* CAPABILITY IMAP4rev1 AUTH=PLAIN'.Client::MSG_SEPARATOR.'1 OK CAPABILITY completed'),
+			array('2 noop', '2 OK NOOP completed client 1, ""'),
+			array('3 logout', '* BYE IMAP4rev1 Server logging out'),
+			array('4 authenticate X', '4 NO X Unsupported authentication mechanism'),
+			array('5 login thefox password', '5 OK LOGIN completed'),
+			array('5 login thefox', '5 BAD Arguments invalid.'),
+			#array('', ''),
+			#array('', ''),
+		);
+		
+		foreach($rv as $cn => $case){
+			$rv[$cn][1] .= Client::MSG_SEPARATOR;
+		}
+		
+		return $rv;
+	}
+	
+	/**
+     * @dataProvider providerMsgHandle
+     */
+	public function testMsgHandleBasic($msgRaw, $expect){
+		$server = new Server('', 0);
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle($msgRaw);
+		
+		$this->assertEquals($expect, $msg);
+		
+		#$this->assertStringStartsWith($expect, $msg);
+		#fwrite(STDOUT, "msg: '$msg'\n");
+		
+		#$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+	
+	public function testMsgHandleAuthenticate(){
+		$server = new Server('', 0);
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('4 authenticate plain');
+		$this->assertEquals('+'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('AHRoZWZveAB0ZXN0');
+		$this->assertEquals('4 OK plain authentication successful'.Client::MSG_SEPARATOR, $msg);
+		
+		#$this->assertStringStartsWith($expect, $msg);
+		#fwrite(STDOUT, "msg: '$msg'\n");
+		
+		#$this->markTestIncomplete('This test has not been implemented yet.');
+	}
+	
+	public function testMsgHandleSelect(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('6 select test_dir');
+		$this->assertEquals('6 NO select failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		$msg = $client->msgHandle('6 select');
+		$this->assertEquals('6 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('6 select test_dir');
+		$this->assertEquals('6 NO "test_dir" no such mailbox'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$msg = $client->msgHandle('6 select test_dir');
+		$this->assertEquals('6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR, $msg);
+		
+	}
+	
+	public function testMsgHandleCreate(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('7 create');
+		$this->assertEquals('7 NO create failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('7 create test_dir');
+		$this->assertEquals('7 NO create failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		$msg = $client->msgHandle('7 create test_dir');
+		$this->assertEquals('7 OK CREATE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('7 create test_dir');
+		$this->assertEquals('7 NO CREATE failure: folder already exists'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('7 create');
+		$this->assertEquals('7 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('7 create test_dir/test_subdir1');
+		$this->assertEquals('7 NO CREATE failure: invalid name - no directory separator allowed in folder name'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('7 create test_dir.test_subdir2');
+		$this->assertEquals('7 OK CREATE completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	public function testMsgHandleSubscribe(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('8 subscribe');
+		$this->assertEquals('8 NO subscribe failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('8 subscribe test_dir');
+		$this->assertEquals('8 NO subscribe failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('8 subscribe');
+		$this->assertEquals('8 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('8 subscribe test_dir');
+		$this->assertEquals('8 NO SUBSCRIBE failure: no subfolder named test_dir'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$msg = $client->msgHandle('8 subscribe test_dir');
+		$this->assertEquals('8 OK SUBSCRIBE completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	public function testMsgHandleUnsubscribe(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('9 unsubscribe test_dir');
+		$this->assertEquals('9 NO unsubscribe failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('9 unsubscribe');
+		$this->assertEquals('9 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('9 unsubscribe test_dir');
+		$this->assertEquals('9 NO UNSUBSCRIBE failure: no subfolder named test_dir'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$msg = $client->msgHandle('9 unsubscribe test_dir');
+		$this->assertEquals('9 OK UNSUBSCRIBE completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	public function testMsgHandleList(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('10 list');
+		$this->assertEquals('10 NO list failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('10 list');
+		$this->assertEquals('10 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('10 list test_dir');
+		$this->assertEquals('10 NO LIST failure: no subfolder named test_dir'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('10 list test_dir.*');
+		$this->assertEquals('10 NO LIST failure: no subfolder named test_dir'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		$server->storageFolderAdd('test_dir');
+		
+		$msg = $client->msgHandle('10 list test_dir');
+		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('10 list test_dir.*');
+		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir.test_subdir1');
+		$msg = $client->msgHandle('10 list test_dir.*');
+		$this->assertEquals('* LIST () "." "test_dir.test_subdir1"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+	}
+	
+	public function testMsgHandleLsub(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('11 lsub');
+		$this->assertEquals('11 NO lsub failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('11 lsub');
+		$this->assertEquals('11 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('11 lsub test_dir');
+		$this->assertEquals('11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$client->msgHandle('8 subscribe test_dir');
+		$msg = $client->msgHandle('11 lsub test_dir');
+		$this->assertEquals('* LSUB () "." "test_dir"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	/*public function testMsgHandleAppend(){
+		$this->markTestIncomplete('This test has not been implemented yet.');
+	}*/
+	
+	public function testMsgHandleCheck(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('12 check');
+		$this->assertEquals('12 NO check failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('12 check');
+		$this->assertEquals('12 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$client->msgHandle('6 select test_dir');
+		
+		$msg = $client->msgHandle('12 check');
+		$this->assertEquals('12 OK CHECK completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	public function testMsgHandleClose(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('13 close');
+		$this->assertEquals('13 NO close failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('13 close');
+		$this->assertEquals('13 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$client->msgHandle('6 select test_dir');
+		
+		$msg = $client->msgHandle('13 close');
+		$this->assertEquals('13 OK CLOSE completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	/**
+	 * @group medium
+	 */
+	public function testMsgHandleExpunge(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('14 NO expunge failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('14 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$client->msgHandle('6 select test_dir');
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		
+		usleep(110000);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		usleep(120000);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('* 1 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	/*public function testMsgHandleSearch(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+	}*/
+	
+	/*public function testMsgHandleStore(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+	}*/
+	
+	/*public function testMsgHandleCopy(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+	}*/
+	
+	public function testMsgHandleUidCopy(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('15 UID copy');
+		$this->assertEquals('');
+		
+	}
+	
 }

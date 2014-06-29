@@ -126,6 +126,7 @@ class Client{
 	
 	private function log($level, $msg){
 		#print __CLASS__.'->'.__FUNCTION__.': '.$level.', '.$msg."\n";
+		#fwrite(STDOUT, "log: $level, $msg\n");
 		
 		if($this->getLog()){
 			if(method_exists($this->getLog(), $level)){
@@ -298,8 +299,6 @@ class Client{
 		#fwrite(STDOUT, str_repeat(' ', $level * 4)."raw '$msgRaw'\n");
 		#usleep(100000);
 		
-		#if($level >= 100){ exit(); } # TODO
-		
 		$rv = array();
 		$rvc = 0;
 		if($msgRaw){
@@ -372,12 +371,14 @@ class Client{
 		return $rv2;
 	}
 	
-	private function msgHandle($msgRaw){
+	public function msgHandle($msgRaw){
 		$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
+		
+		$rv = '';
 		
 		#$args = $this->msgGetArgs($msgRaw);
 		$args = $this->msgParseString($msgRaw, 3);
-		
+		#ve($args);
 		
 		#$tag = $args['tag'];
 		$tag = array_shift($args);
@@ -396,14 +397,14 @@ class Client{
 		if($commandcmp == 'capability'){
 			#$this->log('debug', 'client '.$this->id.' capability: '.$tag);
 			
-			$this->sendCapability($tag);
+			return $this->sendCapability($tag);
 		}
 		elseif($commandcmp == 'noop'){
-			$this->sendNoop($tag);
+			return $this->sendNoop($tag);
 		}
 		elseif($commandcmp == 'logout'){
-			$this->sendBye('IMAP4rev1 Server logging out');
-			$this->sendLogout($tag);
+			$rv .= $this->sendBye('IMAP4rev1 Server logging out');
+			$rv .= $this->sendLogout($tag);
 			$this->shutdown();
 		}
 		elseif($commandcmp == 'authenticate'){
@@ -417,10 +418,10 @@ class Client{
 				$this->setStatus('authTag', $tag);
 				$this->setStatus('authMechanism', $args[0]);
 				
-				$this->sendAuthenticate();
+				return $this->sendAuthenticate();
 			}
 			else{
-				$this->sendNo($args[0].' Unsupported authentication mechanism', $tag);
+				return $this->sendNo($args[0].' Unsupported authentication mechanism', $tag);
 			}
 		}
 		elseif($commandcmp == 'login'){
@@ -430,82 +431,82 @@ class Client{
 			#$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
 			
 			if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
-				$this->sendLogin($tag);
+				return $this->sendLogin($tag);
 			}
 			else{
-				$this->sendBad('Arguments invalid.', $tag);
+				return $this->sendBad('Arguments invalid.', $tag);
 			}
 		}
 		elseif($commandcmp == 'select'){
 			$args = $this->msgParseString($args, 1);
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
+			#$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendSelect($tag, $args[0]);
+					return $this->sendSelect($tag, $args[0]);
 				}
 				else{
 					$this->selectedFolder = null;
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
 				$this->selectedFolder = null;
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'create'){
 			$args = $this->msgParseString($args, 1);
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
+			#$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendCreate($tag, $args[0]);
+					return $this->sendCreate($tag, $args[0]);
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'subscribe'){
 			$args = $this->msgParseString($args, 1);
 			
-			$this->log('debug', 'client '.$this->id.' subscribe: '.$args[0]);
+			#$this->log('debug', 'client '.$this->id.' subscribe: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendSubscribe($tag, $args[0]);
+					return $this->sendSubscribe($tag, $args[0]);
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'unsubscribe'){
 			$args = $this->msgParseString($args, 1);
 			
-			$this->log('debug', 'client '.$this->id.' unsubscribe: '.$args[0]);
+			#$this->log('debug', 'client '.$this->id.' unsubscribe: '.$args[0]);
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendUnsubscribe($tag, $args[0]);
+					return $this->sendUnsubscribe($tag, $args[0]);
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'list'){
@@ -516,31 +517,31 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendList($tag, $args[0]);
+					return $this->sendList($tag, $args[0]);
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'lsub'){
 			$args = $this->msgParseString($args, 1);
 			
-			$this->log('debug', 'client '.$this->id.' lsub: '.$args[0]);
+			$this->log('debug', 'client '.$this->id.' lsub: '.(isset($args[0]) ? $args[0] : 'N/A'));
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
-					$this->sendLsub($tag);
+					return $this->sendLsub($tag);
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'append'){
@@ -619,10 +620,10 @@ class Client{
 			#$this->log('debug', 'client '.$this->id.' check');
 			
 			if($this->getStatus('hasAuth')){
-				$this->sendCheck($tag);
+				return $this->sendCheck($tag);
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'close'){
@@ -630,14 +631,14 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if($this->selectedFolder !== null){
-					$this->sendClose($tag);
+					return $this->sendClose($tag);
 				}
 				else{
-					$this->sendNo('No mailbox selected.', $tag);
+					return $this->sendNo('No mailbox selected.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'expunge'){
@@ -645,14 +646,14 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if($this->selectedFolder !== null){
-					$this->sendExpunge($tag);
+					return $this->sendExpunge($tag);
 				}
 				else{
-					$this->sendNo('No mailbox selected.', $tag);
+					return $this->sendNo('No mailbox selected.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'store'){
@@ -709,37 +710,40 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if($this->selectedFolder !== null){
-					$this->sendUid($tag, $args);
+					return $this->sendUid($tag, $args);
 				}
 				else{
-					$this->sendNo('No mailbox selected.', $tag);
+					return $this->sendNo('No mailbox selected.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		else{
 			if($this->getStatus('authStep') == 1){
 				$this->setStatus('authStep', 2);
-				$this->sendAuthenticate();
+				return $this->sendAuthenticate();
 			}
 			elseif($this->getStatus('appendStep') >= 1){
-				
-				#ve('appendStep data '.$this->getStatus('appendStep').' '.strlen($args));
-				
 				$this->sendAppend($msgRaw);
 			}
 			else{
 				$this->log('debug', 'client '.$this->id.' not implemented: "'.$tag.'" "'.$command.'" >"'.$args.'"<');
-				$this->sendBad('Not implemented: "'.$tag.'" "'.$command.'"', $tag);
+				return $this->sendBad('Not implemented: "'.$tag.'" "'.$command.'"', $tag);
 			}
 		}
+		
+		return $rv;
 	}
 	
 	public function dataSend($msg){
-		$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
-		$this->getSocket()->write($msg.static::MSG_SEPARATOR);
+		#$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
+		$output = $msg.static::MSG_SEPARATOR;
+		if($this->getSocket()){
+			$this->getSocket()->write($output);
+		}
+		return $output;
 	}
 	
 	public function sendHello(){
@@ -747,8 +751,10 @@ class Client{
 	}
 	
 	private function sendCapability($tag){
-		$this->dataSend('* CAPABILITY IMAP4rev1 AUTH=PLAIN');
-		$this->sendOk('CAPABILITY completed', $tag);
+		$rv = '';
+		$rv .= $this->dataSend('* CAPABILITY IMAP4rev1 AUTH=PLAIN');
+		$rv .= $this->sendOk('CAPABILITY completed', $tag);
+		return $rv;
 	}
 	
 	private function sendNoop($tag){
@@ -756,7 +762,7 @@ class Client{
 		if($this->selectedFolder !== null){
 			$this->sendSelectedFolderInfos();
 		}
-		$this->sendOk('NOOP completed client '.$this->getId().', '.$this->selectedFolder, $tag);
+		return $this->sendOk('NOOP completed client '.$this->getId().', "'.$this->selectedFolder.'"', $tag);
 	}
 	
 	private function sendLogout($tag){
@@ -765,17 +771,18 @@ class Client{
 	
 	private function sendAuthenticate(){
 		if($this->getStatus('authStep') == 1){
-			$this->dataSend('+');
+			return $this->dataSend('+');
 		}
 		elseif($this->getStatus('authStep') == 2){
 			$this->setStatus('hasAuth', true);
 			$this->setStatus('authStep', 0);
-			$this->sendOk($this->getStatus('authMechanism').' authentication successful', $this->getStatus('authTag'));
+			
+			return $this->sendOk($this->getStatus('authMechanism').' authentication successful', $this->getStatus('authTag'));
 		}
 	}
 	
 	private function sendLogin($tag){
-		$this->sendOk('LOGIN completed', $tag);
+		return $this->sendOk('LOGIN completed', $tag);
 	}
 	
 	private function sendSelectedFolderInfos(){
@@ -826,55 +833,57 @@ class Client{
 		}
 		catch(Exception $e){
 			$this->selectedFolder = null;
-			$this->sendNo('"'.$folder.'" no such mailbox', $tag);
-			return;
+			return $this->sendNo('"'.$folder.'" no such mailbox', $tag);
 		}
 		
 		$this->sendSelectedFolderInfos();
 		
-		$this->sendOk('SELECT completed', $tag, 'READ-WRITE');
+		return $this->sendOk('SELECT completed', $tag, 'READ-WRITE');
 	}
 	
 	private function sendCreate($tag, $folder){
 		try{
 			$this->getServer()->getRootStorage()->createFolder($folder);
-			$this->sendOk('CREATE completed', $tag);
+			return $this->sendOk('CREATE completed', $tag);
 		}
 		catch(Exception $e){
-			$this->sendNo('CREATE failure: '.$e->getMessage(), $tag);
+			return $this->sendNo('CREATE failure: '.$e->getMessage(), $tag);
 		}
 	}
 	
 	private function sendSubscribe($tag, $folder){
 		try{
 			$folder = $this->getServer()->getRootStorage()->getFolders($folder);
-			$this->sendOk('SUBSCRIBE completed', $tag);
+			
 			
 			#ve($folder);
 			
 			$this->subscriptions[] = $folder->getGlobalName();
 			$this->subscriptions = array_unique($this->subscriptions);
-			ve($this->subscriptions);
+			#ve($this->subscriptions);
+			# TODO
+			
+			
+			return $this->sendOk('SUBSCRIBE completed', $tag);
 			
 		}
 		catch(Exception $e){
-			$this->sendNo('SUBSCRIBE failure: '.$e->getMessage(), $tag);
+			return $this->sendNo('SUBSCRIBE failure: '.$e->getMessage(), $tag);
 		}
 	}
 	
 	private function sendUnsubscribe($tag, $folder){
 		try{
 			$folder = $this->getServer()->getRootStorage()->getFolders($folder);
-			$this->sendOk('UNSUBSCRIBE completed', $tag);
-			
-			#ve($folder);
 			
 			unset($this->subscriptions[$folder->getGlobalName()]);
-			ve($this->subscriptions);
+			#ve($this->subscriptions);
+			# TODO
 			
+			return $this->sendOk('UNSUBSCRIBE completed', $tag);
 		}
 		catch(Exception $e){
-			$this->sendNo('UNSUBSCRIBE failure: '.$e->getMessage(), $tag);
+			return $this->sendNo('UNSUBSCRIBE failure: '.$e->getMessage(), $tag);
 		}
 	}
 	
@@ -886,7 +895,12 @@ class Client{
 		$folders = array();
 		if(strpos($folder, '*') === false){
 			$this->log('debug', 'client '.$this->id.' list found no *');
-			$folders = $this->getServer()->getRootStorage()->getFolders($folder);
+			try{
+				$folders = $this->getServer()->getRootStorage()->getFolders($folder);
+			}
+			catch(Exception $e){
+				return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
+			}
 		}
 		else{
 			$this->log('debug', 'client '.$this->id.' list found a *');
@@ -901,12 +915,17 @@ class Client{
 				$search = $items[0];
 			}
 			
-			#$this->log('debug', 'client '.$this->id.' list search: "'.$search.'"');
-			$folders = $this->getServer()->getRootStorageFolders($search, true);
+			$this->log('debug', 'client '.$this->id.' list search: "'.$search.'"');
+			try{
+				$folders = $this->getServer()->getRootStorageFolders($search, true);
+			}
+			catch(Exception $e){
+				return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
+			}
 		}
 		
 		#ve($folders);
-		
+		$rv = '';
 		foreach($folders as $cfolder){
 			#$this->log('debug', 'client '.$this->id.'    folder '.$cfolder->getGlobalName());
 			
@@ -916,24 +935,27 @@ class Client{
 					#$attrs[] = '\\Noinferiors';
 				}
 				
-				$this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$cfolder->getGlobalName().'"');
+				$rv .= $this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$cfolder->getGlobalName().'"');
 			#}
 		}
-		$this->sendOk('LIST completed', $tag);
+		$rv .= $this->sendOk('LIST completed', $tag);
+		return $rv;
 	}
 	
 	private function sendLsub($tag){
+		#$this->log('debug', 'client '.$this->id.' sendLsub');
+		#ve($this->subscriptions);
+		
+		$rv = '';
 		foreach($this->subscriptions as $subscription){
-			$this->dataSend('* LSUB () "." "'.$subscription.'"');
+			$rv .= $this->dataSend('* LSUB () "." "'.$subscription.'"');
 		}
 		
-		$this->sendOk('LSUB completed', $tag);
+		$rv .= $this->sendOk('LSUB completed', $tag);
+		return $rv;
 	}
 	
 	private function sendAppend($data = ''){
-		#ve('sendAppend');
-		#ve($data);
-		
 		#$this->log('debug', 'client '.$this->id.' append: '.$this->getStatus('appendStep').', '.$this->getStatus('appendTag').', '.$this->getStatus('appendFolder').', '.count($this->getStatus('appendFlags')).', '.$this->getStatus('appendDate').', '.$this->getStatus('appendLiteral').' '.strlen($this->getStatus('appendMsg')).' "'.$data.'"');
 		
 		if($this->getStatus('appendStep') == 1){
@@ -951,9 +973,6 @@ class Client{
 				
 				$message = Message::fromString($this->getStatus('appendMsg'));
 				
-				#ve($message);
-				#ve($message->toString());
-				
 				try{
 					$this->getServer()->mailAdd($message->toString(), $this->getStatus('appendFolder'), $this->getStatus('appendFlags'));
 					$this->sendOk('APPEND completed', $this->getStatus('appendTag'));
@@ -961,18 +980,16 @@ class Client{
 				catch(Exception $e){
 					$this->sendNo('Can not get folder: '.$e->getMessage(), $this->getStatus('appendTag'), 'TRYCREATE');
 				}
-				
-				
 			}
 		}
 	}
 	
 	private function sendCheck($tag){
 		if($this->selectedFolder !== null){
-			$this->sendOk('CHECK completed', $tag);
+			return $this->sendOk('CHECK completed', $tag);
 		}
 		else{
-			$this->sendNo('No mailbox selected.', $tag);
+			return $this->sendNo('No mailbox selected.', $tag);
 		}
 	}
 	
@@ -980,17 +997,26 @@ class Client{
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
+		$rv = '';
 		$this->sendExpungeRaw();
 		
 		$this->selectedFolder = null;
-		$this->sendOk('CLOSE completed', $tag);
+		$rv .= $this->sendOk('CLOSE completed', $tag);
+		return $rv;
 	}
 	
 	private function sendExpungeRaw(){
+		$this->log('debug', 'client '.$this->id.' sendExpungeRaw');
+		
 		$msgSeqNumsExpunge = array();
 		$expungeDiff = 0;
 		
-		$msgSeqNums = $this->createSequenceSet('*');
+		$msgSeqNums = array();
+		try{
+			$msgSeqNums = $this->createSequenceSet('*');
+		}
+		catch(Exception $e){}
+		
 		foreach($msgSeqNums as $msgSeqNum){
 			$expungeSeqNum = $msgSeqNum - $expungeDiff;
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$expungeDiff.', '.$expungeSeqNum);
@@ -1019,14 +1045,17 @@ class Client{
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
-		$msgSeqNumsExpunge = $this->sendExpungeRaw();
+		$rv = '';
 		
+		$msgSeqNumsExpunge = $this->sendExpungeRaw();
 		foreach($msgSeqNumsExpunge as $msgSeqNum){
-			$this->dataSend('* '.$msgSeqNum.' EXPUNGE');
+			$rv .= $this->dataSend('* '.$msgSeqNum.' EXPUNGE');
 		}
-		$this->sendOk('EXPUNGE completed', $tag);
+		$rv .= $this->sendOk('EXPUNGE completed', $tag);
 		
 		$this->expunge = array();
+		
+		return $rv;
 	}
 	
 	private function createSequenceSet($setStr, $isUid = false){
@@ -1363,10 +1392,13 @@ class Client{
 		
 		#ve('sendUid B');ve($args);
 		
+		$rv = '';
+		
 		if($commandcmp == 'copy'){
 			$args = $this->msgParseString($args, 2);
 			$seq = $args[0];
 			$folder = $args[1];
+			
 			$this->sendCopy($tag, $seq, $folder, true);
 		}
 		elseif($commandcmp == 'fetch'){
@@ -1376,8 +1408,9 @@ class Client{
 			$args = $this->msgParseString($args, 2);
 			$seq = $args[0];
 			$name = $args[1];
-			$this->sendFetchRaw($tag, $seq, $name, true);
-			$this->sendOk('UID FETCH completed', $tag);
+			
+			$rv .= $this->sendFetchRaw($tag, $seq, $name, true);
+			$rv .= $this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
 			$this->select();
@@ -1387,42 +1420,44 @@ class Client{
 			$seq = $args[0];
 			$name = $args[1];
 			$flagsStr = $args[2];
-			$this->sendStoreRaw($tag, $seq, $name, $flagsStr, true);
-			$this->sendOk('UID STORE completed', $tag);
+			
+			$rv .= $this->sendStoreRaw($tag, $seq, $name, $flagsStr, true);
+			$rv .= $this->sendOk('UID STORE completed', $tag);
 		}
 		elseif($commandcmp == 'search'){
-			#$this->sendBad('search not implemented.', $tag);
-			$this->select();
+			$this->sendBad('search not implemented.', $tag);
+			#$this->select();
 			
-			ve($args);
-			
-			#$this->sendSearchRaw($tag, $args, true); # TODO
-			$this->sendOk('UID SEARCH completed', $tag);
+			$criteriaStr = $args;
+			#$rv .= $this->sendSearchRaw($tag, $criteriaStr, true);
+			#$rv .= $this->sendOk('UID SEARCH completed', $tag);
 		}
 		else{
-			$this->sendBad('Arguments invalid.', $tag);
+			return $this->sendBad('Arguments invalid.', $tag);
 		}
+		
+		return $rv;
 	}
 	
 	public function sendOk($text, $tag = null, $code = null){
 		if($tag === null){
 			$tag = '*';
 		}
-		$this->dataSend($tag.' OK'.($code ? ' ['.$code.']' : '').' '.$text);
+		return $this->dataSend($tag.' OK'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function sendNo($text, $tag = null, $code = null){
 		if($tag === null){
 			$tag = '*';
 		}
-		$this->dataSend($tag.' NO'.($code ? ' ['.$code.']' : '').' '.$text);
+		return $this->dataSend($tag.' NO'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function sendBad($text, $tag = null, $code = null){
 		if($tag === null){
 			$tag = '*';
 		}
-		$this->dataSend($tag.' BAD'.($code ? ' ['.$code.']' : '').' '.$text);
+		return $this->dataSend($tag.' BAD'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function sendPreauth($text, $code = null){
@@ -1430,15 +1465,17 @@ class Client{
 	}
 	
 	public function sendBye($text, $code = null){
-		$this->dataSend('* BYE'.($code ? ' ['.$code.']' : '').' '.$text);
+		return $this->dataSend('* BYE'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function shutdown(){
 		if(!$this->getStatus('hasShutdown')){
 			$this->setStatus('hasShutdown', true);
 			
-			$this->getSocket()->shutdown();
-			$this->getSocket()->close();
+			if($this->getSocket()){
+				$this->getSocket()->shutdown();
+				$this->getSocket()->close();
+			}
 		}
 	}
 	
