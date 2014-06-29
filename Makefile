@@ -2,7 +2,7 @@
 RELEASE_VERSION = 0.3.0-dev
 RELEASE_NAME = phpchat2
 
-DELETE = rm -rf
+RM = rm -rfd
 MKDIR = mkdir -p
 TAR = tar
 GZIP = gzip
@@ -32,6 +32,7 @@ test_phpcs: $(PHPCS) vendor/thefox/phpcsrs/Standards/TheFox
 
 test_phpunit: $(PHPUNIT) phpunit.xml
 	$(PHPUNIT)
+	$(RM) tests/test_mailbox_*
 
 release:
 	find . -name .DS_Store -exec rm {} \;
@@ -54,6 +55,7 @@ release:
 	$(MV) ${RELEASE_NAME}-${RELEASE_VERSION}.tar.gz releases
 
 clean:
-	$(DELETE) composer.lock composer.phar
-	$(DELETE) vendor/*
-	$(DELETE) vendor
+	$(RM) composer.lock composer.phar
+	$(RM) vendor/*
+	$(RM) vendor
+	$(RM) tests/test_mailbox_*
