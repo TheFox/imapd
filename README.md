@@ -6,6 +6,19 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 
 `composer.phar require "thefox/imapd=0.1.*"`
 
+## Stand-alone server
+To start a stand-alone server you can type the following command in your shell:
+
+`./application.php server -d`
+
+To show the usage options use `-h`:
+
+`./application.php server -h`
+
+You can change the IP and port (default port is 20143):
+
+`./application.php server -a 0.0.0.0 -p 143`
+
 ## RFC 3501 Implementation
 ### Complete
 - 6.1.2 NOOP Command
