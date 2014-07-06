@@ -1,10 +1,17 @@
+#!/usr/bin/env php
 <?php
 
 require_once __DIR__.'/bootstrap.php';
 
+use TheFox\Logger\Logger;
+use TheFox\Logger\StreamHandler;
 use TheFox\Imap\Server;
 
 $mailboxPath = 'mailbox';
+
+$log = new Logger('main');
+$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+#$log->pushHandler(new StreamHandler('log/bootstrap.log', Logger::DEBUG));
 
 $server = new Server('127.0.0.1', 20143);
 try{

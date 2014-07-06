@@ -30,14 +30,12 @@ class Server extends Thread{
 	public function __construct($ip = '127.0.0.1', $port = 143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
-		$this->log = new Logger('server');
-		$this->log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-		#$this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
-		
-		$this->log->info('start');
-		
 		$this->setIp($ip);
 		$this->setPort($port);
+	}
+	
+	public function setLog($log){
+		$this->log = $log;
 	}
 	
 	public function getLog(){
@@ -123,6 +121,14 @@ class Server extends Thread{
 	}
 	
 	public function init(){
+		if(!$this->log){
+			$this->log = new Logger('server');
+			$this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
+		}
+		$this->log->info('start');
+		$this->log->info('ip = "'.$this->ip.'"');
+		$this->log->info('port = "'.$this->port.'"');
+		
 		if($this->ip && $this->port){
 			#$this->log->notice('listen on '.$this->ip.':'.$this->port);
 			

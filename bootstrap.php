@@ -36,10 +36,3 @@ if(!file_exists(__DIR__.'/vendor')){
 
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/functions.php';
-
-use TheFox\Logger\Logger;
-use TheFox\Logger\StreamHandler;
-
-$log = new Logger('main');
-$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-#$log->pushHandler(new StreamHandler('log/bootstrap.log', Logger::DEBUG));
