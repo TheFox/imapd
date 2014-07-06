@@ -27,7 +27,7 @@ class Server extends Thread{
 	private $clients = array();
 	private $storages = array();
 	
-	public function __construct($ip = '127.0.0.1', $port = 143){
+	public function __construct($ip = '127.0.0.1', $port = 20143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		
 		$this->setIp($ip);
