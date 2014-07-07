@@ -8,6 +8,8 @@ ini_set('display_errors', true);
 ini_set('memory_limit', '128M');
 
 chdir(__DIR__);
+@mkdir('log');
+@mkdir('pid');
 
 define('DEBUG', 1, true);
 define('PHP_EOL_LEN', strlen(PHP_EOL), true);
