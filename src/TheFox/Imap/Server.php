@@ -123,7 +123,10 @@ class Server extends Thread{
 	public function init(){
 		if(!$this->log){
 			$this->log = new Logger('server');
-			$this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
+			$this->log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+			if(file_exists('log')){
+				$this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
+			}
 		}
 		$this->log->info('start');
 		$this->log->info('ip = "'.$this->ip.'"');
