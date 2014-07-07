@@ -54,6 +54,10 @@ You can change the IP and port (default port is 20143):
 - 7.3.2 RECENT Response
 - 7.4.2 FETCH Response
 
+## Related Links
+- [Developers: stop re-AOLizing the web!](http://technicalfault.net/2014/07/03/developers-stop-re-aolizing-the-web/)
+- [Set up your own email server in 5 steps](https://forum.bytemark.co.uk/t/set-up-your-own-email-server-in-5-steps/1864)
+
 ## Contribute
 You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapd>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
 
