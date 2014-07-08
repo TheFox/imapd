@@ -8,8 +8,6 @@ ini_set('display_errors', true);
 ini_set('memory_limit', '128M');
 
 chdir(__DIR__);
-@mkdir('log');
-@mkdir('pid');
 
 define('DEBUG', 1, true);
 define('PHP_EOL_LEN', strlen(PHP_EOL), true);
@@ -38,3 +36,9 @@ if(!file_exists(__DIR__.'/vendor')){
 
 require_once __DIR__.'/vendor/autoload.php';
 require_once __DIR__.'/functions.php';
+
+use Symfony\Component\Filesystem\Filesystem;
+
+$filesystem = new Filesystem();
+$filesystem->mkdir('log', 0700);
+$filesystem->mkdir('pid', 0700);
