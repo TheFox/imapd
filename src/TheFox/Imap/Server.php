@@ -303,12 +303,14 @@ class Server extends Thread{
 				}
 				else{
 					if($storage['db']){
+						$this->log->debug('save db: '.$storage['db']->getFilePath());
 						$storage['db']->save();
 					}
 				}
 			}
 		}
 		
+		$this->log->debug('shutdown done');
 	}
 	
 	private function clientNew($socket){

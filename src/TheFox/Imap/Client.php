@@ -738,9 +738,9 @@ class Client{
 	}
 	
 	public function dataSend($msg){
-		#$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
 		$output = $msg.static::MSG_SEPARATOR;
 		if($this->getSocket()){
+			$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
 			$this->getSocket()->write($output);
 		}
 		return $output;
@@ -1175,7 +1175,7 @@ class Client{
 						$msgItems[$itemcmp] = '';
 					}
 				}
-				#$this->log('debug', 'client '.$this->id.' wanted by '.$commandcmp.': "'.$item.'"');
+				
 			}
 		}
 		
@@ -1360,6 +1360,8 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
+		#fwrite(STDOUT, "msgSeqNums\n");ve($msgSeqNums);
+		
 		try{
 			$this->getServer()->getRootStorage()->getFolders($folder);
 		}
@@ -1492,9 +1494,9 @@ class Client{
 			// Select a new folder.
 			$this->getServer()->getRootStorage()->selectFolder($folder);
 			
-			$this->log('debug', 'client '.$this->id.' prev select folder: "'.$this->selectedFolder.'"');
+			$this->log('debug', 'client '.$this->id.' old select folder: "'.$this->selectedFolder.'"');
 			$this->selectedFolder = $folder;
-			$this->log('debug', 'client '.$this->id.' new select folder:  "'.$this->selectedFolder.'"');
+			$this->log('debug', 'client '.$this->id.' new select folder: "'.$this->selectedFolder.'"');
 		}
 	}
 	

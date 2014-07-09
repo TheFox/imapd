@@ -39,7 +39,7 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function msgAdd($uid){
-		#print __CLASS__.'->'.__FUNCTION__.': '.$uid."\n";
+		#fwrite(STDOUT, "msgAdd: ".$uid."\n");
 		
 		$this->data['msgsId']++;
 		$this->data['msgs'][$this->data['msgsId']] = array(
