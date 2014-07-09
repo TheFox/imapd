@@ -2,6 +2,7 @@
 
 use Zend\Mail\Message;
 use Zend\Mail\Storage;
+use Symfony\Component\Finder\Finder;
 
 use TheFox\Imap\Server;
 use TheFox\Imap\Client;
@@ -543,16 +544,89 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}*/
 	
 	public function testMsgHandleUidCopy(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
 		$server = new Server('', 0);
 		$server->init();
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		$server->storageAddMaildir($maildirPath);
 		
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
 		
 		$msg = $client->msgHandle('15 UID copy');
-		$this->assertEquals('');
+		$this->assertEquals('15 NO uid failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('15 UID copy');
+		$this->assertEquals('15 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir1');
+		$server->storageFolderAdd('test_dir2');
+		$client->msgHandle('6 select test_dir1');
+		
+		$msg = $client->msgHandle('15 UID copy');
+		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('15 UID copy 1');
+		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		#$msg = $client->msgHandle('15 UID copy 1 test_dir3');
+		#$this->assertEquals('x', $msg);
+		
+		$msg = $client->msgHandle('15 UID copy 1 test_dir2');
+		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$finder = new Finder();
+		$files = $finder->files()->in($maildirPath.'/.test_dir1/new');
+		$this->assertEquals(4, count($files));
+		
+		#$client->msgHandle('6 select test_dir2');
+		#$client->msgHandle('6 select test_dir1');
+		
+		$msg = $client->msgHandle('15 UID copy 100002 test_dir2');
+		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$this->assertEquals(1, count($files));
+		
+		$server->shutdown();
+		
+		
+		foreach($files as $file){
+			fwrite(STDOUT, 'files: '.$file->getRealpath()."\n");
+		}
 		
 	}
 	
