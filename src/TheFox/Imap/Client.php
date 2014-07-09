@@ -1111,11 +1111,9 @@ class Client{
 					// Part
 					if($isUid){
 						if($uid == $seqMin || $seqMax == '*'){
-						#if($uid >= $seqMin){
 							$msgSeqAdd = true;
 						}
 						if($uid == $seqMax){
-						#if($uid >= $seqMax){
 							$msgSeqIsEnd = true;
 						}
 					}
@@ -1344,7 +1342,6 @@ class Client{
 				$this->dataSend('* '.$msgSeqNum.' FETCH (FLAGS ('.join(' ', $messageFlags).'))');
 			}
 		}
-		
 	}
 	
 	private function sendStore($tag, $seq, $name, $flagsStr){
