@@ -160,8 +160,6 @@ class Server extends Thread{
 			}
 			
 		}
-		
-		throw new RuntimeException('Could not listen.');
 	}
 	
 	public function run(){
