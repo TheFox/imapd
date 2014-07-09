@@ -75,6 +75,14 @@ class MsgDb extends YamlStorage{
 			return $this->msgIdByUid[$uid];
 		}
 		
+		// This is shitty. Because ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317).
+		foreach($this->msgIdByUid as $suid => $smsgId){
+			#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$suid.' => '.$smsgId.' "'.substr($uid, 0, strlen($suid)).'"'."\n");
+			if(substr($uid, 0, strlen($suid)) == $suid){
+				return $smsgId;
+			}
+		}
+		
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$uid.' not found'."\n");
 		return null;
 	}
