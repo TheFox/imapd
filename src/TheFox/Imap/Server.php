@@ -417,27 +417,26 @@ class Server extends Thread{
 		$uid = null;
 		foreach($this->storages as $storage){
 			if($storage['object'] instanceof Maildir){
-				$storage['object']->appendMessage($mail, $folder, $flags, $recent);
+				// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317) in the Zendframework we must reselect the current folder.
+				$oldFolder = $storage['object']->getCurrentFolder();
+				$storage['object']->selectFolder($folder);
+				$storage['object']->appendMessage($mail, null, $flags, $recent);
+				$lastId = $storage['object']->countMessages();
+				#$message = $storage['object']->getMessage($lastId);
+				$uid = $storage['object']->getUniqueId($lastId);
+				$storage['object']->selectFolder($oldFolder);
 				
 				if($storage['db']){
-					// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317) in the Zendframework we must reselect the current folder.
-					$oldFolder = $storage['object']->getCurrentFolder();
-					#print "old: $oldFolder\n";
-					$storage['object']->selectFolder($folder);
-					
-					$lastId = $storage['object']->countMessages();
-					$storage['object']->selectFolder($oldFolder);
-					#$message = $storage['object']->getMessage($lastId);
-					
 					try{
-						$uid = $storage['object']->getUniqueId($lastId);
 						$storage['db']->msgAdd($uid);
 					}
-					catch(Exception $e){}
+					catch(Exception $e){
+						$this->log->error('db: '.$e->getMessage());
+					}
 				}
+				
 			}
 		}
-		
 	}
 	
 	public function mailRemove($seqNum){

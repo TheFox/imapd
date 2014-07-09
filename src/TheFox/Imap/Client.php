@@ -1390,18 +1390,23 @@ class Client{
 		
 		$command = $args[0];
 		$commandcmp = strtolower($command);
-		$args = $args[1];
-		
-		#ve('sendUid B');ve($args);
+		if(isset($args[1])){
+			$args = $args[1];
+		}
+		else{
+			return $this->sendBad('Arguments invalid.', $tag);
+		}
 		
 		$rv = '';
-		
 		if($commandcmp == 'copy'){
 			$args = $this->msgParseString($args, 2);
 			$seq = $args[0];
+			if(!isset($args[1])){
+				return $this->sendBad('Arguments invalid.', $tag);
+			}
 			$folder = $args[1];
 			
-			$this->sendCopy($tag, $seq, $folder, true);
+			$rv .= $this->sendCopy($tag, $seq, $folder, true);
 		}
 		elseif($commandcmp == 'fetch'){
 			$this->select();
