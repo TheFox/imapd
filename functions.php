@@ -2,8 +2,9 @@
 
 function ve($v = null){
 	try{
-		var_export($v);
-		print "\n";
+		$rv = var_export($v, true);
+		#print "\n";
+		fwrite(STDOUT, $rv."\n");
 	}
 	catch(Exception $e){
 		print "ERROR: ".$e->getMessage()."\n";
