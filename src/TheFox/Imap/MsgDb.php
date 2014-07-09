@@ -71,11 +71,11 @@ class MsgDb extends YamlStorage{
 	
 	public function getMsgIdByUid($uid){
 		if(isset($this->msgIdByUid[$uid])){
-			#print __CLASS__.'->'.__FUNCTION__.': '.$uid.' is set'."\n";
+			#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$uid.' is set'."\n");
 			return $this->msgIdByUid[$uid];
 		}
 		
-		#print __CLASS__.'->'.__FUNCTION__.': '.$uid.' not found'."\n";
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$uid.' not found'."\n");
 		return null;
 	}
 	

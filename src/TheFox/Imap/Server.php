@@ -89,14 +89,14 @@ class Server extends Thread{
 		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': '.$seqNum);
 		
 		if($this->storages[0]['db']){
-			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok '.$seqNum);
-			
-			#ve($this->storages[0]['object']->getUniqueId());
+			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.' db ok: '.$seqNum);
 			
 			try{
 				$uid = $this->storages[0]['object']->getUniqueId($seqNum);
-				#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': uid '.$uid);
-				return $this->storages[0]['db']->getMsgIdByUid($uid);
+				#$this->log->debug(__CLASS__.'->'.__FUNCTION__.' uid '.$uid);
+				$msgId = $this->storages[0]['db']->getMsgIdByUid($uid);
+				#$this->log->debug(__CLASS__.'->'.__FUNCTION__.' msgid: '.$msgId);
+				return $msgId;
 			}
 			catch(Exception $e){
 				$this->log->error('getRootStorageDbMsgIdBySeqNum: '.$e->getMessage());
@@ -432,7 +432,9 @@ class Server extends Thread{
 				
 				if($storage['db']){
 					try{
+						#fwrite(STDOUT, "add msg: ".$uid."\n");
 						$storage['db']->msgAdd($uid);
+						#ve($storage['db']);
 					}
 					catch(Exception $e){
 						$this->log->error('db: '.$e->getMessage());
@@ -473,6 +475,7 @@ class Server extends Thread{
 	
 	public function mailCopy($seqNum, $folder){
 		#print __CLASS__.'->'.__FUNCTION__.': '.$seqNum.', '.$folder."\n";
+		#fwrite(STDOUT, "copy: ".$seqNum.', '.$folder."\n");
 		
 		$this->storageInit();
 		

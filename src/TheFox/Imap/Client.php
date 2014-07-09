@@ -1097,7 +1097,11 @@ class Client{
 			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
 				
-				#$this->log('debug', 'createSequenceSet msg: '.$msgSeqNum.' '.sprintf('%10s', $uid).' ['.$seqMin.'/'.$seqMax.'] => '. (int)$isUid .' '. (int)($uid == $seqMin) .' '. (int)($msgSeqNum >= $seqMin) .' '. (int)($msgSeqNum >= $seqMax) );
+				$tmp = 'createSequenceSet msg: '.$msgSeqNum;
+				$tmp .= ' "'.sprintf('%10s', $uid).'" ['.$seqMin.'/'.$seqMax.'] => ';
+				$tmp .= (int)$isUid.' ';
+				$tmp .= (int)($uid == $seqMin).' '.(int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum >= $seqMax);
+				#$this->log('debug', $tmp);
 				
 				if($seqMin == '1' && $seqMax == '*' || $seqMin == '*' && $seqMax == '*'){
 					// All
