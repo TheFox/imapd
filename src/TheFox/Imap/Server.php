@@ -131,7 +131,9 @@ class Server extends Thread{
 		$this->log->info('start');
 		$this->log->info('ip = "'.$this->ip.'"');
 		$this->log->info('port = "'.$this->port.'"');
-		
+	}
+	
+	public function listen(){
 		if($this->ip && $this->port){
 			#$this->log->notice('listen on '.$this->ip.':'.$this->port);
 			

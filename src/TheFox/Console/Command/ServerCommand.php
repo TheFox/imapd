@@ -40,7 +40,15 @@ class ServerCommand extends BasicCommand{
 		
 		$this->log->info('server');
 		$this->server = new Server($address, $port);
-		#$this->server->setLog($this->log);
+		
+		try{
+			$this->server->init();
+		}
+		catch(Exception $e){
+			$this->log->error('init: '.$e->getMessage());
+			exit(1);
+		}
+		
 		try{
 			$this->server->storageAddMaildir('mailbox');
 		}
@@ -50,13 +58,13 @@ class ServerCommand extends BasicCommand{
 		}
 		
 		try{
-			$this->server->init();
+			$this->server->listen();
 		}
 		catch(Exception $e){
-			$this->log->error('init: '.$e->getMessage());
+			$this->log->error('listen: '.$e->getMessage());
 			exit(1);
 		}
-
+		
 		try{
 			$this->server->loop();
 		}
