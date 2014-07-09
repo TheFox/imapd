@@ -7,6 +7,6 @@ use Symfony\Component\Console\Application;
 
 use TheFox\Console\Command\ServerCommand;
 
-$application = new Application();
+$application = new Application('IMAPd', '0.1.x-dev');
 $application->add(new ServerCommand());
 $application->run();
