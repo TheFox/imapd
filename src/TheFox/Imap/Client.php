@@ -371,6 +371,91 @@ class Client{
 		return $rv2;
 	}
 	
+	private function createSequenceSet($setStr, $isUid = false){
+		// Collect messages with sequence-sets.
+		$msgSeqNums = array();
+		foreach(preg_split('/,/', $setStr) as $seqItem){
+			$seqMin = null;
+			$seqMax = null;
+			
+			$items = preg_split('/:/', $seqItem);
+			if(isset($items[0])){
+				$seqMin = $items[0];
+				
+				if(isset($items[1])){
+					$seqMax = $items[1];
+				}
+				else{
+					$seqMax = $items[0];
+				}
+			}
+			if($seqMin == '*'){
+				$seqMin = $seqMax;
+				$seqMax = '*';
+			}
+			
+			$this->log('debug', 'createSequenceSet seq: '.(int)$isUid.' "'.$seqMin.'" - "'.$seqMax.'"');
+			
+			if($seqMin === null){
+				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'" ('.$seqMax.')', 1);
+			}
+			
+			$count = $this->getServer()->getRootStorage()->countMessages();
+			if(!$count){
+				throw new RuntimeException('No messages in selected mailbox.', 2);
+			}
+			
+			$msgSeqAdd = false;
+			$msgSeqIsEnd = false;
+			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
+				
+				$tmp = 'createSequenceSet msg: '.$msgSeqNum;
+				$tmp .= ' "'.sprintf('%10s', $uid).'" ['.$seqMin.'/'.$seqMax.'] => ';
+				$tmp .= (int)$isUid.' ';
+				$tmp .= (int)($uid == $seqMin).' '.(int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum >= $seqMax);
+				$this->log('debug', $tmp);
+				
+				if($seqMin == '1' && $seqMax == '*' || $seqMin == '*' && $seqMax == '*'){
+					// All
+					$msgSeqAdd = true;
+				}
+				else{
+					// Part
+					if($isUid){
+						if($uid == $seqMin || $seqMax == '*'){
+							$msgSeqAdd = true;
+						}
+						if($uid == $seqMax){
+							$msgSeqIsEnd = true;
+						}
+					}
+					else{
+						if($msgSeqNum >= $seqMin){
+							$msgSeqAdd = true;
+						}
+						if($msgSeqNum >= $seqMax){
+							$msgSeqIsEnd = true;
+						}
+					}
+				}
+				
+				if($msgSeqAdd){
+					$this->log('debug', 'createSequenceSet msg:       add');
+					$msgSeqNums[] = $msgSeqNum;
+				}
+				
+				if($msgSeqIsEnd){
+					break;
+				}
+			}
+		}
+		$msgSeqNums = array_unique($msgSeqNums);
+		sort($msgSeqNums);
+		
+		return $msgSeqNums;
+	}
+	
 	public function msgHandle($msgRaw){
 		$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
 		
@@ -1056,91 +1141,6 @@ class Client{
 		$this->expunge = array();
 		
 		return $rv;
-	}
-	
-	private function createSequenceSet($setStr, $isUid = false){
-		// Collect messages with sequence-sets.
-		$msgSeqNums = array();
-		foreach(preg_split('/,/', $setStr) as $seqItem){
-			$seqMin = null;
-			$seqMax = null;
-			
-			$items = preg_split('/:/', $seqItem);
-			if(isset($items[0])){
-				$seqMin = $items[0];
-				
-				if(isset($items[1])){
-					$seqMax = $items[1];
-				}
-				else{
-					$seqMax = $items[0];
-				}
-			}
-			if($seqMin == '*'){
-				$seqMin = $seqMax;
-				$seqMax = '*';
-			}
-			
-			#$this->log('debug', 'createSequenceSet seq: '.(int)$isUid.' "'.$seqMin.'" - "'.$seqMax.'"');
-			
-			if($seqMin === null){
-				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'" ('.$seqMax.')', 1);
-			}
-			
-			$count = $this->getServer()->getRootStorage()->countMessages();
-			if(!$count){
-				throw new RuntimeException('No messages in selected mailbox.', 2);
-			}
-			
-			$msgSeqAdd = false;
-			$msgSeqIsEnd = false;
-			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
-				
-				$tmp = 'createSequenceSet msg: '.$msgSeqNum;
-				$tmp .= ' "'.sprintf('%10s', $uid).'" ['.$seqMin.'/'.$seqMax.'] => ';
-				$tmp .= (int)$isUid.' ';
-				$tmp .= (int)($uid == $seqMin).' '.(int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum >= $seqMax);
-				#$this->log('debug', $tmp);
-				
-				if($seqMin == '1' && $seqMax == '*' || $seqMin == '*' && $seqMax == '*'){
-					// All
-					$msgSeqAdd = true;
-				}
-				else{
-					// Part
-					if($isUid){
-						if($uid == $seqMin || $seqMax == '*'){
-							$msgSeqAdd = true;
-						}
-						if($uid == $seqMax){
-							$msgSeqIsEnd = true;
-						}
-					}
-					else{
-						if($msgSeqNum >= $seqMin){
-							$msgSeqAdd = true;
-						}
-						if($msgSeqNum >= $seqMax){
-							$msgSeqIsEnd = true;
-						}
-					}
-				}
-				
-				if($msgSeqAdd){
-					#$this->log('debug', 'createSequenceSet msg:       add');
-					$msgSeqNums[] = $msgSeqNum;
-				}
-				
-				if($msgSeqIsEnd){
-					break;
-				}
-			}
-		}
-		$msgSeqNums = array_unique($msgSeqNums);
-		sort($msgSeqNums);
-		
-		return $msgSeqNums;
 	}
 	
 	private function sendFetchRaw($tag, $seq, $name, $isUid = false){
