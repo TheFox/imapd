@@ -468,8 +468,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleExpunge2(){
 		$server = new Server('', 0);
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
 		$client->setServer($server);
@@ -544,6 +544,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUidCopy(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
