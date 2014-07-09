@@ -421,7 +421,9 @@ class Server extends Thread{
 			if($storage['object'] instanceof Maildir){
 				// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317) in the Zendframework we must reselect the current folder.
 				$oldFolder = $storage['object']->getCurrentFolder();
-				$storage['object']->selectFolder($folder);
+				if($folder){
+					$storage['object']->selectFolder($folder);
+				}
 				$storage['object']->appendMessage($mail, null, $flags, $recent);
 				$lastId = $storage['object']->countMessages();
 				#$message = $storage['object']->getMessage($lastId);
