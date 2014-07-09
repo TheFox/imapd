@@ -142,6 +142,137 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
 	}
 	
+	public function testCreateSequenceSet(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		$client->setStatus('hasAuth', true);
+		$server->storageFolderAdd('test_dir1');
+		$client->msgHandle('6 select test_dir1');
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
+		$seq = $client->createSequenceSet('1');
+		$this->assertEquals(array(1), $seq);
+		
+		$seq = $client->createSequenceSet('3');
+		$this->assertEquals(array(3), $seq);
+		
+		$seq = $client->createSequenceSet('3,5');
+		$this->assertEquals(array(3, 5), $seq);
+		
+		$seq = $client->createSequenceSet('3,5,6,4');
+		$this->assertEquals(array(3, 4, 5, 6), $seq);
+		
+		$seq = $client->createSequenceSet('3, 5');
+		$this->assertEquals(array(3, 5), $seq);
+		
+		$seq = $client->createSequenceSet('3:3');
+		$this->assertEquals(array(3), $seq);
+		
+		$seq = $client->createSequenceSet('3:4');
+		$this->assertEquals(array(3, 4), $seq);
+		
+		$seq = $client->createSequenceSet('3:5');
+		$this->assertEquals(array(3, 4, 5), $seq);
+		
+		$seq = $client->createSequenceSet('3:5,2');
+		$this->assertEquals(array(2, 3, 4, 5), $seq);
+		
+		$seq = $client->createSequenceSet('*');
+		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
+		
+		$seq = $client->createSequenceSet('3:*');
+		$this->assertEquals(array(3, 4, 5, 6), $seq);
+		
+		$seq = $client->createSequenceSet('3:*,2');
+		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
+		
+		
+		$seq = $client->createSequenceSet('100001', true);
+		$this->assertEquals(array(1), $seq);
+		
+		$seq = $client->createSequenceSet('100002', true);
+		$this->assertEquals(array(2), $seq);
+		
+		$seq = $client->createSequenceSet('100002,100004', true);
+		$this->assertEquals(array(2, 4), $seq);
+		
+		$seq = $client->createSequenceSet('100002, 100004', true);
+		$this->assertEquals(array(2, 4), $seq);
+		
+		$seq = $client->createSequenceSet('100002,100005,100004,100003', true);
+		$this->assertEquals(array(2, 3, 4, 5), $seq);
+		
+		$seq = $client->createSequenceSet('100002:100002', true);
+		$this->assertEquals(array(2), $seq);
+		
+		$seq = $client->createSequenceSet('100002:100003', true);
+		$this->assertEquals(array(2, 3), $seq);
+		
+		$seq = $client->createSequenceSet('100002:100004', true);
+		$this->assertEquals(array(2, 3, 4), $seq);
+		
+		$seq = $client->createSequenceSet('100002:100004,100005', true);
+		$this->assertEquals(array(2, 3, 4, 5), $seq);
+		
+		$seq = $client->createSequenceSet('*', true);
+		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
+		
+		$seq = $client->createSequenceSet('100002:*', true);
+		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
+		
+		$seq = $client->createSequenceSet('100002:*,100001', true);
+		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
+	}
+	
 	public function providerMsgHandle(){
 		$rv = array(
 			array('NO_COMMAND', 'NO_COMMAND BAD Not implemented: "NO_COMMAND" ""'),

@@ -371,87 +371,141 @@ class Client{
 		return $rv2;
 	}
 	
-	private function createSequenceSet($setStr, $isUid = false){
+	public function createSequenceSet($setStr, $isUid = false){
 		// Collect messages with sequence-sets.
+		$setStr = trim($setStr);
+		#$this->log('debug', 'createSequenceSet: '.$setStr);
+		
 		$msgSeqNums = array();
 		foreach(preg_split('/,/', $setStr) as $seqItem){
-			$seqMin = null;
-			$seqMax = null;
+			$seqItem = trim($seqItem);
 			
-			$items = preg_split('/:/', $seqItem);
-			if(isset($items[0])){
-				$seqMin = $items[0];
-				
-				if(isset($items[1])){
-					$seqMax = $items[1];
-				}
-				else{
-					$seqMax = $items[0];
-				}
-			}
-			if($seqMin == '*'){
-				$seqMin = $seqMax;
-				$seqMax = '*';
-			}
+			$seqMin = 0;
+			$seqMax = 0;
+			$seqLen = 0;
+			$seqAll = false;
 			
-			$this->log('debug', 'createSequenceSet seq: '.(int)$isUid.' "'.$seqMin.'" - "'.$seqMax.'"');
+			$items = preg_split('/:/', $seqItem, 2);
+			#$items = array_map(function($item){ return trim($item);}, $items);
+			$items = array_map('trim', $items);
 			
-			if($seqMin === null){
-				throw new RuntimeException('Invalid minimum sequence number: "'.$seqMin.'" ('.$seqMax.')', 1);
-			}
+			$nums = array();
+			#ve($items);
+			
 			
 			$count = $this->getServer()->getRootStorage()->countMessages();
 			if(!$count){
 				throw new RuntimeException('No messages in selected mailbox.', 2);
 			}
 			
-			$msgSeqAdd = false;
-			$msgSeqIsEnd = false;
-			for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-				$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
-				
-				$tmp = 'createSequenceSet msg: '.$msgSeqNum;
-				$tmp .= ' "'.sprintf('%10s', $uid).'" ['.$seqMin.'/'.$seqMax.'] => ';
-				$tmp .= (int)$isUid.' ';
-				$tmp .= (int)($uid == $seqMin).' '.(int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum >= $seqMax);
-				$this->log('debug', $tmp);
-				
-				if($seqMin == '1' && $seqMax == '*' || $seqMin == '*' && $seqMax == '*'){
-					// All
-					$msgSeqAdd = true;
-				}
-				else{
-					// Part
+			// Check if it's a range.
+			if(count($items) == 2){
+				$seqMin = (int)$items[0];
+				if($items[1] == '*'){
 					if($isUid){
-						if($uid == $seqMin || $seqMax == '*'){
-							$msgSeqAdd = true;
-						}
-						if($uid == $seqMax){
-							$msgSeqIsEnd = true;
+						// Search the last msg
+						for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+							$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
+							
+							#$this->log('debug', 'createSequenceSet search: '.$uid.'');
+							
+							if($uid > $seqMax){
+								$seqMax = $uid;
+							}
 						}
 					}
 					else{
-						if($msgSeqNum >= $seqMin){
-							$msgSeqAdd = true;
+						$seqMax = $count;
+					}
+				}
+				else{
+					$seqMax = (int)$items[1];
+				}
+			}
+			else{
+				if($isUid){
+					#ve($items);
+					if($items[0] == '*'){
+						#$this->log('debug', 'createSequenceSet alles');
+						$seqAll = true;
+					}
+					else{
+						#$this->log('debug', 'createSequenceSet nicht alles');
+						$seqMin = $seqMax = (int)$items[0];
+					}
+				}
+				else{
+					if($items[0] == '*'){
+						$seqMin = 1;
+						$seqMax = $count;
+					}
+					else{
+						$seqMin = $seqMax = (int)$items[0];
+					}
+				}
+			}
+			
+			$seqLen = $seqMax + 1 - $seqMin;
+			#$this->log('debug', 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
+			
+			if($isUid){
+				if($seqLen >= 1){
+					#$this->log('debug', 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"');
+					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+						$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($msgSeqNum);
+						
+						#$tmp = 'createSequenceSet msg: '.$msgSeqNum.', '.$uid.' ['.$seqMin.'/'.$seqMax.'] => ';
+						#$tmp .= (int)($uid >= $seqMin).' '.(int)($uid <= $seqMax);
+						#$this->log('debug', $tmp);
+						
+						if($uid >= $seqMin && $uid <= $seqMax || $seqAll){
+							#$this->log('debug', "\t add");
+							$nums[] = (int)$msgSeqNum;
 						}
-						if($msgSeqNum >= $seqMax){
-							$msgSeqIsEnd = true;
+						
+						if(count($nums) >= $seqLen && !$seqAll){
+							break;
 						}
 					}
 				}
-				
-				if($msgSeqAdd){
-					$this->log('debug', 'createSequenceSet msg:       add');
-					$msgSeqNums[] = $msgSeqNum;
-				}
-				
-				if($msgSeqIsEnd){
-					break;
+				else{
+					throw new RuntimeException('Invalid minimum sequence length: "'.$seqLen.'" ('.$seqMin.'/'.$seqMax.')', 2);
 				}
 			}
+			else{
+				if($seqLen == 1){
+					#$uid = $this->getServer()->getRootStorageDbMsgIdBySeqNum($seqMin);
+					#$this->log('debug', 'createSequenceSet msg: '.$uid);
+					#$nums[] =(int)$uid;
+					$nums[] = (int)$seqMin;
+				}
+				elseif($seqLen >= 2){
+					#$this->log('debug', 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"');
+					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+						#$tmp = 'createSequenceSet msg: '.$msgSeqNum.' ['.$seqMin.'/'.$seqMax.'] => ';
+						#$tmp .= (int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum <= $seqMax);
+						#$this->log('debug', $tmp);
+						
+						if($msgSeqNum >= $seqMin && $msgSeqNum <= $seqMax){
+							#$this->log('debug', "\t add");
+							$nums[] = (int)$msgSeqNum;
+						}
+						
+						if(count($nums) >= $seqLen){
+							break;
+						}
+					}
+				}
+				else{
+					throw new RuntimeException('Invalid minimum sequence length: "'.$seqLen.'" ('.$seqMin.'/'.$seqMax.')', 1);
+				}
+			}
+			
+			#ve($nums);
+			$msgSeqNums = array_merge($msgSeqNums, $nums);
 		}
-		$msgSeqNums = array_unique($msgSeqNums);
-		sort($msgSeqNums);
+		
+		sort($msgSeqNums, SORT_NUMERIC);
 		
 		return $msgSeqNums;
 	}
