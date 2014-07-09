@@ -1206,9 +1206,14 @@ class Client{
 		}
 		if(isset($name)){
 			$wanted = $this->msgGetParenthesizedlist($name);
+			#ve($wanted);
 			foreach($wanted as $n => $item){
+				
 				if(is_string($item)){
 					$itemcmp = strtolower($item);
+					
+					$this->log('debug', 'client '.$this->id.': "'.$item.'"');
+					
 					if($itemcmp == 'body.peek'){
 						$next = $wanted[$n + 1];
 						$nextr = array();
@@ -1435,13 +1440,13 @@ class Client{
 			}
 		}
 		
-		$this->sendOk('COPY completed', $tag);
+		return $this->sendOk('COPY completed', $tag);
 	}
 	
 	private function sendUid($tag, $args){
 		$args = $this->msgParseString($args, 2);
 		
-		#ve('sendUid A');ve($args);
+		#ve($args);
 		
 		$command = $args[0];
 		$commandcmp = strtolower($command);

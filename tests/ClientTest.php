@@ -471,7 +471,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->storageFolderAdd('test_dir.test_subdir1');
 		$msg = $client->msgHandle('10 list test_dir.*');
 		$this->assertEquals('* LIST () "." "test_dir.test_subdir1"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
-		
 	}
 	
 	public function testMsgHandleLsub(){
@@ -737,6 +736,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString());
+		
 		
 		$finder = new Finder();
 		$files = $finder->files()->in($maildirPath.'/.test_dir1/new');
