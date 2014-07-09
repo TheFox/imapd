@@ -1212,7 +1212,7 @@ class Client{
 				if(is_string($item)){
 					$itemcmp = strtolower($item);
 					
-					$this->log('debug', 'client '.$this->id.': "'.$item.'"');
+					#$this->log('debug', 'client '.$this->id.': "'.$item.'"');
 					
 					if($itemcmp == 'body.peek'){
 						$next = $wanted[$n + 1];
