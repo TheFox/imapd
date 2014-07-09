@@ -5,3 +5,4 @@ mailbox
 log
 pid
 *.yml
+tests/test_*

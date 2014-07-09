@@ -417,12 +417,10 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('13 OK CLOSE completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
-	/**
-	 * @group medium
-	 */
-	public function testMsgHandleExpunge(){
+	public function testMsgHandleExpunge1(){
 		$server = new Server('', 0);
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		$server->init();
 		
 		$client = new Client();
 		$client->setServer($server);
@@ -450,16 +448,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
 		
-		usleep(110000);
-		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString());
-		
-		usleep(120000);
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -470,6 +464,55 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$msg = $client->msgHandle('14 expunge');
 		$this->assertEquals('* 1 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
+	public function testMsgHandleExpunge2(){
+		$server = new Server('', 0);
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		$server->init();
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('14 NO expunge failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('14 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir');
+		$client->msgHandle('6 select test_dir');
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		
+		$msg = $client->msgHandle('14 expunge');
+		$this->assertEquals('* 2 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
 	/*public function testMsgHandleSearch(){
