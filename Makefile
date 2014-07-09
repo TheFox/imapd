@@ -1,6 +1,6 @@
 
-RELEASE_VERSION = 0.3.0-dev
-RELEASE_NAME = phpchat2
+RELEASE_VERSION = 0.1.0-dev
+RELEASE_NAME = imapd
 
 RM = rm -rfd
 MKDIR = mkdir -p
@@ -16,7 +16,7 @@ all: install tests
 install: composer.phar
 
 update: composer.phar
-	./composer.phar self-update
+	./composer.phar selfupdate
 	./composer.phar update -vv
 
 composer.phar:
@@ -39,18 +39,18 @@ release:
 	$(MKDIR) releases
 	$(TAR) -cpf $(RELEASE_NAME)-$(RELEASE_VERSION).tar \
 		README.md \
+		application.php \
 		composer.json \
 		bootstrap.php \
-		console.php cronjob.php functions.php kernel.php \
 		src \
 		vendor/autoload.php \
 		vendor/composer \
-		vendor/monolog \
-		vendor/psr \
-		vendor/rhumsaa \
+		vendor/liip \
+		vendor/sebastian \
 		vendor/symfony \
 		vendor/thefox \
-		vendor/ulrichsg
+		vendor/symfony \
+		vendor/zendframework
 	$(GZIP) -9 -f $(RELEASE_NAME)-$(RELEASE_VERSION).tar
 	$(MV) ${RELEASE_NAME}-${RELEASE_VERSION}.tar.gz releases
 

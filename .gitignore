@@ -6,3 +6,4 @@ log
 pid
 *.yml
 tests/test_*
+releases
