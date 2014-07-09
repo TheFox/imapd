@@ -752,13 +752,15 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
 		$this->assertEquals(1, count($files));
 		
+		
+		$msg = $client->msgHandle('15 UID copy 100003:100004 test_dir2');
+		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$this->assertEquals(3, count($files));
+		
 		$server->shutdown();
-		
-		
-		foreach($files as $file){
-			fwrite(STDOUT, 'files: '.$file->getRealpath()."\n");
-		}
-		
 	}
 	
 }
