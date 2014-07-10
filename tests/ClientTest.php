@@ -702,11 +702,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('15 UID copy 1');
 		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
-		#$msg = $client->msgHandle('15 UID copy 1 test_dir3');
-		#$this->assertEquals('x', $msg);
+		$msg = $client->msgHandle('15 UID copy 1 test_dir3');
+		$this->assertEquals('15 BAD No messages in selected mailbox.'.Client::MSG_SEPARATOR, $msg);
 		
 		$msg = $client->msgHandle('15 UID copy 1 test_dir2');
-		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals('15 BAD No messages in selected mailbox.'.Client::MSG_SEPARATOR, $msg);
 		
 		
 		$message = new Message();
@@ -737,28 +737,28 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString());
 		
-		
 		$finder = new Finder();
 		$files = $finder->files()->in($maildirPath.'/.test_dir1/new');
 		$this->assertEquals(4, count($files));
 		
-		#$client->msgHandle('6 select test_dir2');
-		#$client->msgHandle('6 select test_dir1');
 		
 		$msg = $client->msgHandle('15 UID copy 100002 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
-		
 		$finder = new Finder();
 		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
 		$this->assertEquals(1, count($files));
 		
-		
 		$msg = $client->msgHandle('15 UID copy 100003:100004 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
-		
 		$finder = new Finder();
 		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
 		$this->assertEquals(3, count($files));
+		
+		$msg = $client->msgHandle('15 UID copy 1 test_dir2');
+		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('15 UID copy 100001 test_dir3');
+		$this->assertEquals('15 NO [TRYCREATE] Can not get folder: no subfolder named test_dir3'.Client::MSG_SEPARATOR, $msg);
 		
 		$server->shutdown();
 	}
