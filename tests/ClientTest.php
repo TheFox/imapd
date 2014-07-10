@@ -664,14 +664,89 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setId(1);
 	}*/
 	
-	/*public function testMsgHandleCopy(){
+	public function testMsgHandleCopy(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
 		$server = new Server('', 0);
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
 		
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
-	}*/
+		
+		$msg = $client->msgHandle('16 copy');
+		$this->assertEquals('16 NO copy failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('16 copy');
+		$this->assertEquals('16 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir1');
+		$server->storageFolderAdd('test_dir2');
+		$client->msgHandle('6 select test_dir1');
+		
+		$msg = $client->msgHandle('16 copy');
+		$this->assertEquals('16 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('16 copy 1');
+		$this->assertEquals('16 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('16 copy 1 test_dir3');
+		$this->assertEquals('16 BAD No messages in selected mailbox.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('16 UID copy 1 test_dir2');
+		$this->assertEquals('16 BAD No messages in selected mailbox.'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$finder = new Finder();
+		$files = $finder->files()->in($maildirPath.'/.test_dir1/new');
+		$this->assertEquals(4, count($files));
+		
+		
+		$msg = $client->msgHandle('15 copy 2 test_dir2');
+		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		$finder = new Finder();
+		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$this->assertEquals(1, count($files));
+		
+		$msg = $client->msgHandle('15 copy 3:4 test_dir2');
+		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
+		$finder = new Finder();
+		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$this->assertEquals(3, count($files));
+		
+		$server->shutdown();
+	}
 	
 	public function testMsgHandleUidCopy(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
@@ -762,5 +837,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$server->shutdown();
 	}
+	
+	
 	
 }

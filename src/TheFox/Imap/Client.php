@@ -823,25 +823,25 @@ class Client{
 		elseif($commandcmp == 'copy'){
 			$args = $this->msgParseString($args, 2);
 			
-			$this->log('debug', 'client '.$this->id.' copy: "'.$args[0].'" "'.$args[1].'"');
+			#$this->log('debug', 'client '.$this->id.' copy: "'.$args[0].'" "'.$args[1].'"');
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
 					if($this->selectedFolder !== null){
 						$seq = $args[0];
 						$folder = $args[1];
-						$this->sendCopy($tag, $seq, $folder);
+						return $this->sendCopy($tag, $seq, $folder);
 					}
 					else{
-						$this->sendNo('No mailbox selected.', $tag);
+						return $this->sendNo('No mailbox selected.', $tag);
 					}
 				}
 				else{
-					$this->sendBad('Arguments invalid.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'uid'){
@@ -1417,7 +1417,7 @@ class Client{
 			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
 		}
 		catch(Exception $e){
-			$this->sendBad($e->getMessage(), $tag);
+			return $this->sendBad($e->getMessage(), $tag);
 		}
 		
 		#fwrite(STDOUT, "msgSeqNums\n");ve($msgSeqNums);
@@ -1426,8 +1426,7 @@ class Client{
 			$this->getServer()->getRootStorage()->getFolders($folder);
 		}
 		catch(Exception $e){
-			$this->sendNo('Can not get folder: '.$e->getMessage(), $tag, 'TRYCREATE');
-			return;
+			return $this->sendNo('Can not get folder: '.$e->getMessage(), $tag, 'TRYCREATE');
 		}
 		
 		foreach($msgSeqNums as $msgSeqNum){
@@ -1435,8 +1434,7 @@ class Client{
 				$this->getServer()->mailCopy($msgSeqNum, $folder);
 			}
 			catch(Exception $e){
-				$this->sendNo('Can not copy message: '.$msgSeqNum, $tag);
-				return;
+				return $this->sendNo('Can not copy message: '.$msgSeqNum, $tag);
 			}
 		}
 		
