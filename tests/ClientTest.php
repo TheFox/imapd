@@ -1039,13 +1039,13 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('15 UID copy');
 		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('15 UID copy 1');
+		$msg = $client->msgHandle('15 UID copy 100001');
 		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('15 UID copy 1 test_dir3');
+		$msg = $client->msgHandle('15 UID copy 100001 test_dir3');
 		$this->assertEquals('15 BAD No messages in selected mailbox.'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('15 UID copy 1 test_dir2');
+		$msg = $client->msgHandle('15 UID copy 100001 test_dir2');
 		$this->assertEquals('15 BAD No messages in selected mailbox.'.Client::MSG_SEPARATOR, $msg);
 		
 		
