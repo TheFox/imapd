@@ -299,6 +299,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
      */
 	public function testMsgHandleBasic($msgRaw, $expect){
 		$server = new Server('', 0);
+		$server->init();
+		
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
@@ -307,14 +309,13 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$this->assertEquals($expect, $msg);
 		
-		#$this->assertStringStartsWith($expect, $msg);
-		#fwrite(STDOUT, "msg: '$msg'\n");
-		
-		#$this->markTestIncomplete('This test has not been implemented yet.');
+		$server->shutdown();
 	}
 	
 	public function testMsgHandleAuthenticate(){
 		$server = new Server('', 0);
+		$server->init();
+		
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
@@ -324,15 +325,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$msg = $client->msgHandle('AHRoZWZveAB0ZXN0');
 		$this->assertEquals('4 OK plain authentication successful'.Client::MSG_SEPARATOR, $msg);
-		
-		#$this->assertStringStartsWith($expect, $msg);
-		#fwrite(STDOUT, "msg: '$msg'\n");
-		
-		#$this->markTestIncomplete('This test has not been implemented yet.');
 	}
 	
 	public function testMsgHandleSelect(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -352,11 +349,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->storageFolderAdd('test_dir');
 		$msg = $client->msgHandle('6 select test_dir');
 		$this->assertEquals('6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR, $msg);
-		
 	}
 	
 	public function testMsgHandleCreate(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -388,6 +385,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleSubscribe(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -415,6 +413,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUnsubscribe(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -439,6 +438,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleList(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -475,6 +475,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleLsub(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -504,6 +505,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleCheck(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -527,6 +529,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleClose(){
 		$server = new Server('', 0);
+		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
@@ -550,8 +553,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleExpunge1(){
 		$server = new Server('', 0);
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
 		$client = new Client();
 		$client->setServer($server);
@@ -593,8 +596,44 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
 		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 7');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 8');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
 		$msg = $client->msgHandle('14 expunge');
-		$this->assertEquals('* 1 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals('* 1 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'* 4 EXPUNGE'.Client::MSG_SEPARATOR.'* 4 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
 	public function testMsgHandleExpunge2(){
@@ -704,11 +743,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString());
-		
-		
-		
-		
-		
 	}
 	
 	/*public function testMsgHandleStore(){

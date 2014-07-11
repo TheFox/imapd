@@ -38,14 +38,24 @@ class MsgDb extends YamlStorage{
 		return false;
 	}
 	
-	public function msgAdd($uid, $seq = 0){
+	public function msgAdd($uid, $seq = 0, $folder = null){
 		#fwrite(STDOUT, "msgAdd: ".$uid."\n");
+		
+		if($uid){
+			// Fix the shit from https://github.com/zendframework/zf2/issues/6317.
+			// I think the coder of Zend\Mail is a noob. This line is for you.
+			$pos = strpos($uid, ',');
+			if($pos !== false){
+				$uid = substr($uid, 0, $pos);
+			}
+		}
 		
 		$this->data['msgsId']++;
 		$this->data['msgs'][$this->data['msgsId']] = array(
 			'id' => $this->data['msgsId'],
 			'uid' => $uid,
 			'seq' => $seq,
+			'folder' => $folder,
 		);
 		$this->msgIdByUid[$uid] = $this->data['msgsId'];
 		$this->msgUidById[$this->data['msgsId']] = $uid;
@@ -56,11 +66,28 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function msgRemove($id){
-		#print __CLASS__.'->'.__FUNCTION__.': '.$id."\n";
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$id."\n");
 		
-		unset($this->msgIdByUid[$this->msgUidById[$id]]);
-		unset($this->msgUidById[$id]);
+		$oldMsg = $this->data['msgs'][$id];
+		
+		#ve($oldMsg);
+		
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' unset uid: '.$oldMsg['uid']."\n");
+		unset($this->msgIdByUid[$oldMsg['uid']]);
+		
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' unset id: '.$oldMsg['id']."\n");
+		unset($this->msgUidById[$oldMsg['id']]);
+		
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' unset: '.$id."\n");
 		unset($this->data['msgs'][$id]);
+		
+		$newSeq = 1;
+		foreach($this->data['msgs'] as $msgId => $msg){
+			if($msg['folder'] == $oldMsg['folder']){
+				$this->data['msgs'][$msgId]['seq'] = $newSeq;
+				$newSeq++;
+			}
+		}
 		
 		$this->setDataChanged(true);
 	}
