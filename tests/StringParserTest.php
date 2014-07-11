@@ -37,7 +37,7 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array('arg1 arg2 arg3 "arg4"', $expect, 4); # 7
 		$rv[] = array('arg1 arg2 "arg3" arg4', $expect, 4);
 		$rv[] = array('arg1 arg2  "arg3" arg4', $expect, 4);
-		$rv[] = array('arg1 arg2 "arg3"  arg4', $expect, 4);
+		$rv[] = array('arg1 arg2 "arg3"  arg4', $expect, 4); # 10
 		$rv[] = array('arg1 arg2  "arg3"  arg4', $expect, 4);
 		$rv[] = array('arg1 arg2 arg3 "arg4"', $expect, 4);
 		$rv[] = array('arg1 arg2 arg3 "arg4" ', $expect, 4); # 13
@@ -76,6 +76,18 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
 		
 		$expect = array('arg1', 'arg2', 'A"arg3"E');
 		$rv[] = array('arg1 arg2 A"arg3"E', $expect, 3);
+		
+		$expect = array('arg1', '', 'arg2');
+		$rv[] = array('arg1 "" arg2', $expect, 3);
+		
+		$expect = array('arg1', 'arg2', ' arg3', 'arg4');
+		$rv[] = array('arg1 arg2 " arg3" arg4', $expect, null);
+		
+		$expect = array('arg1', 'arg2', 'arg3 ', 'arg4');
+		$rv[] = array('arg1 arg2 "arg3 " arg4', $expect, null);
+		
+		$expect = array('arg1', 'arg2', ' arg3 ', 'arg4');
+		$rv[] = array('arg1 arg2 " arg3 " arg4', $expect, null);
 		
 		return $rv;
 	}

@@ -103,15 +103,19 @@ class StringParser{
 			else{
 				if($char == '"'){
 					#fwrite(STDOUT, '    new A '."\n");
-					if($nextChar != '"' && $nextChar != ' '){
-						$this->charNew();
-						$endChar = '"';
-						$in = true;
-					}
+					$this->charNew();
+					$endChar = '"';
+					$in = true;
 				}
 				elseif($char == ' '){
-					#fwrite(STDOUT, '    new B '."\n");
-					if($nextChar != '"' && $nextChar != ' '){
+					if($nextChar == ' '){
+						#fwrite(STDOUT, '    new Ba '."\n");
+					}
+					elseif($nextChar == '"'){
+						#fwrite(STDOUT, '    new Bb '."\n");
+					}
+					else{
+						#fwrite(STDOUT, '    new Bc '."\n");
 						$this->charNew();
 						$endChar = ' ';
 						$in = true;
