@@ -1338,12 +1338,13 @@ class Client{
 				$output[] = $outputBody;
 			}
 			
-			$this->dataSend('* '.$msgSeqNum.' FETCH ('.join(' ', $output).')');
+			$rv .= $this->dataSend('* '.$msgSeqNum.' FETCH ('.join(' ', $output).')');
 			
 			unset($flags[Storage::FLAG_RECENT]);
 			$storage['object']->setFlags($msgSeqNum, $flags);
 		}
 		
+		return $rv;
 	}
 	
 	/*private function sendFetch($tag, $seq, $name){

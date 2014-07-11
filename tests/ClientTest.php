@@ -740,7 +740,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setId(1);
 	}*/
 	
-	public function testMsgHandleUidFetch(){
+	public function testMsgHandleUidFetch1(){
 		$server = new Server('', 0);
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
@@ -789,6 +789,135 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString());
+		
+		
+		$msg = $client->msgHandle('15 UID fetch 1:* (ALL)');
+		$this->assertEquals(
+			'* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR
+			.'* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR
+			.'* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR
+			.'* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR
+			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
+			, $msg);
+		
+		$msg = $client->msgHandle('15 UID fetch 1:* (FAST)');
+		$this->assertEquals(
+			'* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR
+			.'* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR
+			.'* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR
+			.'* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR
+			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
+			, $msg);
+		
+		$msg = $client->msgHandle('15 UID fetch 1:* (FULL)');
+		$this->assertEquals(
+			'* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR
+			.'* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR
+			.'* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR
+			.'* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR
+			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
+			, $msg);
+	}
+	
+	public function testMsgHandleUidFetch2(){
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$client->setStatus('hasAuth', true);
+		$client->msgHandle('6 select INBOX');
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
+		$msg = $client->msgHandle('15 UID fetch 1:* (FLAGS)');
+		$this->assertEquals(
+			'* 1 FETCH (UID 100003 FLAGS (\Seen))'.Client::MSG_SEPARATOR
+			.'* 2 FETCH (UID 100001 FLAGS (\Recent))'.Client::MSG_SEPARATOR
+			.'* 3 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR
+			.'* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR
+			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
+			, $msg);
+	}
+	
+	public function testMsgHandleUidFetch3(){
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$client->setStatus('hasAuth', true);
+		$client->msgHandle('6 select INBOX');
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
+		$msg = $client->msgHandle('15 UID fetch 100002:100004 (FLAGS)');
+		$this->assertEquals(
+			'* 2 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR
+			.'* 3 FETCH (UID 100003 FLAGS (\Recent))'.Client::MSG_SEPARATOR
+			.'* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR
+			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
+			, $msg);
 	}
 	
 	/*public function testMsgHandleStore(){
