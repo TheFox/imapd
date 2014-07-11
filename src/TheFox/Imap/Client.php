@@ -905,7 +905,7 @@ class Client{
 	}
 	
 	private function sendLogout($tag){
-		$this->sendOk('LOGOUT completed', $tag);
+		return $this->sendOk('LOGOUT completed', $tag);
 	}
 	
 	private function sendAuthenticate(){

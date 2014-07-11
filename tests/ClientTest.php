@@ -336,6 +336,18 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('2 OK NOOP completed client 1, ""'.Client::MSG_SEPARATOR, $msg);
 	}
 	
+	public function testMsgHandleLogout(){
+		$server = new Server('', 0);
+		$server->init();
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('3 LOGOUT');
+		$this->assertEquals('* BYE IMAP4rev1 Server logging out'.Client::MSG_SEPARATOR.'3 OK LOGOUT completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
 	public function testMsgHandleAuthenticate(){
 		$server = new Server('', 0);
 		$server->init();
