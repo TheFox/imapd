@@ -928,4 +928,44 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
+	public function testSelect(){
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		$server->storageFolderAdd('test_dir1');
+		$server->storageFolderAdd('test_dir2');
+		
+		$client1 = new Client();
+		$client1->setServer($server);
+		$client1->setId(1);
+		$client2 = new Client();
+		$client2->setServer($server);
+		$client2->setId(2);
+		
+		$storage = $server->getStorageMailbox();
+		
+		$curr = $storage['object']->getCurrentFolder();
+		$this->assertEquals('INBOX', $curr);
+		
+		$client1->select('test_dir1');
+		$curr = $storage['object']->getCurrentFolder();
+		$this->assertEquals('test_dir1', $curr);
+		
+		$client1->select('test_dir2');
+		$curr = $storage['object']->getCurrentFolder();
+		$this->assertEquals('test_dir2', $curr);
+		
+		$client2->select('test_dir1');
+		$curr = $storage['object']->getCurrentFolder();
+		$this->assertEquals('test_dir1', $curr);
+		
+		$client1->select();
+		$curr = $storage['object']->getCurrentFolder();
+		$this->assertEquals('test_dir2', $curr);
+		
+		$client2->select();
+		$curr = $storage['object']->getCurrentFolder();
+		$this->assertEquals('test_dir1', $curr);
+	}
+	
 }
