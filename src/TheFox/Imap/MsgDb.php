@@ -38,18 +38,21 @@ class MsgDb extends YamlStorage{
 		return false;
 	}
 	
-	public function msgAdd($uid){
+	public function msgAdd($uid, $seq = 0){
 		#fwrite(STDOUT, "msgAdd: ".$uid."\n");
 		
 		$this->data['msgsId']++;
 		$this->data['msgs'][$this->data['msgsId']] = array(
 			'id' => $this->data['msgsId'],
 			'uid' => $uid,
+			'seq' => $seq,
 		);
 		$this->msgIdByUid[$uid] = $this->data['msgsId'];
 		$this->msgUidById[$this->data['msgsId']] = $uid;
 		
 		$this->setDataChanged(true);
+		
+		return $this->data['msgsId'];
 	}
 	
 	public function msgRemove($id){
@@ -84,6 +87,13 @@ class MsgDb extends YamlStorage{
 		}
 		
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$uid.' not found'."\n");
+		return null;
+	}
+	
+	public function getSeqById($id){
+		if(isset($this->data['msgs'][$id])){
+			return $this->data['msgs'][$id]['seq'];
+		}
 		return null;
 	}
 	
