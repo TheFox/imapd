@@ -324,6 +324,18 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('* CAPABILITY IMAP4rev1 AUTH=PLAIN'.Client::MSG_SEPARATOR.'1 OK CAPABILITY completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
+	public function testMsgHandleNoop(){
+		$server = new Server('', 0);
+		$server->init();
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('2 NOOP');
+		$this->assertEquals('2 OK NOOP completed client 1, ""'.Client::MSG_SEPARATOR, $msg);
+	}
+	
 	public function testMsgHandleAuthenticate(){
 		$server = new Server('', 0);
 		$server->init();
