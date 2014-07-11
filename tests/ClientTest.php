@@ -312,6 +312,18 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
+	public function testMsgHandleCapability(){
+		$server = new Server('', 0);
+		$server->init();
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('1 capability');
+		$this->assertEquals('* CAPABILITY IMAP4rev1 AUTH=PLAIN'.Client::MSG_SEPARATOR.'1 OK CAPABILITY completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
 	public function testMsgHandleAuthenticate(){
 		$server = new Server('', 0);
 		$server->init();
