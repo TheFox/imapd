@@ -655,6 +655,62 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setId(1);
 	}*/
 	
+	public function testMsgHandleUidFetch(){
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('15 UID fetch');
+		$this->assertEquals('15 NO uid failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('15 UID fetch');
+		$this->assertEquals('15 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->msgHandle('6 select INBOX');
+		
+		$msg = $client->msgHandle('15 UID fetch');
+		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
+		
+		
+		
+	}
+	
 	/*public function testMsgHandleStore(){
 		$server = new Server('', 0);
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
@@ -837,7 +893,5 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$server->shutdown();
 	}
-	
-	
 	
 }
