@@ -1327,7 +1327,7 @@ class Client{
 					$output[] = 'RFC822.SIZE '.$size;
 				}
 				elseif($item == 'uid'){
-					$output[] = 'UID '.$uid;
+					$output[] = 'UID '.$msgId;
 				}
 			}
 			
