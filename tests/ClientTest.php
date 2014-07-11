@@ -928,6 +928,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
+	public function testSendBye(){
+		$client = new Client();
+		$client->setId(1);
+		
+		$this->assertEquals('* BYE text1'.Client::MSG_SEPARATOR, $client->sendBye('text1'));
+		$this->assertEquals('* BYE [code1] text1'.Client::MSG_SEPARATOR, $client->sendBye('text1', 'code1'));
+	}
+	
 	public function testSelect(){
 		$server = new Server('', 0);
 		$server->init();
