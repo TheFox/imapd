@@ -296,12 +296,15 @@ class Client{
 	}
 	
 	public function msgGetParenthesizedlist($msgRaw, $level = 0){
-		#fwrite(STDOUT, str_repeat(' ', $level * 4)."raw '$msgRaw'\n");
+		#fwrite(STDOUT, str_repeat(' ', $level * 4)."raw '".$msgRaw."'\n");
 		#usleep(100000);
 		
 		$rv = array();
 		$rvc = 0;
 		if($msgRaw){
+			if($msgRaw[0] == '(' && substr($msgRaw, -1) != ')' || $msgRaw[0] != '(' && substr($msgRaw, -1) == ')'){
+				$msgRaw = '('.$msgRaw.')';
+			}
 			if($msgRaw[0] == '(' || $msgRaw[0] == '['){
 				$msgRaw = substr($msgRaw, 1);
 			}
