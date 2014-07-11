@@ -277,14 +277,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$rv = array(
 			array('NO_COMMAND', 'NO_COMMAND BAD Not implemented: "NO_COMMAND" ""'),
 			array('1 NO_COMMAND', '1 BAD Not implemented: "1" "NO_COMMAND"'),
-			array('1 capability', '* CAPABILITY IMAP4rev1 AUTH=PLAIN'.Client::MSG_SEPARATOR.'1 OK CAPABILITY completed'),
-			array('2 noop', '2 OK NOOP completed client 1, ""'),
-			array('3 logout', '* BYE IMAP4rev1 Server logging out'),
-			array('4 authenticate X', '4 NO X Unsupported authentication mechanism'),
-			array('5 login thefox password', '5 OK LOGIN completed'),
-			array('5 login thefox', '5 BAD Arguments invalid.'),
-			#array('', ''),
-			#array('', ''),
 		);
 		
 		foreach($rv as $cn => $case){
