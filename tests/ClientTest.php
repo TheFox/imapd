@@ -326,6 +326,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$msg = $client->msgHandle('2 NOOP');
 		$this->assertEquals('2 OK NOOP completed client 1, ""'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->shutdown();
 	}
 	
 	public function testMsgHandleLogout(){
@@ -920,13 +922,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			, $msg);
 	}
 	
-	/*public function testMsgHandleStore(){
-		$server = new Server('', 0);
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
-		
-		$client = new Client();
-		$client->setServer($server);
-		$client->setId(1);
+	/*public function testMsgHandleUidStore(){
+		$this->markTestIncomplete('This test has not been implemented yet.');
 	}*/
 	
 	public function testMsgHandleCopy(){
