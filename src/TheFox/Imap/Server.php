@@ -290,13 +290,13 @@ class Server extends Thread{
 		}
 		
 		try{
-			$dbpath = $path;
-			if(substr($dbpath, -1) == '/'){
-				$dbpath = substr($dbpath, 0, -1);
+			$dbPath = $path;
+			if(substr($dbPath, -1) == '/'){
+				$dbPath = substr($dbPath, 0, -1);
 			}
-			$dbpath .= '.msgs.yml';
-			$this->log->debug('dbpath: '.$dbpath);
-			$db = new MsgDb($dbpath);
+			$dbPath .= '.msgs.yml';
+			#$this->log->debug('dbpath: '.$dbPath);
+			$db = new MsgDb($dbPath);
 			$db->load();
 			
 			$storage = new Maildir(array('dirname' => $path));
