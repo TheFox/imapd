@@ -155,7 +155,43 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testStorageMailboxGetDbSeqById(){
-		$this->assertTrue(true);
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$msgId = $server->mailAdd($message->toString());
+		$this->assertEquals(1, $server->storageMailboxGetDbSeqById($msgId));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$msgId = $server->mailAdd($message->toString());
+		$this->assertEquals(2, $server->storageMailboxGetDbSeqById($msgId));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$msgId = $server->mailAdd($message->toString());
+		$this->assertEquals(3, $server->storageMailboxGetDbSeqById($msgId));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$msgId = $server->mailAdd($message->toString());
+		$this->assertEquals(4, $server->storageMailboxGetDbSeqById($msgId));
 	}
 	
 	public function testStorageMaildirGetDbMsgIdBySeqNum(){
