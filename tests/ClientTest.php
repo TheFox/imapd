@@ -363,6 +363,24 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('4 OK plain authentication successful'.Client::MSG_SEPARATOR, $msg);
 	}
 	
+	public function testMsgHandleLogin(){
+		$server = new Server('', 0);
+		$server->init();
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('3 LOGIN');
+		$this->assertEquals('3 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('3 LOGIN user');
+		$this->assertEquals('3 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('3 LOGIN user password');
+		$this->assertEquals('3 OK LOGIN completed'.Client::MSG_SEPARATOR, $msg);
+	}
+	
 	public function testMsgHandleSelect(){
 		$server = new Server('', 0);
 		$server->init();
