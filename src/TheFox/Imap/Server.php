@@ -245,7 +245,6 @@ class Server extends Thread{
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
 				$message->addTo('thefox@fox21.at');
-				#$message->setSubject('test '.date('Y/m/d H:i:s'));
 				$message->setBody('body');
 				
 				$message->setSubject('t1 '.date('H:i:s'));
