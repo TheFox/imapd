@@ -90,7 +90,30 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testStorageMailboxGetFolders(){
-		$this->assertTrue(true);
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$server->storageFolderAdd('test_dir1');
+		$this->assertFileExists($maildirPath.'/.test_dir1');
+		
+		$server->storageFolderAdd('test_dir2');
+		$this->assertFileExists($maildirPath.'/.test_dir2');
+		
+		$server->storageFolderAdd('test_dir2.test_dir3');
+		$this->assertFileExists($maildirPath.'/.test_dir2.test_dir3');
+		
+		
+		$folders = $server->storageMailboxGetFolders('INBOX');
+		$this->assertEquals(3, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('test_dir1');
+		$this->assertEquals(0, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('test_dir2');
+		$this->assertEquals(1, count($folders));
 	}
 	
 	public function testStorageMailboxGetDbNextId(){
