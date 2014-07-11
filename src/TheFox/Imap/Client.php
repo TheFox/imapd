@@ -1548,7 +1548,7 @@ class Client{
 	}
 	
 	public function sendPreauth($text, $code = null){
-		$this->dataSend('* PREAUTH'.($code ? ' ['.$code.']' : '').' '.$text);
+		return $this->dataSend('* PREAUTH'.($code ? ' ['.$code.']' : '').' '.$text);
 	}
 	
 	public function sendBye($text, $code = null){

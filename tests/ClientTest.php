@@ -928,6 +928,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
+	public function testSendPreauth(){
+		$client = new Client();
+		$client->setId(1);
+		
+		$this->assertEquals('* PREAUTH text1'.Client::MSG_SEPARATOR, $client->sendPreauth('text1'));
+		$this->assertEquals('* PREAUTH [code1] text1'.Client::MSG_SEPARATOR, $client->sendPreauth('text1', 'code1'));
+	}
+	
 	public function testSendBye(){
 		$client = new Client();
 		$client->setId(1);
