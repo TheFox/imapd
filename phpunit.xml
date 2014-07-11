@@ -24,6 +24,7 @@
 			<!--<file>tests/BasicTest.php</file>//-->
 			<file>tests/ClientTest.php</file>
 			<file>tests/ServerTest.php</file>
+			<file>tests/StringParserTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

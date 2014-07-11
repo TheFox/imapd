@@ -9,45 +9,6 @@ use TheFox\Imap\Client;
 
 class ClientTest extends PHPUnit_Framework_TestCase{
 	
-	public function providerMsgParseString(){
-		$rv = array();
-		
-		$expect = array('arg1', 'arg2', 'arg3 arg4');
-		$rv[] = array('arg1 arg2 arg3 arg4', $expect, 3);
-		$rv[] = array('arg1  arg2 arg3 arg4', $expect, 3);
-		$rv[] = array('arg1 arg2  arg3 arg4', $expect, 3);
-		$rv[] = array('arg1  arg2  arg3 arg4', $expect, 3);
-		
-		$expect = array('arg1', 'arg2', 'arg3  arg4');
-		$rv[] = array('arg1 arg2 arg3  arg4', $expect, 3);
-		$rv[] = array('arg1  arg2  arg3  arg4', $expect, 3);
-		
-		$expect = array('arg1', 'arg2', '0');
-		$rv[] = array('arg1 arg2 0', $expect, 3);
-		
-		$expect = array('arg1', 'arg2', 0);
-		$rv[] = array('arg1 arg2 0', $expect, 3);
-		
-		$expect = array('arg1', 'arg2', '000');
-		$rv[] = array('arg1 arg2 000', $expect, 3);
-		
-		$expect = array('arg1', 'arg2', '123');
-		$rv[] = array('arg1 arg2 123', $expect, 3);
-		
-		$expect = array('arg1', 'arg2', '0123');
-		$rv[] = array('arg1 arg2 0123', $expect, 3);
-		
-		return $rv;
-	}
-	
-	/**
-     * @dataProvider providerMsgParseString
-     */
-	public function testMsgParseString($msgRaw, $expect, $argsMax){
-		$client = new Client();
-		$this->assertEquals($expect, $client->msgParseString($msgRaw, $argsMax));
-	}
-	
 	public function providerMsgGetArgs(){
 		$rv = array();
 		$expect = array('tag' => 'TAG1', 'command' => 'cmd2', 'args' => array());
