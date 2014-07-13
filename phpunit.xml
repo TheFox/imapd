@@ -23,6 +23,7 @@
 		<testsuite name="My Test Suite">
 			<!--<file>tests/BasicTest.php</file>//-->
 			<file>tests/ClientTest.php</file>
+			<file>tests/LogicGateTest.php</file>
 			<file>tests/ServerTest.php</file>
 			<file>tests/StringParserTest.php</file>
 		</testsuite>
