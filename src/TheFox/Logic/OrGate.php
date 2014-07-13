@@ -5,15 +5,10 @@ namespace TheFox\Logic;
 class OrGate extends Gate{
 	
 	public function bool(){
-		$bool1 = false;
-		if($this->getObj1()){
-			$bool1 = $this->getObj1()->bool();
+		if($this->getObj1() && $this->getObj1()->bool() || $this->getObj2() && $this->getObj2()->bool()){
+			return true;
 		}
-		$bool2 = false;
-		if($this->getObj2()){
-			$bool2 = $this->getObj2()->bool();
-		}
-		return($bool1 || $bool2);
+		return false;
 	}
 	
 }
