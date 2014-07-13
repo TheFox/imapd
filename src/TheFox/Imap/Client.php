@@ -1358,8 +1358,10 @@ class Client{
 	}
 	
 	private function sendUid($tag, $args){
-		$args = $this->msgParseString($args, 2);
+		$this->log('debug', 'client '.$this->id.': sendUid: "'.$args.'"');
+		#ve($args);
 		
+		$args = $this->msgParseString($args, 2);
 		#ve($args);
 		
 		$command = $args[0];
