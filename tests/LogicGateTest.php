@@ -181,4 +181,96 @@ class LogicGateTest extends PHPUnit_Framework_TestCase{
 		$this->assertFalse($gate1->bool());
 	}
 	
+	public function testAll3(){
+		$gate2 = new AndGate();
+		$gate1 = new OrGate();
+		$gate1->setObj2($gate2);
+		
+		$gate1->setObj1(new Obj(1));
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate1->setObj1(new Obj(1));
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(0));
+		$this->assertTrue($gate1->bool());
+		
+		$gate1->setObj1(new Obj(1));
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate1->setObj1(new Obj(1));
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(0));
+		$this->assertTrue($gate1->bool());
+		
+		$gate1->setObj1(new Obj(0));
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate1->setObj1(new Obj(0));
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(0));
+		$this->assertFalse($gate1->bool());
+		
+		$gate1->setObj1(new Obj(0));
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(1));
+		$this->assertFalse($gate1->bool());
+		
+		$gate1->setObj1(new Obj(0));
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(0));
+		$this->assertFalse($gate1->bool());
+	}
+	
+	public function testAll4(){
+		$gate2 = new AndGate();
+		$gate1 = new OrGate();
+		$gate1->setObj1($gate2);
+		
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(1));
+		$gate1->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(1));
+		$gate1->setObj2(new Obj(0));
+		$this->assertTrue($gate1->bool());
+		
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(0));
+		$gate1->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate2->setObj1(new Obj(1));
+		$gate2->setObj2(new Obj(0));
+		$gate1->setObj2(new Obj(0));
+		$this->assertFalse($gate1->bool());
+		
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(1));
+		$gate1->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(1));
+		$gate1->setObj2(new Obj(0));
+		$this->assertFalse($gate1->bool());
+		
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(0));
+		$gate1->setObj2(new Obj(1));
+		$this->assertTrue($gate1->bool());
+		
+		$gate2->setObj1(new Obj(0));
+		$gate2->setObj2(new Obj(0));
+		$gate1->setObj2(new Obj(0));
+		$this->assertFalse($gate1->bool());
+	}
+	
 }
