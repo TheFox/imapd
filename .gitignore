@@ -6,4 +6,5 @@ log
 pid
 *.yml
 tests/test_*
+tmp_mailbox_*
 releases
