@@ -11,6 +11,7 @@ use Zend\Mail\Headers;
 use Zend\Mail\Message;
 
 use TheFox\Network\AbstractSocket;
+use TheFox\Logic\CriteriaTree;
 
 class Client{
 	
