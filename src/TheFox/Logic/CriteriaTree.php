@@ -21,7 +21,7 @@ class CriteriaTree{
 		$rep = '-';
 		fwrite(STDOUT, str_repeat($rep, 4 * $level).$func.': '.$level.''."\n");
 		
-		if($level >= 1) usleep(100000); # TODO
+		#if($level >= 1) usleep(100000); # TODO
 		
 		$gate = null;
 		$obj1 = null;
@@ -39,17 +39,14 @@ class CriteriaTree{
 				
 				if($gate){
 					fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'array: gate is set'."\n");
-					if($obj1 === null){
-						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'array: obj1 == null'."\n");
-					}
-					else{
-						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'array: obj1 is set'."\n");
-					}
+					
+					$gate->setObj2($subobj);
 				}
 				else{
 					fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'array: gate == null'."\n");
 					if($obj1 === null){
 						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'array: obj1 == null'."\n");
+						$obj1 = $subobj;
 					}
 					else{
 						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'array: obj1 is set'."\n");
@@ -57,8 +54,7 @@ class CriteriaTree{
 				}
 				
 				fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t".'array: subobj'."\n");
-				ve($subobj);
-				
+				#ve($subobj);
 			}
 			else{
 				$criteriumcmp = strtolower($criterium);
@@ -69,7 +65,6 @@ class CriteriaTree{
 					fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'or'."\n");
 					if($gate){
 						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'gate is set'."\n");
-						
 						$obj1 = $gate;
 						$gate = new OrGate();
 						$gate->setObj1($obj1);
@@ -77,14 +72,12 @@ class CriteriaTree{
 					}
 					else{
 						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'gate == null'."\n");
-						
 						$gate = new OrGate();
 						if($obj1 === null){
 							fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t\t".'obj1 == null'."\n");
 						}
 						else{
 							fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t\t".'obj1 is set'."\n");
-							
 							$gate->setObj1($obj1);
 							$obj1 = null;
 						}
@@ -122,7 +115,6 @@ class CriteriaTree{
 						
 						if($gate instanceof OrGate){
 							fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t\t".'is OrGate'."\n");
-							
 							$rest = array_slice($this->criteria, $criteriumId);
 							#ve($rest);
 							$tree = new CriteriaTree($rest);
@@ -138,7 +130,6 @@ class CriteriaTree{
 					}
 					else{
 						fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'gate == null'."\n");
-						
 						if($obj1 === null){
 							fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t\t".'obj1 == null'."\n");
 							$obj1 = new Obj($criterium);
