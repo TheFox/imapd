@@ -113,6 +113,12 @@ class LogicGateTest extends PHPUnit_Framework_TestCase{
 		$gate = new NotGate();
 		$gate->setObj(new Obj(false));
 		$this->assertTrue($gate->bool());
+		
+		$gate = new NotGate(new Obj(true));
+		$this->assertFalse($gate->bool());
+		
+		$gate = new NotGate(new Obj(false));
+		$this->assertTrue($gate->bool());
 	}
 	
 	public function testAll1(){

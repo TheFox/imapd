@@ -7,6 +7,10 @@ class Gate{
 	private $obj1;
 	private $obj2;
 	
+	public function __construct(){
+		
+	}
+	
 	public function setObj1($obj1){
 		$this->obj1 = $obj1;
 	}
