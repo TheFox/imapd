@@ -688,6 +688,21 @@ class Client{
 				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		elseif($commandcmp == 'search'){
+			$this->log('debug', 'client '.$this->id.' expunge');
+			
+			if($this->getStatus('hasAuth')){
+				if($this->selectedFolder !== null){
+					# TODO
+				}
+				else{
+					$this->sendNo('No mailbox selected.', $tag);
+				}
+			}
+			else{
+				$this->sendNo($commandcmp.' failure', $tag);
+			}
+		}
 		elseif($commandcmp == 'store'){
 			$args = $this->msgParseString($args, 3);
 			
@@ -1207,6 +1222,92 @@ class Client{
 		
 		return $rv;
 	}
+	
+	private function sendSearchRaw($tag, $criteriaStr, $isUid = false){
+		fwrite(STDOUT, 'sendSearchRaw: "'.$criteriaStr.'"'."\n");
+		
+		$criteria = array();
+		$criteria = $this->msgGetParenthesizedlist($criteriaStr);
+		ve($criteria);
+		
+		
+		$criteria = $this->parseSearchKeys($criteria);
+		ve($criteria);
+		
+		$tree = new CriteriaTree($criteria);
+		#ve($tree);
+		ve($tree->build());
+		#ve($tree->getRootGate()->bool());
+		
+		
+		#$realCriteria = array();
+		
+		#ve($realCriteria);
+		
+		return;
+		
+		
+		
+		$ids = array();
+		$storage = $this->getServer()->getStorageMailbox();
+		$msgSeqNums = $this->createSequenceSet('*');
+		foreach($msgSeqNums as $msgSeqNum){
+			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+			
+			$message = null;
+			try{
+				$message = $storage['object']->getMessage($msgSeqNum);
+				
+			}
+			catch(Exception $e){
+				$this->log('error', 'client '.$this->id.' getMessage: '.$e->getMessage());
+			}
+			
+			$add = false;
+			if($message){
+				#ve($message);
+				
+				$headers = $message->getHeaders();
+				
+				#ve($headers->get('To')->getFieldValue());
+				#ve($headers->get('From')->getFieldValue());
+				
+				
+				
+			}
+			if($add){
+				if($isUid){
+					$ids[] = 0;
+				}
+				else{
+					$ids[] = 0;
+				}
+			}
+		}
+		
+		$rv = '';
+		while(count($ids)){
+			
+			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+			
+			ve($ids);
+			
+			$sendIds = array_slice($ids, 0, 2);
+			$ids = array_slice($ids, 2);
+			
+			
+			sleep(1);
+		}
+		return $rv;
+	}
+	
+	/*private function sendSearch($tag, $criteriaStr){
+		$this->select();
+		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+		
+		#$this->sendSearchRaw($tag, $criteriaStr, false);
+		$this->sendOk('SEARCH completed', $tag);
+	}*/
 	
 	private function sendFetchRaw($tag, $seq, $name, $isUid = false){
 		#ve('fetchRaw');

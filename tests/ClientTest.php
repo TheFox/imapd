@@ -863,7 +863,66 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $rv);
 	}
 	
-	
+	public function testMsgHandleUidSearch(){
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('17 uid search');
+		$this->assertEquals('17 NO uid failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('17 uid search');
+		$this->assertEquals('17 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->msgHandle('6 select INBOX');
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
+		#$msg = $client->msgHandle('17 uid SEARCH ALL');
+		
+		#$msg = $client->msgHandle('17 uid SEARCH OR (UNDELETED FROM "thefox") ANSWERED AND FROM "21"');
+		
+		$msg = $client->msgHandle('17 uid SEARCH UNDELETED HEADER From @fox21.at');
+		
+		$this->assertEquals('17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		
+	}
 	
 	public function testMsgHandleUidFetch1(){
 		$server = new Server('', 0);

@@ -43,6 +43,7 @@ You can change the IP and port (default port is 20143):
 - 6.3.9 LSUB Command
 - 6.3.11 APPEND Command
 - 6.4.2 CLOSE Command
+- 6.4.4 SEARCH Command
 - 6.4.5 FETCH Command
 - 6.4.6 STORE Command
 - 6.4.8 UID Command
@@ -50,6 +51,7 @@ You can change the IP and port (default port is 20143):
 - 7.2.1 CAPABILITY Response
 - 7.2.2 LIST Response
 - 7.2.3 LSUB Response
+- 7.2.5 SEARCH Response
 - 7.3.1 EXISTS Response
 - 7.3.2 RECENT Response
 - 7.4.2 FETCH Response
