@@ -17,6 +17,14 @@ class Obj{
 		}
 	}
 	
+	public function setValue($value){
+		$this->value = $value;
+	}
+	
+	public function getValue(){
+		return $this->value;
+	}
+	
 	public function bool(){
 		return((bool)$this->value);
 	}
