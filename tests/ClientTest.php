@@ -751,7 +751,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('UNSEEN'), array('UNSEEN'));
 		
 		
-		
 		$rv[] = array(array('1', '2'), array('1', 'AND', '2'));
 		$rv[] = array(array('BCC', 'thefox', 'BCC', '21'), array('BCC thefox', 'AND', 'BCC 21'));
 		$rv[] = array(array('BCC', 'thefox', 'AND', 'BCC', '21'), array('BCC thefox', 'AND', 'BCC 21'));
@@ -840,6 +839,13 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			)
 		);
 		
+		$rv[] = array(array(array('1', '2'), '3'), array(array('1', 'AND', '2'), 'AND', '3'));
+		$rv[] = array(array(array('1', '2'), 'AND', '3'), array(array('1', 'AND', '2'), 'AND', '3'));
+		
+		$rv[] = array(array('OR', 'BCC', '1', 'BCC', '3'), array(array('BCC 1', 'OR', 'BCC 3')));
+		$rv[] = array(array('OR', array('1', '2'), '3'), array(array(array('1', 'AND', '2'), 'OR', '3')));
+		$rv[] = array(array('123', 'OR', array('1', '2'), '3'), array('123', 'AND', array(array('1', 'AND', '2'), 'OR', '3')));
+		
 		return $rv;
 	}
 	
@@ -852,7 +858,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$rv = $client->parseSearchKeys($testData);
 		
-		#ve($rv);
+		#fwrite(STDOUT, 'list:'."\n"); ve($rv);
 		
 		$this->assertEquals($expect, $rv);
 	}

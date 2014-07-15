@@ -1108,92 +1108,82 @@ class Client{
 	public function parseSearchKeys($list, $maxItems = 0, $addAnd = true){
 		$func = __FUNCTION__;
 		$len = count($list);
-		#fwrite(STDOUT, 'parseSearchKeys: '.$len."\n");
-		
 		$rv = array();
-		
-		#ve($list);
+		#fwrite(STDOUT, 'parseSearchKeys: '.$len."\n");
 		
 		if($len <= 1){
 			return $list;
 		}
 		
 		$itemsC = 0;
-		$nextAnd = true;
 		for($pos = 0; $pos < $len; $pos++){
 			$orgpos = $pos;
 			$item = $list[$pos];
-			$itemcmp = strtolower($item);
-			
 			$itemWithArgs = '';
 			
-			#fwrite(STDOUT, 'pos: '.$pos.', /'.$item.'/'."\n");
-			
-			$argsNum = 0;
+			$and = true;
 			$offset = 0;
-			#$and = true;
-			$and = $nextAnd;
 			
-			if($itemcmp == 'all' || $itemcmp == 'answered' || $itemcmp == 'deleted' || $itemcmp == 'draft' || $itemcmp == 'flagged' || $itemcmp == 'new' || $itemcmp == 'old' || $itemcmp == 'recent' || $itemcmp == 'seen' || $itemcmp == 'unanswered' || $itemcmp == 'undeleted' || $itemcmp == 'undraft' || $itemcmp == 'unflagged' || $itemcmp == 'unseen'){
-				$itemWithArgs = $item;
-				$nextAnd = true;
+			if(is_array($item)){
+				#fwrite(STDOUT, 'pos: '.$pos.' array'."\n");
+				#$rv[] = $this->$func($item);
+				$itemWithArgs = array($this->$func($item));
 			}
-			elseif($itemcmp == 'bcc' || $itemcmp == 'before' || $itemcmp == 'body' || $itemcmp == 'cc' || $itemcmp == 'from' || $itemcmp == 'keyword' || $itemcmp == 'larger' || $itemcmp == 'on' || $itemcmp == 'sentbefore' || $itemcmp == 'senton' || $itemcmp == 'sentsince' || $itemcmp == 'since' || $itemcmp == 'smaller' || $itemcmp == 'subject' || $itemcmp == 'text' || $itemcmp == 'to' || $itemcmp == 'uid' || $itemcmp == 'unkeyword'){
-				$itemWithArgs = $item.' '.$list[$pos + 1];
-				$offset += 1;
-				$nextAnd = true;
-			}
-			elseif($itemcmp == 'header'){
-				$itemWithArgs = $item.' '.$list[$pos + 1].' '.$list[$pos + 2];
-				$offset += 2;
-				$nextAnd = true;
-			}
-			elseif($itemcmp == 'or'){
-				#$and = false;
-				$sublist = $this->$func(array_slice($list, $pos + 1), 2, false);
-				#ve($sublist);
-				#$rv[] = array($sublist[0], 'OR', $sublist[1]);
-				$itemWithArgs = array(array($sublist[0], 'OR', $sublist[1]));
-				
-				$subitemsC = 0;
-				foreach($sublist as $subitem){
-					$subitemsC += count(preg_split('/ /', $subitem));
+			else{
+				#fwrite(STDOUT, 'pos: '.$pos.' /'.$item.'/'."\n");
+				$itemcmp = strtolower($item);
+				if($itemcmp == 'all' || $itemcmp == 'answered' || $itemcmp == 'deleted' || $itemcmp == 'draft' || $itemcmp == 'flagged' || $itemcmp == 'new' || $itemcmp == 'old' || $itemcmp == 'recent' || $itemcmp == 'seen' || $itemcmp == 'unanswered' || $itemcmp == 'undeleted' || $itemcmp == 'undraft' || $itemcmp == 'unflagged' || $itemcmp == 'unseen'){
+					$itemWithArgs = $item;
 				}
-				
-				$offset += $subitemsC;
-				$nextAnd = true;
-			}
-			elseif($itemcmp == 'and'){
-				$and = false;
-				$nextAnd = true;
-			}
-			elseif($itemcmp == 'not'){
-				$sublist = $this->$func(array_slice($list, $pos + 1), 1, false);
-				#ve($sublist);
-				$itemWithArgs = array($item, $sublist[0]);
-				#$rv[] = $item;
-				#$rv[] = $sublist[0];
-				
-				$subitemsC = 0;
-				foreach($sublist as $subitem){
-					$subitemsC += count(preg_split('/ /', $subitem));
+				elseif($itemcmp == 'bcc' || $itemcmp == 'before' || $itemcmp == 'body' || $itemcmp == 'cc' || $itemcmp == 'from' || $itemcmp == 'keyword' || $itemcmp == 'larger' || $itemcmp == 'on' || $itemcmp == 'sentbefore' || $itemcmp == 'senton' || $itemcmp == 'sentsince' || $itemcmp == 'since' || $itemcmp == 'smaller' || $itemcmp == 'subject' || $itemcmp == 'text' || $itemcmp == 'to' || $itemcmp == 'uid' || $itemcmp == 'unkeyword'){
+					$itemWithArgs = $item.' '.$list[$pos + 1];
+					$offset += 1;
 				}
-				
-				$offset += $subitemsC;
-				#$nextAnd = false;
-				$nextAnd = true;
+				elseif($itemcmp == 'header'){
+					$itemWithArgs = $item.' '.$list[$pos + 1].' '.$list[$pos + 2];
+					$offset += 2;
+				}
+				elseif($itemcmp == 'or'){
+					$sublist = $this->$func(array_slice($list, $pos + 1), 2, false);
+					#ve($sublist);
+					$itemWithArgs = array(array($sublist[0], 'OR', $sublist[1]));
+					
+					$subitemsC = 0;
+					foreach($sublist as $subitem){
+						if(is_array($subitem)){
+							$subitemsC++;
+						}
+						else{
+							$subitemsC += count(preg_split('/ /', $subitem));
+						}
+					}
+					
+					$offset += $subitemsC;
+				}
+				elseif($itemcmp == 'and'){
+					$and = false;
+				}
+				elseif($itemcmp == 'not'){
+					$sublist = $this->$func(array_slice($list, $pos + 1), 1, false);
+					$itemWithArgs = array($item, $sublist[0]);
+					
+					$subitemsC = 0;
+					foreach($sublist as $subitem){
+						$subitemsC += count(preg_split('/ /', $subitem));
+					}
+					
+					$offset += $subitemsC;
+				}
+				elseif(is_numeric($itemcmp)){
+					$itemWithArgs = $item;
+				}
 			}
-			elseif(is_numeric($itemcmp)){
-				$itemWithArgs = $item;
-				$nextAnd = true;
-			}
-			
 			
 			if($pos <= 0){
 				$and = false;
 			}
 			
-			#fwrite(STDOUT, '    pos: '.$pos.', '.$itemsC.', /'.$item.'/ '.(is_array($itemWithArgs) ? 'array' : '/'.$itemWithArgs.'/').' and='.(int)$and."\n");
+			#fwrite(STDOUT, '    pos: '.$pos.', '.$itemsC.' '.(is_array($item) ? 'array' : '/'.$item.'/').' '.(is_array($itemWithArgs) ? 'array' : '/'.$itemWithArgs.'/').' and='.(int)$and."\n");
 			
 			if($addAnd && $and){
 				$rv[] = 'AND';
@@ -1201,12 +1191,9 @@ class Client{
 			}
 			if($itemWithArgs){
 				if(is_array($itemWithArgs)){
-					#fwrite(STDOUT, '    merge'."\n");
 					$rv = array_merge($rv, $itemWithArgs);
 				}
 				else{
-					#fwrite(STDOUT, '    add'."\n");
-					#ve($itemWithArgs);
 					$rv[] = $itemWithArgs;
 				}
 			}
