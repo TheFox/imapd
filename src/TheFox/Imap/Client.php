@@ -1224,6 +1224,7 @@ class Client{
 	
 	private function sendFetchRaw($tag, $seq, $name, $isUid = false){
 		#ve('fetchRaw');
+		$rv = '';
 		
 		$msgItems = array();
 		if($isUid){
@@ -1525,12 +1526,12 @@ class Client{
 			$rv .= $this->sendOk('UID STORE completed', $tag);
 		}
 		elseif($commandcmp == 'search'){
-			$this->sendBad('search not implemented.', $tag);
-			#$this->select();
+			$this->select();
+			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
 			$criteriaStr = $args;
-			#$rv .= $this->sendSearchRaw($tag, $criteriaStr, true);
-			#$rv .= $this->sendOk('UID SEARCH completed', $tag);
+			$rv .= $this->sendSearchRaw($tag, $criteriaStr, true);
+			$rv .= $this->sendOk('UID SEARCH completed', $tag);
 		}
 		else{
 			return $this->sendBad('Arguments invalid.', $tag);
