@@ -9,226 +9,176 @@ use TheFox\Logic\NotGate;
 
 class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 	
+	public function providerCriteriaBool(){
+		$rv = array();
+		
+		$rv[] = array(array('0'), 0);
+		$rv[] = array(array('1'), 1);
+		
+		$rv[] = array(array('0', 'OR', '0'), 0 || 0);
+		$rv[] = array(array('0', 'OR', '1'), 0 || 1);
+		$rv[] = array(array('1', 'OR', '0'), 1 || 0);
+		$rv[] = array(array('1', 'OR', '1'), 1 || 1);
+		
+		$rv[] = array(array('0', 'AND', '0'), 0 && 0);
+		$rv[] = array(array('0', 'AND', '1'), 0 && 1);
+		$rv[] = array(array('1', 'AND', '0'), 1 && 0);
+		$rv[] = array(array('1', 'AND', '1'), 1 && 1);
+		
+		
+		
+		$rv[] = array(array('0', 'OR', '0', 'OR', '0'), 0 || 0 || 0);
+		$rv[] = array(array('0', 'OR', '0', 'OR', '1'), 0 || 0 || 1);
+		$rv[] = array(array('0', 'OR', '1', 'OR', '0'), 0 || 1 || 0);
+		$rv[] = array(array('0', 'OR', '1', 'OR', '1'), 0 || 1 || 1);
+		$rv[] = array(array('1', 'OR', '0', 'OR', '0'), 1 || 0 || 0);
+		$rv[] = array(array('1', 'OR', '0', 'OR', '1'), 1 || 0 || 1);
+		$rv[] = array(array('1', 'OR', '1', 'OR', '0'), 1 || 1 || 0);
+		$rv[] = array(array('1', 'OR', '1', 'OR', '1'), 1 || 1 || 1);
+		
+		$rv[] = array(array('0', 'AND', '0', 'AND', '0'), 0 && 0 && 0);
+		$rv[] = array(array('0', 'AND', '0', 'AND', '1'), 0 && 0 && 1);
+		$rv[] = array(array('0', 'AND', '1', 'AND', '0'), 0 && 1 && 0);
+		$rv[] = array(array('0', 'AND', '1', 'AND', '1'), 0 && 1 && 1);
+		$rv[] = array(array('1', 'AND', '0', 'AND', '0'), 1 && 0 && 0);
+		$rv[] = array(array('1', 'AND', '0', 'AND', '1'), 1 && 0 && 1);
+		$rv[] = array(array('1', 'AND', '1', 'AND', '0'), 1 && 1 && 0);
+		$rv[] = array(array('1', 'AND', '1', 'AND', '1'), 1 && 1 && 1);
+		
+		
+		
+		$rv[] = array(array('0', 'AND', '0', 'AND', '0'), 0 && 0 && 0);
+		$rv[] = array(array('0', 'AND', '0', 'OR', '0'), 0 && 0 || 0);
+		$rv[] = array(array('0', 'OR', '0', 'AND', '0'), 0 || 0 && 0);
+		$rv[] = array(array('0', 'OR', '0', 'OR', '0'), 0 || 0 || 0);
+		
+		$rv[] = array(array('0', 'AND', '0', 'AND', '1'), 0 && 0 && 1);
+		$rv[] = array(array('0', 'AND', '0', 'OR', '1'), 0 && 0 || 1);
+		$rv[] = array(array('0', 'OR', '0', 'AND', '1'), 0 || 0 && 1);
+		$rv[] = array(array('0', 'OR', '0', 'OR', '1'), 0 || 0 || 1);
+		
+		$rv[] = array(array('0', 'AND', '1', 'AND', '0'), 0 && 1 && 0);
+		$rv[] = array(array('0', 'AND', '1', 'OR', '0'), 0 && 1 || 0);
+		$rv[] = array(array('0', 'OR', '1', 'AND', '0'), 0 || 1 && 0);
+		$rv[] = array(array('0', 'OR', '1', 'OR', '0'), 0 || 1 || 0);
+		
+		$rv[] = array(array('0', 'AND', '1', 'AND', '1'), 0 && 1 && 1);
+		$rv[] = array(array('0', 'AND', '1', 'OR', '1'), 0 && 1 || 1);
+		$rv[] = array(array('0', 'OR', '1', 'AND', '1'), 0 || 1 && 1);
+		$rv[] = array(array('0', 'OR', '1', 'OR', '1'), 0 || 1 || 1);
+		
+		$rv[] = array(array('1', 'AND', '0', 'AND', '0'), 1 && 0 && 0);
+		$rv[] = array(array('1', 'AND', '0', 'OR', '0'), 1 && 0 || 0);
+		$rv[] = array(array('1', 'OR', '0', 'AND', '0'), 1 || 0 && 0);
+		$rv[] = array(array('1', 'OR', '0', 'OR', '0'), 1 || 0 || 0);
+		
+		$rv[] = array(array('1', 'AND', '0', 'AND', '1'), 1 && 0 && 1);
+		$rv[] = array(array('1', 'AND', '0', 'OR', '1'), 1 && 0 || 1);
+		$rv[] = array(array('1', 'OR', '0', 'AND', '1'), 1 || 0 && 1);
+		$rv[] = array(array('1', 'OR', '0', 'OR', '1'), 1 || 0 || 1);
+		
+		$rv[] = array(array('1', 'AND', '1', 'AND', '0'), 1 && 1 && 0);
+		$rv[] = array(array('1', 'AND', '1', 'OR', '0'), 1 && 1 || 0);
+		$rv[] = array(array('1', 'OR', '1', 'AND', '0'), 1 || 1 && 0);
+		$rv[] = array(array('1', 'OR', '1', 'OR', '0'), 1 || 1 || 0);
+		
+		$rv[] = array(array('1', 'AND', '1', 'AND', '1'), 1 && 1 && 1);
+		$rv[] = array(array('1', 'AND', '1', 'OR', '1'), 1 && 1 || 1);
+		$rv[] = array(array('1', 'OR', '1', 'AND', '1'), 1 || 1 && 1);
+		$rv[] = array(array('1', 'OR', '1', 'OR', '1'), 1 || 1 || 1);
+		
+		
+		
+		$rv[] = array(array('NOT', '0'), !0);
+		$rv[] = array(array('NOT', '1'), !1);
+		
+		$rv[] = array(array('1', 'AND', 'NOT', '1'), 1 && !1);
+		$rv[] = array(array('1', 'AND', 'NOT', '0'), 1 && !0);
+		$rv[] = array(array('0', 'AND', 'NOT', '1'), 0 && !1);
+		$rv[] = array(array('0', 'AND', 'NOT', '0'), 0 && !0);
+		
+		$rv[] = array(array('NOT', '1', 'AND', '1'), !1 && 1);
+		$rv[] = array(array('NOT', '1', 'AND', '0'), !1 && 0);
+		$rv[] = array(array('NOT', '0', 'AND', '1'), !0 && 1);
+		$rv[] = array(array('NOT', '0', 'AND', '0'), !0 && 0);
+		
+		$rv[] = array(array('NOT', '1', 'AND', 'NOT', '1'), !1 && !1);
+		$rv[] = array(array('NOT', '1', 'AND', 'NOT', '0'), !1 && !0);
+		$rv[] = array(array('NOT', '0', 'AND', 'NOT', '1'), !0 && !1);
+		$rv[] = array(array('NOT', '0', 'AND', 'NOT', '0'), !0 && !0);
+		
+		$rv[] = array(array('1', 'OR', 'NOT', '1'), 1 || !1);
+		$rv[] = array(array('1', 'OR', 'NOT', '0'), 1 || !0);
+		$rv[] = array(array('0', 'OR', 'NOT', '1'), 0 || !1);
+		$rv[] = array(array('0', 'OR', 'NOT', '0'), 0 || !0);
+		
+		$rv[] = array(array('NOT', '1', 'OR', '1'), !1 || 1);
+		$rv[] = array(array('NOT', '1', 'OR', '0'), !1 || 0);
+		$rv[] = array(array('NOT', '0', 'OR', '1'), !0 || 1);
+		$rv[] = array(array('NOT', '0', 'OR', '0'), !0 || 0);
+		
+		$rv[] = array(array('NOT', '1', 'OR', 'NOT', '1'), !1 || !1);
+		$rv[] = array(array('NOT', '1', 'OR', 'NOT', '0'), !1 || !0);
+		$rv[] = array(array('NOT', '0', 'OR', 'NOT', '1'), !0 || !1);
+		$rv[] = array(array('NOT', '0', 'OR', 'NOT', '0'), !0 || !0);
+		
+		
+		
+		return $rv;
+	}
+	
+	/**
+     * @dataProvider providerCriteriaBool
+     */
+	public function testCriteriaBool($testData, $expect){
+		$tree = new CriteriaTree($testData);
+		$gate = $tree->build();
+		
+		#fwrite(STDOUT, 'gate'."\n"); ve($gate);
+		
+		$this->assertEquals($expect, $gate->bool());
+	}
+	
 	public function providerCriteriaTree(){
 		$rv = array();
 		
 		$gate1 = new OrGate();
 		$gate1->setObj1(new Obj('val1'));
-		#$gate1->setObj2();
-		$rv[] = array(array('val1', 'OR'), $gate1);
-		
-		$gate1 = new OrGate();
-		#$gate1->setObj1();
 		$gate1->setObj2(new Obj('val2'));
-		$rv[] = array(array('OR', 'val2'), $gate1);
-		
-		$gate1 = new OrGate();
-		$gate1->setObj1(new Obj('val1'));
-		$gate1->setObj2(new Obj('val2'));
-		$rv[] = array(array('val1', 'OR', 'val2'), $gate1); #3
-		
-		$gate1 = new AndGate();
-		$gate1->setObj1(new Obj('val1'));
-		#$gate1->setObj2();
-		$rv[] = array(array('val1', 'AND'), $gate1);
-		
-		$gate1 = new AndGate();
-		#$gate1->setObj1();
-		$gate1->setObj2(new Obj('val2'));
-		$rv[] = array(array('AND', 'val2'), $gate1);
+		$rv[] = array(array('val1', 'OR', 'val2'), $gate1);
 		
 		$gate1 = new AndGate();
 		$gate1->setObj1(new Obj('val1'));
 		$gate1->setObj2(new Obj('val2'));
-		$rv[] = array(array('val1', 'AND', 'val2'), $gate1); # 5
+		$rv[] = array(array('val1', 'AND', 'val2'), $gate1);
 		
-		$gate1 = new AndGate();
-		$gate2 = new AndGate();
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate1->setObj1($gate2);
-		$gate1->setObj2(new Obj('val3'));
-		$rv[] = array(array('val1', 'AND', 'val2', 'AND', 'val3'), $gate1);
-		
-		$gate1 = new OrGate();
-		$gate1->setObj1(new Obj('val1'));
 		$gate2 = new AndGate();
 		$gate2->setObj1(new Obj('val2'));
 		$gate2->setObj2(new Obj('val3'));
+		$gate1 = new OrGate();
+		$gate1->setObj1(new Obj('val1'));
 		$gate1->setObj2($gate2);
 		$rv[] = array(array('val1', 'OR', 'val2', 'AND', 'val3'), $gate1);
 		
-		$gate1 = new OrGate();
-		$gate1->setObj2(new Obj('val3'));
 		$gate2 = new AndGate();
 		$gate2->setObj1(new Obj('val1'));
 		$gate2->setObj2(new Obj('val2'));
+		$gate1 = new OrGate();
 		$gate1->setObj1($gate2);
+		$gate1->setObj2(new Obj('val3'));
 		$rv[] = array(array('val1', 'AND', 'val2', 'OR', 'val3'), $gate1);
 		
-		
-		$gate1 = new OrGate();
-		$gate1->setObj1(new Obj('val1'));
-		$gate2 = new OrGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1->setObj2($gate2);
-		$rv[] = array(array('val1', 'OR', array('val2', 'OR', 'val3')), $gate1); # 9
-		
-		$gate1 = new OrGate();
-		$gate1->setObj1(new Obj('val1'));
 		$gate2 = new AndGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1->setObj2($gate2);
-		$rv[] = array(array('val1', 'OR', array('val2', 'AND', 'val3')), $gate1);
-		
-		$gate1 = new AndGate();
-		$gate1->setObj1(new Obj('val1'));
-		$gate2 = new OrGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1->setObj2($gate2);
-		$rv[] = array(array('val1', 'AND', array('val2', 'OR', 'val3')), $gate1);
-		
-		$gate1 = new AndGate();
-		$gate1->setObj1(new Obj('val1'));
-		$gate2 = new AndGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1->setObj2($gate2);
-		$rv[] = array(array('val1', 'AND', array('val2', 'AND', 'val3')), $gate1);
-		
-		
-		$gate2 = new OrGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1 = new OrGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2(new Obj('val1'));
-		$rv[] = array(array(array('val2', 'OR', 'val3'), 'OR', 'val1'), $gate1); # 13
-		
-		$gate2 = new OrGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1 = new AndGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2(new Obj('val1'));
-		$rv[] = array(array(array('val2', 'OR', 'val3'), 'AND', 'val1'), $gate1);
-		
-		$gate2 = new AndGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1 = new AndGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2(new Obj('val1'));
-		$rv[] = array(array(array('val2', 'AND', 'val3'), 'AND', 'val1'), $gate1);
-		
-		$gate2 = new AndGate();
-		$gate2->setObj1(new Obj('val2'));
-		$gate2->setObj2(new Obj('val3'));
-		$gate1 = new OrGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2(new Obj('val1'));
-		$rv[] = array(array(array('val2', 'AND', 'val3'), 'OR', 'val1'), $gate1);
-		
-		
-		$gate1 = new AndGate();
-		$gate2 = new AndGate();
+		$gate2->setObj1(new Obj('UNDELETED'));
+		$gate2->setObj2(new Obj('FROM thefox'));
+		$gate4 = new NotGate(new Obj('FROM 21'));
 		$gate3 = new AndGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'AND', 'val2'), 'AND', array('val3', 'AND', 'val4')), $gate1); # 17
-		
-		$gate1 = new AndGate();
-		$gate2 = new AndGate();
-		$gate3 = new OrGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'AND', 'val2'), 'AND', array('val3', 'OR', 'val4')), $gate1);
-		
+		$gate3->setObj1(new Obj('ANSWERED'));
+		$gate3->setObj2($gate4);
 		$gate1 = new OrGate();
-		$gate2 = new AndGate();
-		$gate3 = new AndGate();
 		$gate1->setObj1($gate2);
 		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'AND', 'val2'), 'OR', array('val3', 'AND', 'val4')), $gate1);
-		
-		$gate1 = new OrGate();
-		$gate2 = new AndGate();
-		$gate3 = new OrGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'AND', 'val2'), 'OR', array('val3', 'OR', 'val4')), $gate1);
-		
-		$gate1 = new AndGate();
-		$gate2 = new OrGate();
-		$gate3 = new AndGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'OR', 'val2'), 'AND', array('val3', 'AND', 'val4')), $gate1);
-		
-		$gate1 = new AndGate();
-		$gate2 = new OrGate();
-		$gate3 = new OrGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'OR', 'val2'), 'AND', array('val3', 'OR', 'val4')), $gate1);
-		
-		$gate1 = new OrGate();
-		$gate2 = new OrGate();
-		$gate3 = new AndGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'OR', 'val2'), 'OR', array('val3', 'AND', 'val4')), $gate1);
-		
-		$gate1 = new OrGate();
-		$gate2 = new OrGate();
-		$gate3 = new OrGate();
-		$gate1->setObj1($gate2);
-		$gate1->setObj2($gate3);
-		$gate2->setObj1(new Obj('val1'));
-		$gate2->setObj2(new Obj('val2'));
-		$gate3->setObj1(new Obj('val3'));
-		$gate3->setObj2(new Obj('val4'));
-		$rv[] = array(array(array('val1', 'OR', 'val2'), 'OR', array('val3', 'OR', 'val4')), $gate1);
-		
-		
-		$gate1 = new OrGate();
-		$gate1->setObj1(new Obj('val1'));
-		$gate1->setObj2(new Obj('val2'));
-		$rv[] = array(array('val1', 'OR', array('val2')), $gate1);
-		
-		
-		#$rv[] = array(array(array('UNDELETED', 'FROM', 'thefox'), 'OR', 'ANSWERED', 'AND', 'NOT', 'FROM', '21'), $gate1);
+		$rv[] = array(array(array('UNDELETED', 'AND', 'FROM thefox'), 'OR', 'ANSWERED', 'AND', 'NOT', 'FROM 21'), $gate1);
 		
 		return $rv;
 	}
@@ -238,12 +188,11 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
      */
 	public function testCriteriaTree($testData, $expect){
 		$tree = new CriteriaTree($testData);
-		$obj = $tree->build();
+		$gate = $tree->build();
 		
-		fwrite(STDOUT, 'obj'."\n");
-		#ve($obj);
+		#fwrite(STDOUT, 'gate'."\n"); ve($gate);
 		
-		$this->assertEquals($expect, $obj);
+		$this->assertEquals($expect, $gate);
 	}
 	
 }
