@@ -36,6 +36,24 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('1', 'OR', '1', 'OR', '0'), 1 || 1 || 0);
 		$rv[] = array(array('1', 'OR', '1', 'OR', '1'), 1 || 1 || 1);
 		
+		$rv[] = array(array('0', 'OR', array('0', 'OR', '0')), 0 || (0 || 0));
+		$rv[] = array(array('0', 'OR', array('0', 'OR', '1')), 0 || (0 || 1));
+		$rv[] = array(array('0', 'OR', array('1', 'OR', '0')), 0 || (1 || 0));
+		$rv[] = array(array('0', 'OR', array('1', 'OR', '1')), 0 || (1 || 1));
+		$rv[] = array(array('1', 'OR', array('0', 'OR', '0')), 1 || (0 || 0));
+		$rv[] = array(array('1', 'OR', array('0', 'OR', '1')), 1 || (0 || 1));
+		$rv[] = array(array('1', 'OR', array('1', 'OR', '0')), 1 || (1 || 0));
+		$rv[] = array(array('1', 'OR', array('1', 'OR', '1')), 1 || (1 || 1));
+		
+		$rv[] = array(array(array('0', 'OR', '0'), 'OR', '0'), (0 || 0) || 0);
+		$rv[] = array(array(array('0', 'OR', '0'), 'OR', '1'), (0 || 0) || 1);
+		$rv[] = array(array(array('0', 'OR', '1'), 'OR', '0'), (0 || 1) || 0);
+		$rv[] = array(array(array('0', 'OR', '1'), 'OR', '1'), (0 || 1) || 1);
+		$rv[] = array(array(array('1', 'OR', '0'), 'OR', '0'), (1 || 0) || 0);
+		$rv[] = array(array(array('1', 'OR', '0'), 'OR', '1'), (1 || 0) || 1);
+		$rv[] = array(array(array('1', 'OR', '1'), 'OR', '0'), (1 || 1) || 0);
+		$rv[] = array(array(array('1', 'OR', '1'), 'OR', '1'), (1 || 1) || 1);
+		
 		$rv[] = array(array('0', 'AND', '0', 'AND', '0'), 0 && 0 && 0);
 		$rv[] = array(array('0', 'AND', '0', 'AND', '1'), 0 && 0 && 1);
 		$rv[] = array(array('0', 'AND', '1', 'AND', '0'), 0 && 1 && 0);
@@ -44,6 +62,24 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('1', 'AND', '0', 'AND', '1'), 1 && 0 && 1);
 		$rv[] = array(array('1', 'AND', '1', 'AND', '0'), 1 && 1 && 0);
 		$rv[] = array(array('1', 'AND', '1', 'AND', '1'), 1 && 1 && 1);
+		
+		$rv[] = array(array('0', 'AND', array('0', 'AND', '0')), 0 && (0 && 0));
+		$rv[] = array(array('0', 'AND', array('0', 'AND', '1')), 0 && (0 && 1));
+		$rv[] = array(array('0', 'AND', array('1', 'AND', '0')), 0 && (1 && 0));
+		$rv[] = array(array('0', 'AND', array('1', 'AND', '1')), 0 && (1 && 1));
+		$rv[] = array(array('1', 'AND', array('0', 'AND', '0')), 1 && (0 && 0));
+		$rv[] = array(array('1', 'AND', array('0', 'AND', '1')), 1 && (0 && 1));
+		$rv[] = array(array('1', 'AND', array('1', 'AND', '0')), 1 && (1 && 0));
+		$rv[] = array(array('1', 'AND', array('1', 'AND', '1')), 1 && (1 && 1));
+		
+		$rv[] = array(array(array('0', 'AND', '0'), 'AND', '0'), (0 && 0) && 0);
+		$rv[] = array(array(array('0', 'AND', '0'), 'AND', '1'), (0 && 0) && 1);
+		$rv[] = array(array(array('0', 'AND', '1'), 'AND', '0'), (0 && 1) && 0);
+		$rv[] = array(array(array('0', 'AND', '1'), 'AND', '1'), (0 && 1) && 1);
+		$rv[] = array(array(array('1', 'AND', '0'), 'AND', '0'), (1 && 0) && 0);
+		$rv[] = array(array(array('1', 'AND', '0'), 'AND', '1'), (1 && 0) && 1);
+		$rv[] = array(array(array('1', 'AND', '1'), 'AND', '0'), (1 && 1) && 0);
+		$rv[] = array(array(array('1', 'AND', '1'), 'AND', '1'), (1 && 1) && 1);
 		
 		
 		
@@ -87,6 +123,88 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('1', 'OR', '1', 'AND', '1'), 1 || 1 && 1);
 		$rv[] = array(array('1', 'OR', '1', 'OR', '1'), 1 || 1 || 1);
 		
+		///
+		$rv[] = array(array('0', 'AND', array('0', 'AND', '0')), 0 && (0 && 0));
+		$rv[] = array(array('0', 'AND', array('0', 'OR', '0')), 0 && (0 || 0));
+		$rv[] = array(array('0', 'OR', array('0', 'AND', '0')), 0 || (0 && 0));
+		$rv[] = array(array('0', 'OR', array('0', 'OR', '0')), 0 || (0 || 0));
+		
+		$rv[] = array(array('0', 'AND', array('0', 'AND', '1')), 0 && (0 && 1));
+		$rv[] = array(array('0', 'AND', array('0', 'OR', '1')), 0 && (0 || 1));
+		$rv[] = array(array('0', 'OR', array('0', 'AND', '1')), 0 || (0 && 1));
+		$rv[] = array(array('0', 'OR', array('0', 'OR', '1')), 0 || (0 || 1));
+		
+		$rv[] = array(array('0', 'AND', array('1', 'AND', '0')), 0 && (1 && 0));
+		$rv[] = array(array('0', 'AND', array('1', 'OR', '0')), 0 && (1 || 0));
+		$rv[] = array(array('0', 'OR', array('1', 'AND', '0')), 0 || (1 && 0));
+		$rv[] = array(array('0', 'OR', array('1', 'OR', '0')), 0 || (1 || 0));
+		
+		$rv[] = array(array('0', 'AND', array('1', 'AND', '1')), 0 && (1 && 1));
+		$rv[] = array(array('0', 'AND', array('1', 'OR', '1')), 0 && (1 || 1));
+		$rv[] = array(array('0', 'OR', array('1', 'AND', '1')), 0 || (1 && 1));
+		$rv[] = array(array('0', 'OR', array('1', 'OR', '1')), 0 || (1 || 1));
+		
+		$rv[] = array(array('1', 'AND', array('0', 'AND', '0')), 1 && (0 && 0));
+		$rv[] = array(array('1', 'AND', array('0', 'OR', '0')), 1 && (0 || 0));
+		$rv[] = array(array('1', 'OR', array('0', 'AND', '0')), 1 || (0 && 0));
+		$rv[] = array(array('1', 'OR', array('0', 'OR', '0')), 1 || (0 || 0));
+		
+		$rv[] = array(array('1', 'AND', array('0', 'AND', '1')), 1 && (0 && 1));
+		$rv[] = array(array('1', 'AND', array('0', 'OR', '1')), 1 && (0 || 1));
+		$rv[] = array(array('1', 'OR', array('0', 'AND', '1')), 1 || (0 && 1));
+		$rv[] = array(array('1', 'OR', array('0', 'OR', '1')), 1 || (0 || 1));
+		
+		$rv[] = array(array('1', 'AND', array('1', 'AND', '0')), 1 && (1 && 0));
+		$rv[] = array(array('1', 'AND', array('1', 'OR', '0')), 1 && (1 || 0));
+		$rv[] = array(array('1', 'OR', array('1', 'AND', '0')), 1 || (1 && 0));
+		$rv[] = array(array('1', 'OR', array('1', 'OR', '0')), 1 || (1 || 0));
+		
+		$rv[] = array(array('1', 'AND', array('1', 'AND', '1')), 1 && (1 && 1));
+		$rv[] = array(array('1', 'AND', array('1', 'OR', '1')), 1 && (1 || 1));
+		$rv[] = array(array('1', 'OR', array('1', 'AND', '1')), 1 || (1 && 1));
+		$rv[] = array(array('1', 'OR', array('1', 'OR', '1')), 1 || (1 || 1));
+		
+		///
+		$rv[] = array(array(array('0', 'AND', '0'), 'AND', '0'), (0 && 0) && 0);
+		$rv[] = array(array(array('0', 'AND', '0'), 'OR', '0'), (0 && 0) || 0);
+		$rv[] = array(array(array('0', 'OR', '0'), 'AND', '0'), (0 || 0) && 0);
+		$rv[] = array(array(array('0', 'OR', '0'), 'OR', '0'), (0 || 0) || 0);
+		
+		$rv[] = array(array(array('0', 'AND', '0'), 'AND', '1'), (0 && 0) && 1);
+		$rv[] = array(array(array('0', 'AND', '0'), 'OR', '1'), (0 && 0) || 1);
+		$rv[] = array(array(array('0', 'OR', '0'), 'AND', '1'), (0 || 0) && 1);
+		$rv[] = array(array(array('0', 'OR', '0'), 'OR', '1'), (0 || 0) || 1);
+		
+		$rv[] = array(array(array('0', 'AND', '1'), 'AND', '0'), (0 && 1) && 0);
+		$rv[] = array(array(array('0', 'AND', '1'), 'OR', '0'), (0 && 1) || 0);
+		$rv[] = array(array(array('0', 'OR', '1'), 'AND', '0'), (0 || 1) && 0);
+		$rv[] = array(array(array('0', 'OR', '1'), 'OR', '0'), (0 || 1) || 0);
+		
+		$rv[] = array(array(array('0', 'AND', '1'), 'AND', '1'), (0 && 1) && 1);
+		$rv[] = array(array(array('0', 'AND', '1'), 'OR', '1'), (0 && 1) || 1);
+		$rv[] = array(array(array('0', 'OR', '1'), 'AND', '1'), (0 || 1) && 1);
+		$rv[] = array(array(array('0', 'OR', '1'), 'OR', '1'), (0 || 1) || 1);
+		
+		$rv[] = array(array(array('1', 'AND', '0'), 'AND', '0'), (1 && 0) && 0);
+		$rv[] = array(array(array('1', 'AND', '0'), 'OR', '0'), (1 && 0) || 0);
+		$rv[] = array(array(array('1', 'OR', '0'), 'AND', '0'), (1 || 0) && 0);
+		$rv[] = array(array(array('1', 'OR', '0'), 'OR', '0'), (1 || 0) || 0);
+		
+		$rv[] = array(array(array('1', 'AND', '0'), 'AND', '1'), (1 && 0) && 1);
+		$rv[] = array(array(array('1', 'AND', '0'), 'OR', '1'), (1 && 0) || 1);
+		$rv[] = array(array(array('1', 'OR', '0'), 'AND', '1'), (1 || 0) && 1);
+		$rv[] = array(array(array('1', 'OR', '0'), 'OR', '1'), (1 || 0) || 1);
+		
+		$rv[] = array(array(array('1', 'AND', '1'), 'AND', '0'), (1 && 1) && 0);
+		$rv[] = array(array(array('1', 'AND', '1'), 'OR', '0'), (1 && 1) || 0);
+		$rv[] = array(array(array('1', 'OR', '1'), 'AND', '0'), (1 || 1) && 0);
+		$rv[] = array(array(array('1', 'OR', '1'), 'OR', '0'), (1 || 1) || 0);
+		
+		$rv[] = array(array(array('1', 'AND', '1'), 'AND', '1'), (1 && 1) && 1);
+		$rv[] = array(array(array('1', 'AND', '1'), 'OR', '1'), (1 && 1) || 1);
+		$rv[] = array(array(array('1', 'OR', '1'), 'AND', '1'), (1 || 1) && 1);
+		$rv[] = array(array(array('1', 'OR', '1'), 'OR', '1'), (1 || 1) || 1);
+		
 		
 		
 		$rv[] = array(array('NOT', '0'), !0);
@@ -97,31 +215,82 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('0', 'AND', 'NOT', '1'), 0 && !1);
 		$rv[] = array(array('0', 'AND', 'NOT', '0'), 0 && !0);
 		
+		$rv[] = array(array('1', 'AND', array('NOT', '1')), 1 && (!1));
+		$rv[] = array(array('1', 'AND', array('NOT', '0')), 1 && (!0));
+		$rv[] = array(array('0', 'AND', array('NOT', '1')), 0 && (!1));
+		$rv[] = array(array('0', 'AND', array('NOT', '0')), 0 && (!0));
+		
 		$rv[] = array(array('NOT', '1', 'AND', '1'), !1 && 1);
 		$rv[] = array(array('NOT', '1', 'AND', '0'), !1 && 0);
 		$rv[] = array(array('NOT', '0', 'AND', '1'), !0 && 1);
 		$rv[] = array(array('NOT', '0', 'AND', '0'), !0 && 0);
+		
+		$rv[] = array(array(array('NOT', '1'), 'AND', '1'), (!1) && 1);
+		$rv[] = array(array(array('NOT', '1'), 'AND', '0'), (!1) && 0);
+		$rv[] = array(array(array('NOT', '0'), 'AND', '1'), (!0) && 1);
+		$rv[] = array(array(array('NOT', '0'), 'AND', '0'), (!0) && 0);
 		
 		$rv[] = array(array('NOT', '1', 'AND', 'NOT', '1'), !1 && !1);
 		$rv[] = array(array('NOT', '1', 'AND', 'NOT', '0'), !1 && !0);
 		$rv[] = array(array('NOT', '0', 'AND', 'NOT', '1'), !0 && !1);
 		$rv[] = array(array('NOT', '0', 'AND', 'NOT', '0'), !0 && !0);
 		
+		$rv[] = array(array('NOT', '1', 'AND', array('NOT', '1')), !1 && (!1));
+		$rv[] = array(array('NOT', '1', 'AND', array('NOT', '0')), !1 && (!0));
+		$rv[] = array(array('NOT', '0', 'AND', array('NOT', '1')), !0 && (!1));
+		$rv[] = array(array('NOT', '0', 'AND', array('NOT', '0')), !0 && (!0));
+		
+		$rv[] = array(array(array('NOT', '1'), 'AND', 'NOT', '1'), (!1) && !1);
+		$rv[] = array(array(array('NOT', '1'), 'AND', 'NOT', '0'), (!1) && !0);
+		$rv[] = array(array(array('NOT', '0'), 'AND', 'NOT', '1'), (!0) && !1);
+		$rv[] = array(array(array('NOT', '0'), 'AND', 'NOT', '0'), (!0) && !0);
+		
+		$rv[] = array(array(array('NOT', '1'), 'AND', array('NOT', '1')), (!1) && (!1));
+		$rv[] = array(array(array('NOT', '1'), 'AND', array('NOT', '0')), (!1) && (!0));
+		$rv[] = array(array(array('NOT', '0'), 'AND', array('NOT', '1')), (!0) && (!1));
+		$rv[] = array(array(array('NOT', '0'), 'AND', array('NOT', '0')), (!0) && (!0));
+		
+		
 		$rv[] = array(array('1', 'OR', 'NOT', '1'), 1 || !1);
 		$rv[] = array(array('1', 'OR', 'NOT', '0'), 1 || !0);
 		$rv[] = array(array('0', 'OR', 'NOT', '1'), 0 || !1);
 		$rv[] = array(array('0', 'OR', 'NOT', '0'), 0 || !0);
+		
+		$rv[] = array(array('1', 'OR', array('NOT', '1')), 1 || (!1));
+		$rv[] = array(array('1', 'OR', array('NOT', '0')), 1 || (!0));
+		$rv[] = array(array('0', 'OR', array('NOT', '1')), 0 || (!1));
+		$rv[] = array(array('0', 'OR', array('NOT', '0')), 0 || (!0));
 		
 		$rv[] = array(array('NOT', '1', 'OR', '1'), !1 || 1);
 		$rv[] = array(array('NOT', '1', 'OR', '0'), !1 || 0);
 		$rv[] = array(array('NOT', '0', 'OR', '1'), !0 || 1);
 		$rv[] = array(array('NOT', '0', 'OR', '0'), !0 || 0);
 		
+		$rv[] = array(array(array('NOT', '1'), 'OR', '1'), (!1) || 1);
+		$rv[] = array(array(array('NOT', '1'), 'OR', '0'), (!1) || 0);
+		$rv[] = array(array(array('NOT', '0'), 'OR', '1'), (!0) || 1);
+		$rv[] = array(array(array('NOT', '0'), 'OR', '0'), (!0) || 0);
+		
+		
 		$rv[] = array(array('NOT', '1', 'OR', 'NOT', '1'), !1 || !1);
 		$rv[] = array(array('NOT', '1', 'OR', 'NOT', '0'), !1 || !0);
 		$rv[] = array(array('NOT', '0', 'OR', 'NOT', '1'), !0 || !1);
 		$rv[] = array(array('NOT', '0', 'OR', 'NOT', '0'), !0 || !0);
 		
+		$rv[] = array(array('NOT', '1', 'OR', array('NOT', '1')), !1 || (!1));
+		$rv[] = array(array('NOT', '1', 'OR', array('NOT', '0')), !1 || (!0));
+		$rv[] = array(array('NOT', '0', 'OR', array('NOT', '1')), !0 || (!1));
+		$rv[] = array(array('NOT', '0', 'OR', array('NOT', '0')), !0 || (!0));
+		
+		$rv[] = array(array(array('NOT', '1'), 'OR', 'NOT', '1'), (!1) || !1);
+		$rv[] = array(array(array('NOT', '1'), 'OR', 'NOT', '0'), (!1) || !0);
+		$rv[] = array(array(array('NOT', '0'), 'OR', 'NOT', '1'), (!0) || !1);
+		$rv[] = array(array(array('NOT', '0'), 'OR', 'NOT', '0'), (!0) || !0);
+		
+		$rv[] = array(array(array('NOT', '1'), 'OR', array('NOT', '1')), (!1) || (!1));
+		$rv[] = array(array(array('NOT', '1'), 'OR', array('NOT', '0')), (!1) || (!0));
+		$rv[] = array(array(array('NOT', '0'), 'OR', array('NOT', '1')), (!0) || (!1));
+		$rv[] = array(array(array('NOT', '0'), 'OR', array('NOT', '0')), (!0) || (!0));
 		
 		
 		return $rv;
