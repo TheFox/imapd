@@ -11,6 +11,16 @@ class Gate{
 		
 	}
 	
+	public function __clone(){
+		#fwrite(STDOUT, 'Gate __clone'."\n");
+		if($this->obj1 && is_object($this->obj1)){
+			$this->obj1 = clone $this->obj1;
+		}
+		if($this->obj2 && is_object($this->obj2)){
+			$this->obj2 = clone $this->obj2;
+		}
+	}
+	
 	public function setObj1($obj1){
 		$this->obj1 = $obj1;
 	}

@@ -10,6 +10,13 @@ class Obj{
 		$this->value = $value;
 	}
 	
+	public function __clone(){
+		#fwrite(STDOUT, 'Obj __clone: '.$this->value."\n");
+		if($this->value && is_object($this->value)){
+			$this->value = clone $this->value;
+		}
+	}
+	
 	public function bool(){
 		return((bool)$this->value);
 	}

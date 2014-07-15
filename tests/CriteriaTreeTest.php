@@ -349,6 +349,14 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$gate1->setObj2($gate3);
 		$rv[] = array(array(array('UNDELETED', 'AND', 'FROM thefox'), 'OR', 'ANSWERED', 'AND', 'NOT', 'FROM 21'), $gate1);
 		
+		$gate1 = new OrGate();
+		$gate1->setObj1(new Obj('val1'));
+		$gate1->setObj2(new Obj('val2'));
+		$gate2 = clone $gate1;
+		$gate1->setObj1(new Obj('val3'));
+		$gate1->setObj2(new Obj('val4'));
+		$rv[] = array(array('val1', 'OR', 'val2'), $gate2);
+		
 		return $rv;
 	}
 	
