@@ -12,6 +12,11 @@ use Zend\Mail\Message;
 
 use TheFox\Network\AbstractSocket;
 use TheFox\Logic\CriteriaTree;
+use TheFox\Logic\Obj;
+use TheFox\Logic\Gate;
+use TheFox\Logic\AndGate;
+use TheFox\Logic\OrGate;
+use TheFox\Logic\NotGate;
 
 class Client{
 	
@@ -1223,6 +1228,174 @@ class Client{
 		return $rv;
 	}
 	
+	public function searchMessageCondition($message, $searchKey){
+		#fwrite(STDOUT, '    searchMessageCondition: '.$searchKey.''."\n");
+		$items = preg_split('/ /', $searchKey, 3);
+		#ve($items);
+		$itemcmp = strtolower($items[0]);
+		
+		fwrite(STDOUT, '    searchMessageCondition: '.$itemcmp.''."\n");
+		
+		$rv = false;
+		switch($itemcmp){
+			case 'all':
+				$rv = true;
+				break;
+			case 'answered':
+				$rv = $message->hasFlag(Storage::FLAG_ANSWERED);
+				break;
+			case 'bcc':
+				#$rv = true;
+				break;
+			case 'before':
+				#$rv = true;
+				break;
+			case 'body':
+				#$rv = true;
+				break;
+			case 'cc':
+				#$rv = true;
+				break;
+			case 'deleted':
+				#$rv = true;
+				break;
+			case 'draft':
+				#$rv = true;
+				break;
+			case 'flagged':
+				#$rv = true;
+				break;
+			case 'from':
+				#$rv = true;
+				break;
+			case 'header':
+				#$rv = true;
+				break;
+			case 'larger':
+				#$rv = true;
+				break;
+			case 'new':
+				#$rv = true;
+				break;
+			case 'old':
+				#$rv = true;
+				break;
+			case 'on':
+				#$rv = true;
+				break;
+			case 'recent':
+				#$rv = true;
+				break;
+			case 'seen':
+				#$rv = true;
+				break;
+			case 'sentbefore':
+				#$rv = true;
+				break;
+			case 'senton':
+				#$rv = true;
+				break;
+			case 'sentsince':
+				#$rv = true;
+				break;
+			case 'since':
+				#$rv = true;
+				break;
+			case 'smaller':
+				#$rv = true;
+				break;
+			case 'subject':
+				#$rv = true;
+				break;
+			case 'text':
+				#$rv = true;
+				break;
+			case 'to':
+				#$rv = true;
+				break;
+			case 'uid':
+				#$rv = true;
+				break;
+			case 'unanswered':
+				#$rv = true;
+				break;
+			case 'undeleted':
+				#$rv = true;
+				break;
+			case 'undraft':
+				#$rv = true;
+				break;
+			case 'unflagged':
+				#$rv = true;
+				break;
+			case 'unkeyword':
+				#$rv = true;
+				break;
+			case 'unseen':
+				#$rv = true;
+				break;
+			
+			default:
+		}
+		return $rv;
+	}
+	
+	public function parseSearchMessage($message, $gate){
+		$func = __FUNCTION__;
+		fwrite(STDOUT, $func.': '.get_class($message).', '.get_class($gate).''."\n");
+		
+		#ve($message);
+		#ve($gate);
+		
+		
+		$subgates = array();
+		if($gate instanceof Gate){
+			if($gate->getObj1()){
+				$subgates[] = $gate->getObj1();
+			}
+			if($gate->getObj2()){
+				$subgates[] = $gate->getObj2();
+			}
+		}
+		else{
+			fwrite(STDOUT, $func.': other '.get_class($gate).''."\n");
+			$val = $this->searchMessageCondition($message, $gate->getValue());
+			$gate->setValue($val);
+			#return $gate->bool();
+		}
+		
+		
+		foreach($subgates as $subgate){
+			#fwrite(STDOUT, $func.' subgate: '.get_class($subgate)."\n");
+			if($subgate instanceof AndGate){
+				fwrite(STDOUT, $func.' subgate: AndGate'."\n");
+				$val = $this->$func($message, $subgate);
+				#fwrite(STDOUT, $func.' subgate: AndGate: '.(int)$val."\n");
+			}
+			elseif($subgate instanceof OrGate){
+				fwrite(STDOUT, $func.' subgate: OrGate'."\n");
+				$val = $this->$func($message, $subgate);
+				#fwrite(STDOUT, $func.' subgate: OrGate: '.(int)$val."\n");
+			}
+			elseif($subgate instanceof NotGate){
+				fwrite(STDOUT, $func.' subgate: NotGate'."\n");
+				$val = $this->$func($message, $subgate);
+				#fwrite(STDOUT, $func.' subgate: NotGate: '.(int)$val."\n");
+			}
+			elseif($subgate instanceof Obj){
+				fwrite(STDOUT, $func.' subgate: Obj: '.$subgate->getValue()."\n");
+				$val = $this->searchMessageCondition($message, $subgate->getValue());
+				$subgate->setValue($val);
+				#$subgate->setValue($val.'xyz');
+				#fwrite(STDOUT, $func.' subgate: Obj: '.$val."\n");
+			}
+		}
+		
+		#ve($gate);
+		
+		return $gate->bool();
+	}
+	
 	private function sendSearchRaw($tag, $criteriaStr, $isUid = false){
 		fwrite(STDOUT, 'sendSearchRaw: "'.$criteriaStr.'"'."\n");
 		
@@ -1235,8 +1408,8 @@ class Client{
 		ve($criteria);
 		
 		$tree = new CriteriaTree($criteria);
-		#ve($tree);
-		ve($tree->build());
+		$tree->build();
+		ve($tree->getRootGate());
 		#ve($tree->getRootGate()->bool());
 		
 		
@@ -1244,20 +1417,23 @@ class Client{
 		
 		#ve($realCriteria);
 		
-		return;
+		#return;
 		
 		
 		
 		$ids = array();
+		
 		$storage = $this->getServer()->getStorageMailbox();
+		fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
+		
 		$msgSeqNums = $this->createSequenceSet('*');
 		foreach($msgSeqNums as $msgSeqNum){
-			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+			$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
+			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
 			
 			$message = null;
 			try{
 				$message = $storage['object']->getMessage($msgSeqNum);
-				
 			}
 			catch(Exception $e){
 				$this->log('error', 'client '.$this->id.' getMessage: '.$e->getMessage());
@@ -1267,36 +1443,45 @@ class Client{
 			if($message){
 				#ve($message);
 				
-				$headers = $message->getHeaders();
+				#$headers = $message->getHeaders();
 				
 				#ve($headers->get('To')->getFieldValue());
 				#ve($headers->get('From')->getFieldValue());
 				
+				$rootGate = clone $tree->getRootGate();
+				$val = $this->parseSearchMessage($message, $rootGate);
+				fwrite(STDOUT, 'val: '.(int)$val.''."\n");
 				
+				$add = $val;
+				
+				#ve($storage['object']->);
 				
 			}
 			if($add){
 				if($isUid){
-					$ids[] = 0;
+					$ids[] = $uid;
 				}
 				else{
-					$ids[] = 0;
+					$ids[] = $msgSeqNum;
 				}
 			}
 		}
+		
+		ve($ids);
 		
 		$rv = '';
 		while(count($ids)){
 			
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
 			
-			ve($ids);
+			#ve($ids);
 			
 			$sendIds = array_slice($ids, 0, 2);
 			$ids = array_slice($ids, 2);
 			
+			$rv .= $this->dataSend('* SEARCH '.join(', ', $sendIds).'');
 			
-			sleep(1);
+			usleep(100000);
 		}
 		return $rv;
 	}

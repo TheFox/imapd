@@ -895,30 +895,37 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString());
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_ANSWERED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString());
+		#$server->mailAdd($message->toString());
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString());
+		#$server->mailAdd($message->toString());
 		
 		
 		#$msg = $client->msgHandle('17 uid SEARCH ALL');
 		
 		#$msg = $client->msgHandle('17 uid SEARCH OR (UNDELETED FROM "thefox") ANSWERED AND FROM "21"');
 		
-		$msg = $client->msgHandle('17 uid SEARCH UNDELETED HEADER From @fox21.at');
+		#$msg = $client->msgHandle('17 uid SEARCH UNDELETED HEADER From @fox21.at HEADER Date 2014');
+		#$msg = $client->msgHandle('17 uid SEARCH NOT 21');
+		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100021');
 		
-		$this->assertEquals('17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH ALL');
+		$this->assertEquals('* SEARCH 100001, 100002'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		#$msg = $client->msgHandle('17 uid SEARCH ANSWERED');
+		#$this->assertEquals('x17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
 		
 		
 		
