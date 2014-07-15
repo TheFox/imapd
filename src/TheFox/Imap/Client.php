@@ -409,7 +409,6 @@ class Client{
 		
 		$rv = '';
 		
-		#$args = $this->msgGetArgs($msgRaw);
 		$args = $this->msgParseString($msgRaw, 3);
 		#ve($args);
 		
