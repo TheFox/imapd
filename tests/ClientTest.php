@@ -706,14 +706,158 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('* 2 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
-	/*public function testMsgHandleSearch(){
-		$server = new Server('', 0);
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+	public function providerParseSearchKeys(){
+		$rv = array();
 		
+		$rv[] = array(array(), array());
+		$rv[] = array(array(''), array(''));
+		$rv[] = array(array('1'), array('1'));
+		$rv[] = array(array('ALL'), array('ALL'));
+		$rv[] = array(array('ANSWERED'), array('ANSWERED'));
+		$rv[] = array(array('BCC', 'thefox'), array('BCC thefox'));
+		$rv[] = array(array('BEFORE', '1987-02-21'), array('BEFORE 1987-02-21'));
+		$rv[] = array(array('BODY', 'fox'), array('BODY fox'));
+		$rv[] = array(array('CC', 'fox'), array('CC fox'));
+		$rv[] = array(array('DELETED'), array('DELETED'));
+		$rv[] = array(array('DRAFT'), array('DRAFT'));
+		$rv[] = array(array('FLAGGED'), array('FLAGGED'));
+		$rv[] = array(array('FROM', 'fox'), array('FROM fox'));
+		$rv[] = array(array('HEADER', 'FieldName1', 'fox'), array('HEADER FieldName1 fox'));
+		$rv[] = array(array('KEYWORD', 'flag21'), array('KEYWORD flag21'));
+		$rv[] = array(array('LARGER', 21), array('LARGER 21'));
+		$rv[] = array(array('LARGER', '24'), array('LARGER 24'));
+		$rv[] = array(array('NEW'), array('NEW'));
+		$rv[] = array(array('NOT', 'BCC', 'fox'), array('NOT', 'BCC fox'));
+		$rv[] = array(array('OLD'), array('OLD'));
+		$rv[] = array(array('ON', '1987-02-21'), array('ON 1987-02-21'));
+		$rv[] = array(array('OR', 'BCC', 'thefox', 'BCC', '21'), array(array('BCC thefox', 'OR', 'BCC 21')));
+		$rv[] = array(array('RECENT'), array('RECENT'));
+		$rv[] = array(array('SEEN'), array('SEEN'));
+		$rv[] = array(array('SENTBEFORE', '1987-02-21'), array('SENTBEFORE 1987-02-21'));
+		$rv[] = array(array('SENTON', '1987-02-21'), array('SENTON 1987-02-21'));
+		$rv[] = array(array('SENTSINCE', '1987-02-21'), array('SENTSINCE 1987-02-21'));
+		$rv[] = array(array('SMALLER', 21), array('SMALLER 21'));
+		$rv[] = array(array('SMALLER', '24'), array('SMALLER 24'));
+		$rv[] = array(array('SUBJECT', 'hello'), array('SUBJECT hello'));
+		$rv[] = array(array('SUBJECT', '"hello world"'), array('SUBJECT "hello world"'));
+		$rv[] = array(array('TEXT', 'fox'), array('TEXT fox'));
+		$rv[] = array(array('TO', 'fox'), array('TO fox'));
+		$rv[] = array(array('UID', '100001'), array('UID 100001'));
+		$rv[] = array(array('UNANSWERED'), array('UNANSWERED'));
+		$rv[] = array(array('UNDELETED'), array('UNDELETED'));
+		$rv[] = array(array('UNDRAFT'), array('UNDRAFT'));
+		$rv[] = array(array('UNFLAGGED'), array('UNFLAGGED'));
+		$rv[] = array(array('UNKEYWORD', 'flag21'), array('UNKEYWORD flag21'));
+		$rv[] = array(array('UNSEEN'), array('UNSEEN'));
+		
+		
+		
+		$rv[] = array(array('1', '2'), array('1', 'AND', '2'));
+		$rv[] = array(array('BCC', 'thefox', 'BCC', '21'), array('BCC thefox', 'AND', 'BCC 21'));
+		$rv[] = array(array('BCC', 'thefox', 'AND', 'BCC', '21'), array('BCC thefox', 'AND', 'BCC 21'));
+		
+		$rv[] = array(array('BCC', 'at', 'OR', 'BCC', 'thefox', 'BCC', '21'), array('BCC at', 'AND', array('BCC thefox', 'OR', 'BCC 21')));
+		$rv[] = array(array('OR', 'BCC', 'thefox', 'BCC', '21', 'AND', 'BCC', 'at'), array(array('BCC thefox', 'OR', 'BCC 21'), 'AND', 'BCC at'));
+		$rv[] = array(array('OR', 'SEEN', 'UNFLAGGED', 'AND', 'BCC', 'at'), array(array('SEEN', 'OR', 'UNFLAGGED'), 'AND', 'BCC at'));
+		$rv[] = array(array('BCC', 'thefox', 'NOT', 'BCC', '21'), array('BCC thefox', 'AND', 'NOT', 'BCC 21'));
+		
+		$rv[] = array(array(
+				'ALL',
+				'ANSWERED',
+				'BCC', 'thefox',
+				'BEFORE', '1987-02-21',
+				'BODY', 'fox',
+				'CC', 'fox',
+				'DELETED',
+				'DRAFT',
+				'FLAGGED',
+				'FROM', 'fox',
+				'HEADER', 'FieldName1', 'fox',
+				'KEYWORD', 'flag21',
+				'LARGER', 21,
+				'LARGER', '24',
+				'NEW',
+				'NOT', 'BCC', 'fox',
+				'OLD',
+				'ON', '1987-02-21',
+				'OR', 'BCC', 'thefox', 'BCC', '21',
+				'RECENT',
+				'SEEN',
+				'SENTBEFORE', '1987-02-21',
+				'SENTON', '1987-02-21',
+				'SENTSINCE', '1987-02-21',
+				'SMALLER', 21,
+				'SMALLER', '24',
+				'SUBJECT', 'hello',
+				'SUBJECT', '"hello world"',
+				'TEXT', 'fox',
+				'TO', 'fox',
+				'UID', '100001',
+				'UNANSWERED',
+				'UNDELETED',
+				'UNDRAFT',
+				'UNFLAGGED',
+				'UNKEYWORD', 'flag21',
+				'UNSEEN'
+			), array(
+				'ALL',
+				'AND', 'ANSWERED',
+				'AND', 'BCC thefox',
+				'AND', 'BEFORE 1987-02-21',
+				'AND', 'BODY fox',
+				'AND', 'CC fox',
+				'AND', 'DELETED',
+				'AND', 'DRAFT',
+				'AND', 'FLAGGED',
+				'AND', 'FROM fox',
+				'AND', 'HEADER FieldName1 fox',
+				'AND', 'KEYWORD flag21',
+				'AND', 'LARGER 21',
+				'AND', 'LARGER 24',
+				'AND', 'NEW',
+				'AND', 'NOT', 'BCC fox',
+				'AND', 'OLD',
+				'AND', 'ON 1987-02-21',
+				'AND', array('BCC thefox', 'OR', 'BCC 21'),
+				'AND', 'RECENT',
+				'AND', 'SEEN',
+				'AND', 'SENTBEFORE 1987-02-21',
+				'AND', 'SENTON 1987-02-21',
+				'AND', 'SENTSINCE 1987-02-21',
+				'AND', 'SMALLER 21',
+				'AND', 'SMALLER 24',
+				'AND', 'SUBJECT hello',
+				'AND', 'SUBJECT "hello world"',
+				'AND', 'TEXT fox',
+				'AND', 'TO fox',
+				'AND', 'UID 100001',
+				'AND', 'UNANSWERED',
+				'AND', 'UNDELETED',
+				'AND', 'UNDRAFT',
+				'AND', 'UNFLAGGED',
+				'AND', 'UNKEYWORD flag21',
+				'AND', 'UNSEEN'
+			)
+		);
+		
+		return $rv;
+	}
+	
+	/**
+     * @dataProvider providerParseSearchKeys
+     */
+	public function testParseSearchKeys($testData, $expect){
 		$client = new Client();
-		$client->setServer($server);
 		$client->setId(1);
-	}*/
+		
+		$rv = $client->parseSearchKeys($testData);
+		
+		#ve($rv);
+		
+		$this->assertEquals($expect, $rv);
+	}
+	
+	
 	
 	public function testMsgHandleUidFetch1(){
 		$server = new Server('', 0);
