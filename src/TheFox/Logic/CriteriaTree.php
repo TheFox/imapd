@@ -17,6 +17,10 @@ class CriteriaTree{
 		$this->criteria = $criteria;
 	}
 	
+	public function getRootGate(){
+		return $this->rootGate;
+	}
+	
 	public function build($level = 0){
 		$func = __FUNCTION__;
 		$rep = '-';
