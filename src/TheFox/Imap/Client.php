@@ -695,15 +695,21 @@ class Client{
 			$this->log('debug', 'client '.$this->id.' search');
 			
 			if($this->getStatus('hasAuth')){
-				if($this->selectedFolder !== null){
-					# TODO
+				if(isset($args[0]) && $args[0]){
+					if($this->selectedFolder !== null){
+						$criteriaStr = $args[0];
+						return $this->sendSearch($tag, $criteriaStr);
+					}
+					else{
+						return $this->sendNo('No mailbox selected.', $tag);
+					}
 				}
 				else{
-					$this->sendNo('No mailbox selected.', $tag);
+					return $this->sendBad('Arguments invalid.', $tag);
 				}
 			}
 			else{
-				$this->sendNo($commandcmp.' failure', $tag);
+				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
 		elseif($commandcmp == 'store'){
@@ -1123,11 +1129,13 @@ class Client{
 		return $rv;
 	}
 	
-	public function parseSearchKeys($list, $maxItems = 0, $addAnd = true){
+	public function parseSearchKeys($list, &$posOffset = 0, $maxItems = 0, $addAnd = true, $level = 0){
 		$func = __FUNCTION__;
 		$len = count($list);
 		$rv = array();
-		#fwrite(STDOUT, 'parseSearchKeys: '.$len."\n");
+		
+		#fwrite(STDOUT, str_repeat("\t", $level)."".'parseSearchKeys: '.$len.', '.$posOffset."\n");
+		#ve($list);
 		
 		if($len <= 1){
 			return $list;
@@ -1143,12 +1151,14 @@ class Client{
 			$offset = 0;
 			
 			if(is_array($item)){
-				#fwrite(STDOUT, 'pos: '.$pos.' array'."\n");
-				#$rv[] = $this->$func($item);
-				$itemWithArgs = array($this->$func($item));
+				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'pos: '.$pos.' array'."\n");
+				$subPosOffset = 0;
+				$itemWithArgs = array($this->$func($item, $subPosOffset, 0, true, $level + 1));
+				#$offset += $subPosOffset;
+				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'-> subitem counter offset: '.$subPosOffset."\n");
 			}
 			else{
-				#fwrite(STDOUT, 'pos: '.$pos.' /'.$item.'/'."\n");
+				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'pos: '.$pos.' /'.$item.'/'."\n");
 				$itemcmp = strtolower($item);
 				if($itemcmp == 'all' || $itemcmp == 'answered' || $itemcmp == 'deleted' || $itemcmp == 'draft' || $itemcmp == 'flagged' || $itemcmp == 'new' || $itemcmp == 'old' || $itemcmp == 'recent' || $itemcmp == 'seen' || $itemcmp == 'unanswered' || $itemcmp == 'undeleted' || $itemcmp == 'undraft' || $itemcmp == 'unflagged' || $itemcmp == 'unseen'){
 					$itemWithArgs = $item;
@@ -1162,35 +1172,29 @@ class Client{
 					$offset += 2;
 				}
 				elseif($itemcmp == 'or'){
-					$sublist = $this->$func(array_slice($list, $pos + 1), 2, false);
+					$rest = array_slice($list, $pos + 1);
+					$subPosOffset = 0;
+					$sublist = $this->$func($rest, $subPosOffset, 2, false, $level + 1);
 					#ve($sublist);
 					$itemWithArgs = array(array($sublist[0], 'OR', $sublist[1]));
 					
-					$subitemsC = 0;
-					foreach($sublist as $subitem){
-						if(is_array($subitem)){
-							$subitemsC++;
-						}
-						else{
-							$subitemsC += count(preg_split('/ /', $subitem));
-						}
-					}
+					$offset += $subPosOffset;
 					
-					$offset += $subitemsC;
+					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem counter offset: '.$subPosOffset."\n");
+					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem1 array: '.(int)is_array($sublist[0])."\n");
+					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem2 array: '.(int)is_array($sublist[1])."\n");
 				}
 				elseif($itemcmp == 'and'){
 					$and = false;
 				}
 				elseif($itemcmp == 'not'){
-					$sublist = $this->$func(array_slice($list, $pos + 1), 1, false);
+					$rest = array_slice($list, $pos + 1);
+					$subPosOffset = 0;
+					$sublist = $this->$func($rest, $subPosOffset, 1, false, $level + 1);
 					$itemWithArgs = array($item, $sublist[0]);
+					$offset += $subPosOffset;
 					
-					$subitemsC = 0;
-					foreach($sublist as $subitem){
-						$subitemsC += count(preg_split('/ /', $subitem));
-					}
-					
-					$offset += $subitemsC;
+					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem counter offset: '.$subPosOffset."\n");
 				}
 				elseif(is_numeric($itemcmp)){
 					$itemWithArgs = $item;
@@ -1201,7 +1205,7 @@ class Client{
 				$and = false;
 			}
 			
-			#fwrite(STDOUT, '    pos: '.$pos.', '.$itemsC.' '.(is_array($item) ? 'array' : '/'.$item.'/').' '.(is_array($itemWithArgs) ? 'array' : '/'.$itemWithArgs.'/').' and='.(int)$and."\n");
+			#fwrite(STDOUT, str_repeat("\t", $level)."\t".'-> end: '.$pos.' (+'.$offset.') '.$itemsC."\n");
 			
 			if($addAnd && $and){
 				$rv[] = 'AND';
@@ -1222,6 +1226,8 @@ class Client{
 				break;
 			}
 		}
+		
+		$posOffset = $pos + 1;
 		
 		return $rv;
 	}

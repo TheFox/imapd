@@ -762,6 +762,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('OR', 'SEEN', 'UNFLAGGED', 'AND', 'BCC', 'at'), array(array('SEEN', 'OR', 'UNFLAGGED'), 'AND', 'BCC at'));
 		$rv[] = array(array('BCC', 'thefox', 'NOT', 'BCC', '21'), array('BCC thefox', 'AND', 'NOT', 'BCC 21'));
 		
+		#return $rv;
+		
 		$rv[] = array(array(
 				'ALL',
 				'ANSWERED',
@@ -842,10 +844,17 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		);
 		
 		$rv[] = array(array(array('1', '2'), '3'), array(array('1', 'AND', '2'), 'AND', '3'));
+		$rv[] = array(array('4', array('1', '2'), '3'), array('4', 'AND', array('1', 'AND', '2'), 'AND', '3'));
 		$rv[] = array(array(array('1', '2'), 'AND', '3'), array(array('1', 'AND', '2'), 'AND', '3'));
 		
-		$rv[] = array(array('OR', 'BCC', '1', 'BCC', '3'), array(array('BCC 1', 'OR', 'BCC 3')));
+		
+		$rv[] = array(array('OR', '1', '2'), array(array('1', 'OR', '2')));
+		$rv[] = array(array('OR', 'OR', '1', '2', '3'), array(array(array('1', 'OR', '2'), 'OR', '3')));
+		
+		$rv[] = array(array('OR', 'OR', 'BCC', 'thefox', 'TO', 'thefox', 'CC', 'thefox'), array(array(array('BCC thefox', 'OR', 'TO thefox'), 'OR', 'CC thefox')));
+		
 		$rv[] = array(array('OR', array('1', '2'), '3'), array(array(array('1', 'AND', '2'), 'OR', '3')));
+		
 		$rv[] = array(array('123', 'OR', array('1', '2'), '3'), array('123', 'AND', array(array('1', 'AND', '2'), 'OR', '3')));
 		
 		return $rv;
@@ -858,9 +867,10 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client = new Client();
 		$client->setId(1);
 		
-		$rv = $client->parseSearchKeys($testData);
+		$posOffset = 0;
+		$rv = $client->parseSearchKeys($testData, $posOffset);
 		
-		#fwrite(STDOUT, 'list:'."\n"); ve($rv);
+		#fwrite(STDOUT, 'list: '.$posOffset."\n"); ve($rv);
 		
 		$this->assertEquals($expect, $rv);
 	}
