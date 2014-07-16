@@ -603,7 +603,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -617,7 +617,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -638,14 +638,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 7');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -695,14 +695,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED => Storage::FLAG_DELETED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$msg = $client->msgHandle('14 expunge');
 		$this->assertEquals('* 2 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);

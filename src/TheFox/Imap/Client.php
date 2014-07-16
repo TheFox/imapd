@@ -692,7 +692,7 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'search'){
-			$this->log('debug', 'client '.$this->id.' expunge');
+			$this->log('debug', 'client '.$this->id.' search');
 			
 			if($this->getStatus('hasAuth')){
 				if($this->selectedFolder !== null){
