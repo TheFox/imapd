@@ -315,6 +315,7 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$gate1->setObj1(new Obj('val1'));
 		$gate1->setObj2(new Obj('val2'));
 		$rv[] = array(array('val1', 'OR', 'val2'), $gate1);
+		$rv[] = array(array(array('val1', 'OR', 'val2')), $gate1);
 		
 		$gate1 = new AndGate();
 		$gate1->setObj1(new Obj('val1'));
@@ -336,6 +337,14 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		$gate1->setObj1($gate2);
 		$gate1->setObj2(new Obj('val3'));
 		$rv[] = array(array('val1', 'AND', 'val2', 'OR', 'val3'), $gate1);
+		
+		$gate2 = new OrGate();
+		$gate2->setObj1(new Obj('val2'));
+		$gate2->setObj2(new Obj('val3'));
+		$gate1 = new AndGate();
+		$gate1->setObj1(new Obj('val1'));
+		$gate1->setObj2($gate2);
+		$rv[] = array(array('val1', 'AND', array('val2', 'OR', 'val3')), $gate1);
 		
 		$gate2 = new AndGate();
 		$gate2->setObj1(new Obj('UNDELETED'));

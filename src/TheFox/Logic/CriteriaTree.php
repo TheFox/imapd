@@ -39,6 +39,14 @@ class CriteriaTree{
 				#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t".'criterium: '.$criteriumId.' array o1='.($obj1 === null ? 'n' : 'o').' g='.($gate === null ? 'n' : 'o').''."\n");
 				$tree = new CriteriaTree($criterium);
 				$subobj = $tree->$func($level + 1);
+				
+				if($rootGate){
+					#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'array: rootGate is set'."\n");
+				}
+				else{
+					#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'array: rootGate == null'."\n");
+				}
+				
 				if($gate){
 					#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'array: gate is set'."\n");
 					$gate->setObj2($subobj);
@@ -47,12 +55,14 @@ class CriteriaTree{
 					#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t".'array: gate == null'."\n");
 					if($obj1 === null){
 						#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'array: obj1 == null'."\n");
-						$obj1 = $subobj;
+						#$obj1 = $subobj;
+						$rootGate = $obj1 = $subobj;
 					}
 					else{
 						#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t\t\t".'array: obj1 is set'."\n");
 					}
 				}
+				
 				#fwrite(STDOUT, str_repeat($rep, 4 * $level)."\t".'array: subobj'."\n");
 				$realCriteriaC++;
 			}
