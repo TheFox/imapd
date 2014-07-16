@@ -208,8 +208,7 @@ class Client{
 				$msgRaw = substr($msgRaw, 0, -1);
 			}
 			
-			$str = '';
-			while($msgRaw){
+			while(strlen($msgRaw)){
 				if($msgRaw[0] == '(' || $msgRaw[0] == '['){
 					
 					$pair = ')';
@@ -241,14 +240,13 @@ class Client{
 					}
 					$rv[$rvc] .= $msgRaw[0];
 					
-					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c '".$msgRaw[0]."' '".$rv[$rvc]."'\n");
+					##fwrite(STDOUT, str_repeat(' ', $level * 4)."    c '".$msgRaw[0]."' '".$rv[$rvc]."'\n");
+					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c '".$msgRaw."' '".$rv[$rvc]."'\n");
 					$msgRaw = substr($msgRaw, 1);
 				}
 				
 				#usleep(100000);
 			}
-			
-			#fwrite(STDOUT, str_repeat(' ', $level * 4)."str '$str'\n");
 		}
 		
 		$rv2 = array();

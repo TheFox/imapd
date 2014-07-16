@@ -89,6 +89,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			array('(a ((bb ccc) dddd) eeeee)', array('a', array(array('bb', 'ccc'), 'dddd'), 'eeeee')),
 			array('(a bb "ccc") dddd', array(array('a', 'bb', 'ccc'), 'dddd')),
 			array('("ccc" a bb) dddd', array(array('ccc', 'a', 'bb'), 'dddd')),
+			array('BEFORE X', array('BEFORE', 'X')),
+			array('BEFORE 1990', array('BEFORE', '1990')),
 		);
 		
 		$raw = '(UID RFC822.SIZE FLAGS BODY.PEEK[HEADER.FIELDS (From To Cc Bcc Subject Date ';
