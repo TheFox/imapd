@@ -5,6 +5,7 @@ namespace TheFox\Imap;
 use Exception;
 use RuntimeException;
 use InvalidArgumentException;
+use DateTime;
 
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
@@ -1232,13 +1233,16 @@ class Client{
 		return $rv;
 	}
 	
-	public function searchMessageCondition($message, $searchKey){
-		#fwrite(STDOUT, '    searchMessageCondition: '.$searchKey.''."\n");
+	public function searchMessageConditionn($message, $messageSeqNum, $messageUid, $isUid, $searchKey){
+		#fwrite(STDOUT, '    condition: '.$searchKey.''."\n");
 		$items = preg_split('/ /', $searchKey, 3);
 		#ve($items);
 		$itemcmp = strtolower($items[0]);
 		
-		fwrite(STDOUT, '    searchMessageCondition: '.$itemcmp.''."\n");
+		#fwrite(STDOUT, '    condition: /'.$searchKey.'/'."\n");
+		#fwrite(STDOUT, '    bcc: '.$message->getHeader('BCC')."\n");
+		#ve(get_class_methods($message));
+		#ve($message->getHeaders());
 		
 		$rv = false;
 		switch($itemcmp){
@@ -1249,104 +1253,197 @@ class Client{
 				$rv = $message->hasFlag(Storage::FLAG_ANSWERED);
 				break;
 			case 'bcc':
-				#$rv = true;
+				try{
+					$searchStr = strtolower($items[1]);
+					#$bcc = $message->getHeader('BCC');
+					#$bcc = $message->getHeader('BCC', 'string');
+					$bcc = $message->bcc;
+					#ve($bcc);
+					#ve( (string) $bcc);
+					$rv = strpos(strtolower($bcc), $searchStr) !== false;
+					#ve($rv);
+				}
+				catch(Exception $e){}
 				break;
 			case 'before':
-				#$rv = true;
+				# TODO
 				break;
 			case 'body':
-				#$rv = true;
+				$searchStr = strtolower($items[1]);
+				$rv = strpos(strtolower($message->getContent()), $searchStr) !== false;
 				break;
 			case 'cc':
-				#$rv = true;
+				try{
+					$searchStr = strtolower($items[1]);
+					$rv = strpos(strtolower($message->cc), $searchStr) !== false;
+				}
+				catch(Exception $e){}
 				break;
 			case 'deleted':
-				#$rv = true;
+				$rv = $message->hasFlag(Storage::FLAG_DELETED);
 				break;
 			case 'draft':
-				#$rv = true;
+				$rv = $message->hasFlag(Storage::FLAG_DRAFT);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'flagged':
-				#$rv = true;
+				$rv = $message->hasFlag(Storage::FLAG_FLAGGED);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'from':
-				#$rv = true;
+				try{
+					$searchStr = strtolower($items[1]);
+					$rv = strpos(strtolower($message->from), $searchStr) !== false;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'header':
-				#$rv = true;
+				try{
+					$searchStr = strtolower($items[2]);
+					$val = $message->getHeader($items[1], 'string');
+					#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.$val."\n");
+					$rv = strpos(strtolower($val), $searchStr) !== false;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				break;
+			case 'keyword':
+				# TODO
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'larger':
-				#$rv = true;
+				$rv = $message->getSize() > (int)$items[1];
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv.' '.$message->getSize()."\n");
 				break;
 			case 'new':
-				#$rv = true;
+				$rv = $message->hasFlag(Storage::FLAG_RECENT) && !$message->hasFlag(Storage::FLAG_SEEN);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.(int)$message->hasFlag(Storage::FLAG_SEEN).' '."\n");
 				break;
 			case 'old':
-				#$rv = true;
+				$rv = !$message->hasFlag(Storage::FLAG_RECENT);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'on':
-				#$rv = true;
+				# TODO
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'recent':
-				#$rv = true;
+				$rv = $message->hasFlag(Storage::FLAG_RECENT);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'seen':
-				#$rv = true;
+				$rv = $message->hasFlag(Storage::FLAG_SEEN);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'sentbefore':
-				#$rv = true;
+				try{
+					$checkDate = new DateTime($items[1]);
+					$messageDate = new DateTime($message->date);
+					$messageDate = new DateTime($messageDate->format('Y-m-d'));
+					$rv = $messageDate < $checkDate;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'senton':
-				#$rv = true;
+				try{
+					$checkDate = new DateTime($items[1]);
+					$messageDate = new DateTime($message->date);
+					$messageDate = new DateTime($messageDate->format('Y-m-d'));
+					$rv = $messageDate == $checkDate;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'sentsince':
-				#$rv = true;
+				try{
+					$checkDate = new DateTime($items[1]);
+					$messageDate = new DateTime($message->date);
+					$messageDate = new DateTime($messageDate->format('Y-m-d'));
+					$rv = $messageDate >= $checkDate;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'since':
-				#$rv = true;
+				# TODO
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'smaller':
-				#$rv = true;
+				$rv = $message->getSize() < (int)$items[1];
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'subject':
-				#$rv = true;
+				try{
+					if(isset($items[2])){
+						$items[1] .= ' '.$items[2];
+						unset($items[2]);
+					}
+					#ve($items);
+					$searchStr = strtolower($items[1]);
+					$rv = strpos(strtolower($message->subject), $searchStr) !== false;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'text':
-				#$rv = true;
+				$searchStr = strtolower($items[1]);
+				$text = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
+				$rv = strpos(strtolower($message->getContent()), $searchStr) !== false;
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'to':
-				#$rv = true;
+				try{
+					$searchStr = strtolower($items[1]);
+					$rv = strpos(strtolower($message->to), $searchStr) !== false;
+				}
+				catch(Exception $e){}
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv.' '.$message->to."\n");
 				break;
 			case 'uid':
-				#$rv = true;
+				$searchId = (int)$items[1];
+				$rv = $searchId == $messageUid;
+				#fwrite(STDOUT, '    condition: /'.$searchId.'/ '.(int)$rv.', '.$messageSeqNum.', '.$messageUid.', '.(int)$isUid.''."\n");
 				break;
 			case 'unanswered':
-				#$rv = true;
+				$rv = !$message->hasFlag(Storage::FLAG_ANSWERED);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'undeleted':
-				#$rv = true;
+				$rv = !$message->hasFlag(Storage::FLAG_DELETED);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'undraft':
-				#$rv = true;
+				$rv = !$message->hasFlag(Storage::FLAG_DRAFT);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'unflagged':
-				#$rv = true;
+				$rv = !$message->hasFlag(Storage::FLAG_FLAGGED);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'unkeyword':
-				#$rv = true;
+				# TODO
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'unseen':
-				#$rv = true;
+				$rv = !$message->hasFlag(Storage::FLAG_SEEN);
+				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			
 			default:
+				if(is_numeric($itemcmp)){
+					$searchId = (int)$itemcmp;
+					$rv = $searchId == $messageSeqNum;
+					#fwrite(STDOUT, '    condition: /'.$searchId.'/ '.(int)$rv.', '.$messageSeqNum.', '.$messageUid.', '.(int)$isUid.''."\n");
+				}
 		}
 		return $rv;
 	}
 	
-	public function parseSearchMessage($message, $gate){
+	public function parseSearchMessage($message, $messageSeqNum, $messageUid, $isUid, $gate){
 		$func = __FUNCTION__;
-		fwrite(STDOUT, $func.': '.get_class($message).', '.get_class($gate).''."\n");
+		#fwrite(STDOUT, $func.': '.get_class($message).', '.get_class($gate).''."\n");
 		
 		#ve($message);
 		#ve($gate);
@@ -1362,33 +1459,29 @@ class Client{
 			}
 		}
 		else{
-			fwrite(STDOUT, $func.': other '.get_class($gate).''."\n");
-			$val = $this->searchMessageCondition($message, $gate->getValue());
+			#fwrite(STDOUT, $func.': other '.get_class($gate).''."\n");
+			#fwrite(STDOUT, $func.': other '.$gate->getValue().', '.get_class($gate).''."\n");
+			$val = $this->searchMessageConditionn($message, $messageSeqNum, $messageUid, $isUid, $gate->getValue());
 			$gate->setValue($val);
 			#return $gate->bool();
 		}
 		
-		
 		foreach($subgates as $subgate){
-			#fwrite(STDOUT, $func.' subgate: '.get_class($subgate)."\n");
 			if($subgate instanceof AndGate){
-				fwrite(STDOUT, $func.' subgate: AndGate'."\n");
-				$val = $this->$func($message, $subgate);
-				#fwrite(STDOUT, $func.' subgate: AndGate: '.(int)$val."\n");
+				#fwrite(STDOUT, 'subgate: AndGate'."\n");
+				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
 			}
 			elseif($subgate instanceof OrGate){
-				fwrite(STDOUT, $func.' subgate: OrGate'."\n");
-				$val = $this->$func($message, $subgate);
-				#fwrite(STDOUT, $func.' subgate: OrGate: '.(int)$val."\n");
+				#fwrite(STDOUT, 'subgate: OrGate'."\n");
+				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
 			}
 			elseif($subgate instanceof NotGate){
-				fwrite(STDOUT, $func.' subgate: NotGate'."\n");
-				$val = $this->$func($message, $subgate);
-				#fwrite(STDOUT, $func.' subgate: NotGate: '.(int)$val."\n");
+				#fwrite(STDOUT, 'subgate: NotGate'."\n");
+				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
 			}
 			elseif($subgate instanceof Obj){
-				fwrite(STDOUT, $func.' subgate: Obj: '.$subgate->getValue()."\n");
-				$val = $this->searchMessageCondition($message, $subgate->getValue());
+				#fwrite(STDOUT, 'subgate: Obj: '.$subgate->getValue()."\n");
+				$val = $this->searchMessageConditionn($message, $messageSeqNum, $messageUid, $isUid, $subgate->getValue());
 				$subgate->setValue($val);
 				#$subgate->setValue($val.'xyz');
 				#fwrite(STDOUT, $func.' subgate: Obj: '.$val."\n");
@@ -1405,35 +1498,30 @@ class Client{
 		
 		$criteria = array();
 		$criteria = $this->msgGetParenthesizedlist($criteriaStr);
-		ve($criteria);
-		
+		#ve($criteria);
 		
 		$criteria = $this->parseSearchKeys($criteria);
-		ve($criteria);
+		#ve($criteria);
 		
 		$tree = new CriteriaTree($criteria);
 		$tree->build();
-		ve($tree->getRootGate());
+		#ve($tree->getRootGate());
 		#ve($tree->getRootGate()->bool());
 		
-		
-		#$realCriteria = array();
-		
-		#ve($realCriteria);
-		
-		#return;
-		
+		if(!$tree->getRootGate()){
+			return '';
+		}
 		
 		
 		$ids = array();
 		
 		$storage = $this->getServer()->getStorageMailbox();
-		fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
+		#fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
 		
 		$msgSeqNums = $this->createSequenceSet('*');
 		foreach($msgSeqNums as $msgSeqNum){
 			$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
-			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
+			#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
 			
 			$message = null;
 			try{
@@ -1453,10 +1541,10 @@ class Client{
 				#ve($headers->get('From')->getFieldValue());
 				
 				$rootGate = clone $tree->getRootGate();
-				$val = $this->parseSearchMessage($message, $rootGate);
-				fwrite(STDOUT, 'val: '.(int)$val.''."\n");
+				$add = $this->parseSearchMessage($message, $msgSeqNum, $uid, $isUid, $rootGate);
+				#fwrite(STDOUT, 'val: '.(int)$val.''."\n");
 				
-				$add = $val;
+				#$add = $val;
 				
 				#ve($storage['object']->);
 				
@@ -1471,32 +1559,35 @@ class Client{
 			}
 		}
 		
-		ve($ids);
+		#ve($ids);
+		sort($ids);
 		
 		$rv = '';
 		while(count($ids)){
 			
-			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum);
+			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
 			#ve($ids);
 			
-			$sendIds = array_slice($ids, 0, 2);
-			$ids = array_slice($ids, 2);
+			$sendIds = array_slice($ids, 0, 30);
+			$ids = array_slice($ids, 30);
 			
-			$rv .= $this->dataSend('* SEARCH '.join(', ', $sendIds).'');
+			$rv .= $this->dataSend('* SEARCH '.join(' ', $sendIds).'');
 			
-			usleep(100000);
+			#usleep(100000);
 		}
 		return $rv;
 	}
 	
-	/*private function sendSearch($tag, $criteriaStr){
+	private function sendSearch($tag, $criteriaStr){
 		$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
-		#$this->sendSearchRaw($tag, $criteriaStr, false);
-		$this->sendOk('SEARCH completed', $tag);
-	}*/
+		$rv = '';
+		$rv .= $this->sendSearchRaw($tag, $criteriaStr, false);
+		$rv .= $this->sendOk('SEARCH completed', $tag);
+		return $rv;
+	}
 	
 	private function sendFetchRaw($tag, $seq, $name, $isUid = false){
 		#ve('fetchRaw');
@@ -1752,7 +1843,7 @@ class Client{
 	}
 	
 	private function sendUid($tag, $args){
-		$this->log('debug', 'client '.$this->id.': sendUid: "'.$args.'"');
+		$this->log('debug', 'client '.$this->id.' sendUid: "'.$args.'"');
 		#ve($args);
 		
 		$args = $this->msgParseString($args, 2);

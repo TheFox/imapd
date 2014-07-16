@@ -2,6 +2,8 @@
 
 use Zend\Mail\Message;
 use Zend\Mail\Storage;
+use Zend\Mail\Headers;
+use Zend\Mail\Header\Date;
 use Symfony\Component\Finder\Finder;
 
 use TheFox\Imap\Server;
@@ -900,46 +902,291 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString());
+		$server->mailAdd($message->toString(), null, null, false);
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->mailAdd($message->toString(), null, array(Storage::FLAG_ANSWERED));
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_ANSWERED), false);
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
+		$message->addBcc('steve@apple.com');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		#$server->mailAdd($message->toString());
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$headers = new Headers();
+		$headers->addHeader(Date::fromString('Date: ' . date('r', mktime(0, 0, 0, 2, 21, 1987))));
 		
 		$message = new Message();
+		$message->setHeaders($headers);
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		#$server->mailAdd($message->toString());
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$message = new Message();
+		$message->setHeaders($headers);
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$headers = new Headers();
+		$headers->addHeader(Date::fromString('Date: ' . date('r', mktime(0, 0, 0, 11, 20, 1986))));
+		
+		$message = new Message();
+		$message->setHeaders($headers);
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('hello world');
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 7');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 8');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DRAFT), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 9');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_FLAGGED), false);
+		
+		$message = new Message();
+		$message->addFrom('test@fox21.at');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 10');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 11');
+		$message->setBody('my super fancy long body for testing the size');
+		$server->mailAdd($message->toString(), null, null, false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 12');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(), true);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 13');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		#$message->setSubject('my_subject 14');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 15');
+		$message->setBody('this is a test body');
+		$server->mailAdd($message->toString(), null, array(), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 16');
+		#$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('steve@apple.com');
+		$message->setSubject('my_subject 17');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 18');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 19');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_ANSWERED), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 20');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 21');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DRAFT), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 22');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_FLAGGED), false);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 23');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString(), null, array(Storage::FLAG_SEEN), false);
 		
 		
-		#$msg = $client->msgHandle('17 uid SEARCH ALL');
+		
+		
+		$msg = $client->msgHandle('17 uid SEARCH ALL');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH ANSWERED');
+		$this->assertEquals('* SEARCH 100002 100019'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH BCC apple');
+		$this->assertEquals('* SEARCH 100003'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH BEFORE 1990');
+		#$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH BODY world');
+		$this->assertEquals('* SEARCH 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH DELETED');
+		$this->assertEquals('* SEARCH 100007 100020'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH DRAFT');
+		$this->assertEquals('* SEARCH 100008 100021'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH FLAGGED');
+		$this->assertEquals('* SEARCH 100009 100022'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH FROM test@');
+		$this->assertEquals('* SEARCH 100010'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH HEADER Date 1987');
+		$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH LARGER 40');
+		$this->assertEquals('* SEARCH 100011'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH NEW');
+		$this->assertEquals('* SEARCH 100012'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH OLD');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		#$msg = $client->msgHandle('17 uid SEARCH ON 1987-02-21');
+		#$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH OR 5 6');
+		$this->assertEquals('* SEARCH 100005 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH OR OR 5 6 7');
+		$this->assertEquals('* SEARCH 100005 100006 100007'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH RECENT');
+		$this->assertEquals('* SEARCH 100012'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH SEEN');
+		$this->assertEquals('* SEARCH 100001 100003 100004 100005 100006 100010 100011 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH SENTBEFORE 1990-01-01');
+		$this->assertEquals('* SEARCH 100004 100005 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH SENTON 1987-02-21');
+		$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH SENTSINCE 1987-02-21');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100007 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH SMALLER 30');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH SUBJECT "t 13"');
+		$this->assertEquals('* SEARCH 100013'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH TEXT test');
+		$this->assertEquals('* SEARCH 100011 100015'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH TO steve');
+		$this->assertEquals('* SEARCH 100017'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH UID 100018');
+		$this->assertEquals('* SEARCH 100018'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH UNANSWERED');
+		$this->assertEquals('* SEARCH 100001 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH UNDELETED');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH UNDRAFT');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH UNFLAGGED');
+		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		#$msg = $client->msgHandle('17 uid SEARCH UNKEYWORD');
+		#$this->assertEquals('* SEARCH 123'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH UNSEEN');
+		$this->assertEquals('* SEARCH 100002 100007 100008 100009 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		
+		
+		$msg = $client->msgHandle('17 uid SEARCH BEFORE 1985');
+		$this->assertEquals('17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH BODY xyz');
+		$this->assertEquals('17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
 		
 		#$msg = $client->msgHandle('17 uid SEARCH OR (UNDELETED FROM "thefox") ANSWERED AND FROM "21"');
 		
 		#$msg = $client->msgHandle('17 uid SEARCH UNDELETED HEADER From @fox21.at HEADER Date 2014');
-		#$msg = $client->msgHandle('17 uid SEARCH NOT 21');
-		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100021');
 		
-		
-		$msg = $client->msgHandle('17 uid SEARCH ALL');
-		$this->assertEquals('* SEARCH 100001, 100002'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
-		
-		#$msg = $client->msgHandle('17 uid SEARCH ANSWERED');
+		#$msg = $client->msgHandle('17 uid SEARCH NOT 5');
+		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100005');
 		#$this->assertEquals('x17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
 		
-		
+		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100021');
 		
 	}
 	
