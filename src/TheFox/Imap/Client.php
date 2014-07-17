@@ -1769,11 +1769,7 @@ class Client{
 	}*/
 	
 	private function sendStoreRaw($tag, $seq, $name, $flagsStr, $isUid = false){
-		#ve('sendStoreRaw');
-		
 		$flags = $this->msgGetParenthesizedlist($flagsStr);
-		#ve('sendStoreRaw flags');
-		#ve($flags);
 		unset($flags[Storage::FLAG_RECENT]);
 		$flags = array_combine($flags, $flags);
 		
