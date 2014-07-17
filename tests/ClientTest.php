@@ -518,10 +518,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('11 lsub test_dir');
 		$this->assertEquals('11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
 		
-		$server->storageFolderAdd('test_dir');
-		$client->msgHandle('8 subscribe test_dir');
-		$msg = $client->msgHandle('11 lsub test_dir');
-		$this->assertEquals('* LSUB () "." "test_dir"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
+		$server->storageFolderAdd('test_dir1');
+		
+		$client->msgHandle('8 subscribe test_dir1');
+		$msg = $client->msgHandle('11 lsub test_dir1');
+		$this->assertEquals('* LSUB () "." "test_dir1"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir2');
+		$client->msgHandle('8 subscribe test_dir2');
+		$msg = $client->msgHandle('11 lsub test_dir2');
+		$this->assertEquals('* LSUB () "." "test_dir1"'.Client::MSG_SEPARATOR.'* LSUB () "." "test_dir2"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
 	/*public function testMsgHandleAppend(){
