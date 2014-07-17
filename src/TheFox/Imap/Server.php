@@ -576,6 +576,42 @@ class Server extends Thread{
 		}
 	}
 	
+	public function mailGet($msgId){
+		if($this->storageMaildir['db']){
+			$this->log->debug(__CLASS__.'->'.__FUNCTION__.' db ok: '.$msgId);
+			
+			$uid = $this->storageMaildir['db']->getMsgUidById($msgId);
+			$this->log->debug(__CLASS__.'->'.__FUNCTION__.' uid: '.$uid);
+			
+			$seqNum = 0;
+			
+			try{
+				$seqNum = $this->storageMaildir['object']->getNumberByUniqueId($uid);
+				$this->log->debug(__CLASS__.'->'.__FUNCTION__.' seqNum: '.$seqNum);
+			}
+			catch(Exception $e){
+				$this->log->error(__FUNCTION__.': '.$e->getMessage());
+			}
+			
+			if(!$seqNum){
+				// If this failover is used ZF2 ISSUE 6317 is still not fixed.
+				// https://github.com/zendframework/zf2/issues/6317
+				
+				$seqNum = $this->storageMaildir['db']->getSeqById($msgId);
+				$this->log->debug(__CLASS__.'->'.__FUNCTION__.' failover: '.$seqNum);
+			}
+			if($seqNum){
+				$message = $this->storageMaildir['object']->getMessage($seqNum);
+				#ve($message);
+				return $message;
+			}
+			
+			return null;
+		}
+		
+		return null;
+	}
+	
 	public function eventAdd(Event $event){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		

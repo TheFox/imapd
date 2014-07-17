@@ -3,6 +3,7 @@
 use Zend\Mail\Storage\Writable\Maildir;
 use Zend\Mail\Message;
 use Zend\Mail\Storage;
+use Zend\Mail\Storage\Message\File;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -672,6 +673,30 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	public function functionForTestEvent(){
 		#fwrite(STDOUT, "forTestEvent\n");
 		return 18;
+	}
+	
+	public function testMailGet(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$msgId = $server->mailAdd($message->toString());
+		
+		$this->assertEquals(100001, $msgId);
+		
+		$message = $server->mailGet($msgId);
+		#ve($message);
+		$this->assertTrue($message instanceof File);
+		$this->assertEquals('my_subject 1', $message->subject);
+		$this->assertEquals('my_body', $message->getContent());
+		
 	}
 	
 	public function testEvent(){
