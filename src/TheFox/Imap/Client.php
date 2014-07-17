@@ -343,6 +343,12 @@ class Client{
 				}
 			}
 			
+			if($seqMin > $seqMax){
+				$tmp = $seqMin;
+				$seqMin = $seqMax;
+				$seqMax = $tmp;
+			}
+			
 			$seqLen = $seqMax + 1 - $seqMin;
 			#$this->log('debug', 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
 			
