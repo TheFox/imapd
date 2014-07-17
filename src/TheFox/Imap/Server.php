@@ -27,6 +27,8 @@ class Server extends Thread{
 	private $clientsId = 0;
 	private $clients = array();
 	private $storageMaildir;
+	private $eventsId = 0;
+	private $events = array();
 	
 	public function __construct($ip = '127.0.0.1', $port = 20143){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
@@ -429,6 +431,7 @@ class Server extends Thread{
 	
 	public function mailAdd($mail, $folder = null, $flags = array(), $recent = true){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
+		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
 		$this->storageInit();
 		
 		$uid = null;
@@ -570,6 +573,24 @@ class Server extends Thread{
 			$this->storageMaildir['object']->selectFolder($oldFolder);
 			
 			$this->storageMaildir['db']->msgAdd($uid, $lastId, $folder);
+		}
+	}
+	
+	public function eventAdd(Event $event){
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
+		
+		$this->eventsId++;
+		$this->events[$this->eventsId] = $event;
+	}
+	
+	private function eventExecute($trigger){
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
+		
+		foreach($this->events as $eventId => $event){
+			#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' event: '.$eventId."\n");
+			if($event->getTrigger() == $trigger){
+				$event->execute();
+			}
 		}
 	}
 	

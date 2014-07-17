@@ -8,6 +8,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 use TheFox\Imap\Server;
 use TheFox\Imap\MsgDb;
+use TheFox\Imap\Event;
 
 class ServerTest extends PHPUnit_Framework_TestCase{
 	
@@ -666,6 +667,44 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(2, $server->storageMailboxGetDbSeqById(100008));
 		
 		$server->shutdown();
+	}
+	
+	public function functionForTestEvent(){
+		#fwrite(STDOUT, "forTestEvent\n");
+		return 18;
+	}
+	
+	public function testEvent(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$testData = 21;
+		$event1 = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event) use(&$testData) {
+			#fwrite(STDOUT, "my function: $testData\n");
+			$testData = 24;
+			#fwrite(STDOUT, "my function: $testData\n");
+			#ve($event);
+			
+			return 42;
+		});
+		$server->eventAdd($event1);
+		
+		$event2 = new Event(Event::TRIGGER_MAIL_ADD_PRE, $this, 'functionForTestEvent');
+		$server->eventAdd($event2);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$this->assertEquals(24, $testData);
+		$this->assertEquals(42, $event1->getReturnValue());
+		$this->assertEquals(18, $event2->getReturnValue());
 	}
 	
 }
