@@ -350,7 +350,7 @@ class Client{
 			}
 			
 			$seqLen = $seqMax + 1 - $seqMin;
-			#$this->log('debug', 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
+			$this->log('debug', 'sequence len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
 			
 			if($isUid){
 				if($seqLen >= 1){
@@ -415,7 +415,7 @@ class Client{
 	}
 	
 	public function msgHandle($msgRaw){
-		$this->log('debug', 'client '.$this->id.' raw: "'.$msgRaw.'"');
+		$this->log('debug', 'client '.$this->id.' raw: /'.$msgRaw.'/');
 		
 		$rv = '';
 		
