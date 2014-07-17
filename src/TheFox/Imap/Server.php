@@ -339,25 +339,36 @@ class Server extends Thread{
 		}
 	}
 	
-	public function storageMailboxGetFolders($folder, $recursive = false, $level = 0){
-		$this->log->debug(__CLASS__.'->'.__FUNCTION__.': "'.$folder.'" '.(int)$recursive.', '.$level);
+	public function storageMailboxGetFolders($baseFolder, $searchFolder, $recursive = false, $level = 0){
+		$func = __FUNCTION__;
+		#$this->log->debug(__CLASS__.'->'.$func.$level.': '.$baseFolder.' /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
 		
 		if($level >= 100){
 			return array();
-		}
-		if($folder == '*' || strtolower($folder) == 'inbox'){
-			$folder = null;
 		}
 		
 		$storage = $this->getStorageMailbox();
 		
 		$rv = array();
-		$folders = $storage['object']->getFolders($folder);
-		foreach($folders as $folder){
-			$name = $folder->getGlobalName();
-			$rv[] = $folder;
+		$folders = $storage['object']->getFolders($baseFolder);
+		#$folders = $storage['object']->getFolders();
+		foreach($folders as $subfolder){
+			$name = 'N/A';
+			if(is_object($subfolder)){
+				#ve($subfolder);
+				#$name = $subfolder->getGlobalName();
+				$name = $subfolder->getLocalName();
+			}
+			
+			#$this->log->debug(__CLASS__.'->'.$func.'     subfolder: /'.$name.'/');
+			
+			if(fnmatch($searchFolder, $name)){
+				#$this->log->debug(__CLASS__.'->'.$func.'     add');
+				$rv[] = $subfolder;
+			}
+			
 			if($recursive && strtolower($name) != 'inbox'){
-				$rv = array_merge($rv, $this->storageMailboxGetFolders($name, $recursive, $level + 1));
+				$rv = array_merge($rv, $this->$func(($baseFolder ? $baseFolder.'.' : '').$name, $searchFolder, $recursive, $level + 1));
 			}
 		}
 		return $rv;

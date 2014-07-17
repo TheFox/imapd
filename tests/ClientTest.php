@@ -470,32 +470,44 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setServer($server);
 		$client->setId(1);
 		
-		$msg = $client->msgHandle('10 list');
-		$this->assertEquals('10 NO list failure'.Client::MSG_SEPARATOR, $msg);
+		#$msg = $client->msgHandle('10 LIST');
+		#$this->assertEquals('10 NO list failure'.Client::MSG_SEPARATOR, $msg);
 		
 		$client->setStatus('hasAuth', true);
 		
-		$msg = $client->msgHandle('10 list');
+		$msg = $client->msgHandle('10 LIST');
 		$this->assertEquals('10 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('10 list test_dir');
-		$this->assertEquals('10 NO LIST failure: no subfolder named test_dir'.Client::MSG_SEPARATOR, $msg);
+		$msg = $client->msgHandle('10 LIST test_dir1');
+		$this->assertEquals('10 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('10 list test_dir.*');
-		$this->assertEquals('10 NO LIST failure: no subfolder named test_dir'.Client::MSG_SEPARATOR, $msg);
+		$msg = $client->msgHandle('10 LIST test_dir1.*');
+		$this->assertEquals('10 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
-		
-		$server->storageFolderAdd('test_dir');
-		
-		$msg = $client->msgHandle('10 list test_dir');
+		$msg = $client->msgHandle('10 LIST "" test_dir1');
 		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('10 list test_dir.*');
+		$msg = $client->msgHandle('10 LIST "" test_dir1.*');
 		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
 		
-		$server->storageFolderAdd('test_dir.test_subdir1');
-		$msg = $client->msgHandle('10 list test_dir.*');
-		$this->assertEquals('* LIST () "." "test_dir.test_subdir1"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		$msg = $client->msgHandle('10 LIST "" INBOX');
+		$this->assertEquals('* LIST () "." "INBOX"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir1');
+		
+		$msg = $client->msgHandle('10 LIST "" test_dir1');
+		$this->assertEquals('* LIST () "." "test_dir1"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('10 LIST "" test_dir1.*');
+		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->storageFolderAdd('test_dir1.test_subdir2');
+		
+		#$msg = $client->msgHandle('10 LIST "" test_dir1.*');
+		#$this->assertEquals('* LIST () "." "test_dir1.test_subdir2"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('10 LIST "test_dir1" test_sub*');
+		$this->assertEquals('* LIST () "." "test_dir1.test_subdir2"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
 	public function testMsgHandleLsub(){

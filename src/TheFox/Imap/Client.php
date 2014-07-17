@@ -552,14 +552,16 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'list'){
-			$args = $this->msgParseString($args, 1);
+			$args = $this->msgParseString($args, 2);
 			#ve($args);
 			
-			#$this->log('debug', 'client '.$this->id.' list: '.$args[0]);
+			#$this->log('debug', 'client '.$this->id.' list: /'.(isset($args[0]) ? $args[0] : 'N/A').'/ /'.(isset($args[1]) ? $args[1] : 'N/A').'/');
 			
 			if($this->getStatus('hasAuth')){
-				if(isset($args[0]) && $args[0]){
-					return $this->sendList($tag, $args[0]);
+				if(isset($args[0]) && isset($args[1]) && $args[1]){
+					$refName = $args[0];
+					$folder = $args[1];
+					return $this->sendList($tag, $refName, $folder);
 				}
 				else{
 					return $this->sendBad('Arguments invalid.', $tag);
@@ -957,16 +959,25 @@ class Client{
 		}
 	}
 	
-	private function sendList($tag, $folder){
-		$this->log('debug', 'client '.$this->id.' list: "'.$folder.'"');
+	private function sendList($tag, $baseFolder, $folder){
+		$this->log('debug', 'client '.$this->id.' list: /'.$baseFolder.'/ /'.$folder.'/');
 		
 		$folder = str_replace('%', '*', $folder); # TODO
 		
 		$storage = $this->getServer()->getStorageMailbox();
 		
+		/*
+		$restoreSelectedFolder = false;
+		if($baseFolder){
+			$restoreSelectedFolder = true;
+			$oldSelectedFolder = $this->selectedFolder;
+			$storage['object']->selectFolder($baseFolder);
+		}
+		*/
+		
 		$folders = array();
-		if(strpos($folder, '*') === false){
-			$this->log('debug', 'client '.$this->id.' list found no *');
+		/*if(strpos($folder, '*') === false){
+			$this->log('debug', 'client '.$this->id.' list: found no *');
 			try{
 				$folders = $storage['object']->getFolders($folder);
 			}
@@ -975,9 +986,9 @@ class Client{
 			}
 		}
 		else{
-			$this->log('debug', 'client '.$this->id.' list found a *');
-			$items = preg_split('/\*/', $folder, 2);
-			#ve($items);
+			$this->log('debug', 'client '.$this->id.' list: found a *');
+			$items = preg_split('/\'.'*'.'/', $folder, 2);
+			ve($items);
 			
 			$search = '';
 			if(count($items) <= 1){
@@ -987,13 +998,29 @@ class Client{
 				$search = $items[0];
 			}
 			
-			$this->log('debug', 'client '.$this->id.' list search: "'.$search.'"');
+			$search = $folder;
+			
+			$this->log('debug', 'client '.$this->id.' list: search "'.$search.'"');
 			try{
 				$folders = $this->getServer()->storageMailboxGetFolders($search, true);
+				#$folders = $this->getServer()->storageMailboxGetFolders($folder, true);
 			}
 			catch(Exception $e){
 				return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
 			}
+		}*/
+		
+		#$storage['object']->selectFolder('test_dir1');
+		#$storage['object']->selectFolder('INBOX');
+		#$folders = $storage['object']->getFolders('test_dir1');
+		#$folders = $storage['object']->getFolders();
+		
+		
+		try{
+			$folders = $this->getServer()->storageMailboxGetFolders($baseFolder, $folder, true);
+		}
+		catch(Exception $e){
+			return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
 		}
 		
 		#ve($folders);
@@ -1001,16 +1028,15 @@ class Client{
 		foreach($folders as $cfolder){
 			#$this->log('debug', 'client '.$this->id.'    folder '.$cfolder->getGlobalName());
 			
-			#if(fnmatch($folder, $cfolder->getGlobalName(), FNM_CASEFOLD)){
-				$attrs = array();
-				if(strtolower($cfolder->getGlobalName()) == 'inbox'){
-					#$attrs[] = '\\Noinferiors';
-				}
-				
-				$rv .= $this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$cfolder->getGlobalName().'"');
-			#}
+			$attrs = array();
+			$rv .= $this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$cfolder->getGlobalName().'"');
 		}
 		$rv .= $this->sendOk('LIST completed', $tag);
+		
+		#if($restoreSelectedFolder){
+		#	$storage['object']->selectFolder($oldSelectedFolder);
+		#}
+		
 		return $rv;
 	}
 	
