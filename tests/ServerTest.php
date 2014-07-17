@@ -107,7 +107,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$folders = $server->storageMailboxGetFolders('', 'INBOX');
-		$this->assertEquals(1, count($folders));
+		#ve($folders);
+		$this->assertEquals(4, count($folders));
 		
 		$folders = $server->storageMailboxGetFolders('', 'test_dir1');
 		$this->assertEquals(1, count($folders));
@@ -136,7 +137,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$folders = $server->storageMailboxGetFolders('', 'INBOX');
 		#ve($folders);
-		$this->assertEquals(1, count($folders));
+		$this->assertEquals(3, count($folders));
 		
 		$folders = $server->storageMailboxGetFolders('INBOX', '*');
 		#ve($folders);
