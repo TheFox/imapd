@@ -77,8 +77,21 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
 		$expect = array('arg1', 'arg2', 'A"arg3"E');
 		$rv[] = array('arg1 arg2 A"arg3"E', $expect, 3);
 		
+		
 		$expect = array('arg1', '', 'arg2');
 		$rv[] = array('arg1 "" arg2', $expect, 3);
+		
+		$expect = array('arg1', 'arg2', '', 'arg4');
+		$rv[] = array('arg1 arg2 "" arg4', $expect, null);
+		
+		$expect = array('arg1', 'arg2', '"" arg4');
+		$rv[] = array('arg1 arg2 "" arg4', $expect, 3);
+		
+		$expect = array('', 'arg4');
+		$rv[] = array('"" arg4', $expect, null);
+		
+		$expect = array('"" arg4');
+		$rv[] = array('"" arg4', $expect, 1);
 		
 		$expect = array('arg1', 'arg2', ' arg3', 'arg4');
 		$rv[] = array('arg1 arg2 " arg3" arg4', $expect, null);
