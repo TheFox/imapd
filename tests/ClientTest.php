@@ -1394,9 +1394,63 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			, $msg);
 	}
 	
-	/*public function testMsgHandleUidStore(){
-		$this->markTestIncomplete('This test has not been implemented yet.');
-	}*/
+	public function testMsgHandleUidStore(){
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$msg = $client->msgHandle('18 UID store');
+		$this->assertEquals('18 NO uid failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$msg = $client->msgHandle('18 uid store 100001 +FLAGS (\Deleted \Seen)');
+		$this->assertEquals('18 NO uid failure'.Client::MSG_SEPARATOR, $msg);
+		
+		$client->setStatus('hasAuth', true);
+		$client->msgHandle('6 select INBOX');
+		
+		$msg = $client->msgHandle('18 uid store 100001 +FLAGS (\Deleted \Seen)');
+		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		
+		
+		
+		#$msg = $client->msgHandle('18 uid store 100001 +FLAGS (\Deleted \Seen)');
+		#$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+	}
 	
 	public function testMsgHandleCopy(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
