@@ -4,7 +4,7 @@ namespace TheFox\Imap;
 
 class StringParser{
 	
-	const DEBUG = 1;
+	const DEBUG = 0;
 	
 	private $str = '';
 	private $len = 0;
@@ -24,14 +24,22 @@ class StringParser{
 		$this->args = array();
 	}
 	
-	private function charNew($char = ''){
-		if($this->argsMax === null || count($this->args) < $this->argsMax){
-			if($this->argsId >= 0){
-				if(static::DEBUG) fwrite(STDOUT, '    fix old /'.$this->args[$this->argsId].'/'."\n");
-				if($this->args[$this->argsId] == '""'){
-					$this->args[$this->argsId] = '';
+	private function fixPrev(){
+		if($this->argsId >= 0){
+			if(static::DEBUG) fwrite(STDOUT, '    fix old A /'.$this->args[$this->argsId].'/'."\n");
+			if($this->args[$this->argsId] && $this->args[$this->argsId][0] == '"' && substr($this->args[$this->argsId], -1) == '"'){
+				$tmp = substr(substr($this->args[$this->argsId], 1), 0, -1);
+				if(strpos($tmp, '"') === false){
+					$this->args[$this->argsId] = $tmp;
 				}
 			}
+			if(static::DEBUG) fwrite(STDOUT, '    fix old B /'.$this->args[$this->argsId].'/'."\n");
+		}
+	}
+	
+	private function charNew($char = ''){
+		if($this->argsMax === null || count($this->args) < $this->argsMax){
+			$this->fixPrev();
 			if(static::DEBUG) fwrite(STDOUT, '    new /'.$char.'/'."\n");
 			$this->argsId++;
 			$this->args[$this->argsId] = $char;
@@ -79,6 +87,10 @@ class StringParser{
 					if(static::DEBUG) fwrite(STDOUT, '    is end char: '.(int)($this->argsMax === null).', '.(int)count($this->args).', '.(int)$this->argsMax.' '."\n");
 					
 					if($pos == $this->len - 1 || $this->argsMax === null || count($this->args) < $this->argsMax){
+						if($char == '"'){
+							$this->charAppend($char);
+						}
+						
 						$in = false;
 						if(static::DEBUG) fwrite(STDOUT, '    close '."\n");
 					}
@@ -93,21 +105,10 @@ class StringParser{
 			else{
 				if($this->argsMax === null || count($this->args) < $this->argsMax){
 					if($char == '"'){
-						if($nextChar == '"'){
-							if(static::DEBUG) fwrite(STDOUT, '    new Aa (next /"/)'."\n");
-							#$this->charNew('');
-							$this->charNew('""');
-							#$endChar = '"';
-							#$in = true;
-							$pos++;
-						}
-						else{
-							if(static::DEBUG) fwrite(STDOUT, '    new Ab (next /'.$nextChar.'/)'."\n");
-							$this->charNew();
-							$endChar = '"';
-							$in = true;
-						}
-						
+						if(static::DEBUG) fwrite(STDOUT, '    new Ab (next /'.$nextChar.'/)'."\n");
+						$this->charNew($char);
+						$endChar = '"';
+						$in = true;
 					}
 					elseif($char == ' '){
 						if($nextChar == ' '){
@@ -143,6 +144,7 @@ class StringParser{
 			#sleep(1);
 		}
 		
+		$this->fixPrev();
 		#ve($this->args);
 		#exit();
 		

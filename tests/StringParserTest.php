@@ -87,11 +87,20 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
 		$expect = array('arg1', 'arg2', '"" arg4');
 		$rv[] = array('arg1 arg2 "" arg4', $expect, 3);
 		
+		$expect = array('arg1', 'arg2', '"" "arg4"');
+		$rv[] = array('arg1 arg2 "" "arg4"', $expect, 3);
+		
 		$expect = array('', 'arg4');
 		$rv[] = array('"" arg4', $expect, null);
 		
 		$expect = array('"" arg4');
 		$rv[] = array('"" arg4', $expect, 1);
+		
+		$expect = array('arg1', 'arg2', 'arg3', 'arg4');
+		$rv[] = array('arg1 arg2 "arg3" arg4', $expect, null);
+		
+		$expect = array('arg1', 'arg2', '"arg3" arg4');
+		$rv[] = array('arg1 arg2 "arg3" arg4', $expect, 3);
 		
 		$expect = array('arg1', 'arg2', ' arg3', 'arg4');
 		$rv[] = array('arg1 arg2 " arg3" arg4', $expect, null);
@@ -113,5 +122,10 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
 		$str = new StringParser($msgRaw, $argsMax);
 		$this->assertEquals($expect, $str->parse());
 	}
+	
+	/*public function testParse2(){
+		ve(preg_split('/ /', '10 LIST "    test_dir1 " test_sub*'));
+		#$this->assertEquals($expect, );
+	}*/
 	
 }
