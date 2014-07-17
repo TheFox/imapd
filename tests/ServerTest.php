@@ -89,7 +89,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		}
 	}
 	
-	public function testStorageMailboxGetFolders(){
+	public function testStorageMailboxGetFolders1(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -106,14 +106,53 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertFileExists($maildirPath.'/.test_dir2.test_dir3');
 		
 		
-		$folders = $server->storageMailboxGetFolders('INBOX');
+		$folders = $server->storageMailboxGetFolders('', 'INBOX');
+		$this->assertEquals(1, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('', 'test_dir1');
+		$this->assertEquals(1, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('', 'test_dir2');
+		$this->assertEquals(1, count($folders));
+	}
+	
+	public function testStorageMailboxGetFolders2(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$server->storageFolderAdd('Drafts');
+		$this->assertFileExists($maildirPath.'/.Drafts');
+		
+		$server->storageFolderAdd('Trash');
+		$this->assertFileExists($maildirPath.'/.Trash');
+		
+		
+		$folders = $server->storageMailboxGetFolders('', '*');
+		#ve($folders);
 		$this->assertEquals(3, count($folders));
 		
-		$folders = $server->storageMailboxGetFolders('test_dir1');
-		$this->assertEquals(0, count($folders));
-		
-		$folders = $server->storageMailboxGetFolders('test_dir2');
+		$folders = $server->storageMailboxGetFolders('', 'INBOX');
+		#ve($folders);
 		$this->assertEquals(1, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('INBOX', '*');
+		#ve($folders);
+		$this->assertEquals(3, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('', 'Drafts');
+		#ve($folders);
+		$this->assertEquals(1, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('', 'Trash');
+		#ve($folders);
+		$this->assertEquals(1, count($folders));
+		
+		$folders = $server->storageMailboxGetFolders('Trash', '*');
+		#ve($folders);
+		$this->assertEquals(0, count($folders));
 	}
 	
 	public function testStorageMailboxGetDbNextId(){
