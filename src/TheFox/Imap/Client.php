@@ -797,7 +797,10 @@ class Client{
 	public function dataSend($msg){
 		$output = $msg.static::MSG_SEPARATOR;
 		if($this->getSocket()){
-			$this->log('debug', 'client '.$this->id.' data send: "'.$msg.'"');
+			$tmp = $msg;
+			$tmp = str_replace("\r", '', $tmp);
+			$tmp = str_replace("\n", '\\n', $tmp);
+			$this->log('debug', 'client '.$this->id.' data send: "'.$tmp.'"');
 			$this->getSocket()->write($output);
 		}
 		return $output;
