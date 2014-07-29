@@ -371,11 +371,11 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(8, $server->storageMailboxGetDbSeqById($msgId));
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(6, count($files));
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/cur');
+		$files = $finder->in($maildirPath.'/cur')->files();
 		$this->assertEquals(2, count($files));
 		
 		
@@ -461,12 +461,12 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(6, count($files));
 		
 		$server->mailRemove(100002);
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(5, count($files));
 		
 		$this->assertEquals(4, $server->storageMailboxGetDbSeqById(100005));
@@ -533,12 +533,12 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(6, count($files));
 		
 		$server->mailRemoveBySequenceNum(4);
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(5, count($files));
 		
 		$this->assertEquals(4, $server->storageMailboxGetDbSeqById(100004));
@@ -604,7 +604,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(6, count($files));
 		
 		$server->storageFolderAdd('test_dir1');
@@ -675,7 +675,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/new');
+		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(6, count($files));
 		
 		$server->storageFolderAdd('test_dir1');
