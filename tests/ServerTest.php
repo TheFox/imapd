@@ -7,6 +7,7 @@ use Zend\Mail\Storage\Message\File;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 
+use TheFox\Logger\Logger;
 use TheFox\Imap\Server;
 use TheFox\Imap\MsgDb;
 use TheFox\Imap\Event;
@@ -15,17 +16,22 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testBasic(){
 		$server = new Server('', 0);
-		$this->assertTrue(is_null($server->getLog()));
+		$this->assertTrue($server->getLog() === null);
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$this->assertTrue($server->getLog() !== null);
 	}
 	
 	public function testGetStorageMailbox(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$storage = $server->getStorageMailbox();
 		
 		$this->assertTrue($storage['object'] instanceof Maildir);
 		
-		fwrite(STDOUT, 'dir: '.$storage['path']."\n");
+		#fwrite(STDOUT, 'dir: '.$storage['path']."\n");
 		
 		$filesystem = new Filesystem();
 		$filesystem->remove($storage['path']);
@@ -35,6 +41,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$storage = $server->storageAddMaildir($maildirPath);
@@ -63,6 +70,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -78,6 +86,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testStorageRemoveTempAndSave(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$storage = $server->storageInit();
 		
@@ -95,6 +104,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -123,6 +133,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -162,6 +173,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -200,6 +212,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -240,6 +253,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -280,6 +294,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -393,6 +408,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -463,6 +479,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -534,6 +551,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -604,6 +622,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -679,6 +698,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -703,6 +723,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		

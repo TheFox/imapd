@@ -6,6 +6,7 @@ use Zend\Mail\Headers;
 use Zend\Mail\Header\Date;
 use Symfony\Component\Finder\Finder;
 
+use TheFox\Logger\Logger;
 use TheFox\Imap\Server;
 use TheFox\Imap\Client;
 
@@ -123,6 +124,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -274,6 +276,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
      */
 	public function testMsgHandleBasic($msgRaw, $expect){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$client = new Client();
@@ -289,6 +292,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleCapability(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$client = new Client();
@@ -301,6 +305,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleNoop(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$client = new Client();
@@ -315,6 +320,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleLogout(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$client = new Client();
@@ -327,6 +333,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleAuthenticate(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$client = new Client();
@@ -342,6 +349,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleLogin(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		
 		$client = new Client();
@@ -360,6 +368,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleSelect(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -384,6 +393,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleCreate(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -416,6 +426,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleSubscribe(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -444,6 +455,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUnsubscribe(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -469,6 +481,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleList(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -518,6 +531,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleLsub(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -554,6 +568,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleCheck(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -578,6 +593,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleClose(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -602,6 +618,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleExpunge1(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -687,6 +704,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleExpunge2(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -903,6 +921,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUidSearch(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -1216,6 +1235,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUidFetch1(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -1295,6 +1315,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUidFetch2(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -1346,6 +1367,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testMsgHandleUidFetch3(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		
@@ -1398,6 +1420,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -1557,9 +1580,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		
-		
-		
-		
+		/*
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/*')->name('*');
 		
@@ -1567,12 +1588,15 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			$file = str_replace($maildirPath.'/', '', $file);
 			fwrite(STDOUT, "file: $file\n");
 		}
+		*/
+		
 	}
 	
 	public function testMsgHandleCopy(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -1657,6 +1681,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
@@ -1791,6 +1816,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	
 	public function testSelect(){
 		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
 		$server->init();
 		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
 		$server->storageFolderAdd('test_dir1');

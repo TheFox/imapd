@@ -28,7 +28,7 @@ class Event{
 	}
 	
 	public function execute(){
-		fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		
 		$object = $this->object;
 		$function = $this->function;

@@ -1529,7 +1529,7 @@ class Client{
 	}
 	
 	private function sendSearchRaw($tag, $criteriaStr, $isUid = false){
-		fwrite(STDOUT, 'sendSearchRaw: "'.$criteriaStr.'"'."\n");
+		#fwrite(STDOUT, 'sendSearchRaw: "'.$criteriaStr.'"'."\n");
 		
 		$criteria = array();
 		$criteria = $this->msgGetParenthesizedlist($criteriaStr);
