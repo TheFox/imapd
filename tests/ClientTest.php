@@ -1336,7 +1336,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (FLAGS)');
 		$this->assertEquals(
-			'* 1 FETCH (UID 100003 FLAGS (\Seen))'.Client::MSG_SEPARATOR
+			'* 1 FETCH (UID 100003 FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR
 			.'* 2 FETCH (UID 100001 FLAGS (\Recent))'.Client::MSG_SEPARATOR
 			.'* 3 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR
 			.'* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR
@@ -1395,9 +1395,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidStore(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
 		$server = new Server('', 0);
 		$server->init();
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		$server->storageAddMaildir($maildirPath);
 		
 		$client = new Client();
 		$client->setServer($server);
@@ -1406,13 +1408,13 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('18 UID store');
 		$this->assertEquals('18 NO uid failure'.Client::MSG_SEPARATOR, $msg);
 		
-		$msg = $client->msgHandle('18 uid store 100001 +FLAGS (\Deleted \Seen)');
+		$msg = $client->msgHandle('18 uid store 100001 +FLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.')');
 		$this->assertEquals('18 NO uid failure'.Client::MSG_SEPARATOR, $msg);
 		
 		$client->setStatus('hasAuth', true);
 		$client->msgHandle('6 select INBOX');
 		
-		$msg = $client->msgHandle('18 uid store 100001 +FLAGS (\Deleted \Seen)');
+		$msg = $client->msgHandle('18 uid store 100001 +FLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.')');
 		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
 		
 		
@@ -1444,12 +1446,127 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message->toString());
 		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$server->mailAdd($message->toString());
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/new')->files();
+		$this->assertEquals(5, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100001 -FLAGS ('.Storage::FLAG_RECENT.')');
+		$this->assertEquals('* 1 FETCH (FLAGS ())'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/new')->files();
+		$this->assertEquals(4, count($files));
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->files();
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100001 +FLAGS ('.Storage::FLAG_SEEN.')');
+		$this->assertEquals('* 1 FETCH (FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,S');
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100002 +FLAGS ('.Storage::FLAG_SEEN.')');
+		$this->assertEquals('* 2 FETCH (FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,S');
+		$this->assertEquals(2, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.')');
+		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,RS');
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.')');
+		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_FLAGGED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,FRS');
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.')');
+		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,FRST');
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')');
+		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,DFRST');
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')');
+		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,DFRST');
+		$this->assertEquals(1, count($files));
+		
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/new')->files();
+		$this->assertEquals(2, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100003:100004 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')');
+		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR.'* 4 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,DFRST');
+		$this->assertEquals(2, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100005 +FLAGS.SILENT ('.Storage::FLAG_FLAGGED.')');
+		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,F');
+		$this->assertEquals(1, count($files));
+		
+		
+		$msg = $client->msgHandle('18 uid store 100005 -FLAGS.SILENT ('.Storage::FLAG_FLAGGED.')');
+		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/cur')->name('*,F');
+		$this->assertEquals(0, count($files));
 		
 		
 		
-		#$msg = $client->msgHandle('18 uid store 100001 +FLAGS (\Deleted \Seen)');
-		#$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
 		
+		
+		
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/*')->name('*');
+		
+		foreach($files as $fileId => $file){
+			$file = str_replace($maildirPath.'/', '', $file);
+			fwrite(STDOUT, "file: $file\n");
+		}
 	}
 	
 	public function testMsgHandleCopy(){

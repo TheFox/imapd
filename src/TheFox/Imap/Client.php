@@ -1769,6 +1769,8 @@ class Client{
 	}*/
 	
 	private function sendStoreRaw($tag, $seq, $name, $flagsStr, $isUid = false){
+		$rv = '';
+		
 		$flags = $this->msgGetParenthesizedlist($flagsStr);
 		unset($flags[Storage::FLAG_RECENT]);
 		$flags = array_combine($flags, $flags);
@@ -1831,9 +1833,11 @@ class Client{
 			$storage['object']->setFlags($msgSeqNum, $messageFlags);
 			
 			if(!$silent){
-				$this->dataSend('* '.$msgSeqNum.' FETCH (FLAGS ('.join(' ', $messageFlags).'))');
+				$rv .= $this->dataSend('* '.$msgSeqNum.' FETCH (FLAGS ('.join(' ', $messageFlags).'))');
 			}
 		}
+		
+		return $rv;
 	}
 	
 	private function sendStore($tag, $seq, $name, $flagsStr){
