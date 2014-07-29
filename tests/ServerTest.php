@@ -541,7 +541,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$files = $finder->in($maildirPath.'/new')->files();
 		$this->assertEquals(5, count($files));
 		
-		$this->assertEquals(4, $server->storageMailboxGetDbSeqById(100004));
+		$this->assertEquals(null, $server->storageMailboxGetDbSeqById(100004));
+		$this->assertEquals(4, $server->storageMailboxGetDbSeqById(100005));
 		$this->assertEquals(5, $server->storageMailboxGetDbSeqById(100006));
 		
 		$server->shutdown();
