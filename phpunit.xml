@@ -27,6 +27,7 @@
 			<file>tests/LogicGateTest.php</file>
 			<file>tests/ServerTest.php</file>
 			<file>tests/StringParserTest.php</file>
+			<file>tests/ZendMailStorageTest.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>
