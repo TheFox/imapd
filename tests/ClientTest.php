@@ -1517,20 +1517,20 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->mailAdd($message->toString());
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/.test_dir1/new');
+		$files = $finder->in($maildirPath.'/.test_dir1/new')->files();
 		$this->assertEquals(4, count($files));
 		
 		
 		$msg = $client->msgHandle('15 copy 2 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$files = $finder->in($maildirPath.'/.test_dir2/cur')->files();
 		$this->assertEquals(1, count($files));
 		
 		$msg = $client->msgHandle('15 copy 3:4 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$files = $finder->in($maildirPath.'/.test_dir2/cur')->files();
 		$this->assertEquals(3, count($files));
 		
 		$server->shutdown();
@@ -1601,20 +1601,20 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->mailAdd($message->toString());
 		
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/.test_dir1/new');
+		$files = $finder->in($maildirPath.'/.test_dir1/new')->files();
 		$this->assertEquals(4, count($files));
 		
 		
 		$msg = $client->msgHandle('15 UID copy 100002 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$files = $finder->in($maildirPath.'/.test_dir2/cur')->files();
 		$this->assertEquals(1, count($files));
 		
 		$msg = $client->msgHandle('15 UID copy 100003:100004 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->files()->in($maildirPath.'/.test_dir2/cur');
+		$files = $finder->in($maildirPath.'/.test_dir2/cur')->files();
 		$this->assertEquals(3, count($files));
 		
 		$msg = $client->msgHandle('15 UID copy 1 test_dir2');
