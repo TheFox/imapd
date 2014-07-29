@@ -481,22 +481,26 @@ class Server extends Thread{
 			#$this->log->debug('remove uid: /'.$uid.'/');
 			
 			$seqNum = $this->storageMaildir['db']->getSeqById($msgId);
-			#fwrite(STDOUT, 'remove seqNum: '.$seqNum."\n");
+			#$this->log->debug('remove seqNum: /'.$seqNum.'/');
 			
-			try{
-				$this->storageMaildir['db']->msgRemove($msgId);
-			}
-			catch(Exception $e){
-				$this->log->error('db remove: '.$e->getMessage());
-			}
-			
+			$storageRemove = false;
 			try{
 				if($seqNum){
 					$this->storageMaildir['object']->removeMessage($seqNum);
+					$storageRemove = true;
 				}
 			}
 			catch(Exception $e){
 				$this->log->error('root storage remove: '.$e->getMessage());
+			}
+			
+			if($storageRemove){
+				try{
+					$this->storageMaildir['db']->msgRemove($msgId);
+				}
+				catch(Exception $e){
+					$this->log->error('db remove: '.$e->getMessage());
+				}
 			}
 		}
 		
@@ -509,18 +513,29 @@ class Server extends Thread{
 			throw new RuntimeException('Root storage not initialized.', 1);
 		}
 		
+		$msgId = null;
+		try{
+			$msgId = $this->storageMaildirGetDbMsgIdBySeqNum($seqNum);
+			#$this->log->debug('msgId: /'.$msgId.'/');
+		}
+		catch(Exception $e){
+			$this->log->error('db remove: '.$e->getMessage());
+		}
+		
+		$storageRemove = false;
 		try{
 			$this->storageMaildir['object']->removeMessage($seqNum);
+			$storageRemove = true;
 		}
 		catch(Exception $e){
 			$this->log->error('root storage remove: '.$e->getMessage());
 		}
 		
-		if($this->storageMaildir['db']){
+		if($this->storageMaildir['db'] && $storageRemove && $msgId){
 			try{
-				$msgId = $this->storageMaildirGetDbMsgIdBySeqNum($seqNum);
-				#fwrite(STDOUT, "remove: $msgId\n");
+				#$this->log->debug('remove');
 				$this->storageMaildir['db']->msgRemove($msgId);
+				#$this->log->debug('removed');
 			}
 			catch(Exception $e){
 				$this->log->error('db remove: '.$e->getMessage());
