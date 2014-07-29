@@ -407,16 +407,16 @@ class Server extends Thread{
 	}
 	
 	public function storageMaildirGetDbMsgIdBySeqNum($seqNum){
-		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': '.$seqNum);
+		#$this->log->debug(__FUNCTION__.': '.$seqNum);
 		
 		if($this->storageMaildir['db']){
-			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.' db ok: '.$seqNum);
+			#$this->log->debug(__FUNCTION__.' db ok');
 			
 			try{
 				$uid = $this->storageMaildir['object']->getUniqueId($seqNum);
-				#$this->log->debug(__CLASS__.'->'.__FUNCTION__.' uid '.$uid);
+				#$this->log->debug(__FUNCTION__.' uid: '.$uid);
 				$msgId = $this->storageMaildir['db']->getMsgIdByUid($uid);
-				#$this->log->debug(__CLASS__.'->'.__FUNCTION__.' msgid: '.$msgId);
+				#$this->log->debug(__FUNCTION__.' msgid: '.$msgId);
 				return $msgId;
 			}
 			catch(Exception $e){
@@ -463,7 +463,7 @@ class Server extends Thread{
 	}
 	
 	public function mailRemove($msgId){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
+		#$this->log->debug(__FUNCTION__);
 		
 		if(!$this->getStorageMailbox()){
 			throw new RuntimeException('Root storage not initialized.', 1);
@@ -472,13 +472,13 @@ class Server extends Thread{
 		if($this->storageMaildir['db']){
 			$seqNum = 0;
 			
-			#fwrite(STDOUT, 'remove msgId: '.$msgId."\n");
+			#$this->log->debug('remove msgId: /'.$msgId.'/');
 			
 			$oldFolder = $this->storageMaildir['object']->getCurrentFolder();
-			#fwrite(STDOUT, 'folder: '.$oldFolder."\n");
+			#$this->log->debug('folder: /'.$oldFolder.'/');
 			
 			$uid = $this->storageMaildir['db']->getMsgUidById($msgId);
-			#fwrite(STDOUT, 'remove uid: '.$uid."\n");
+			#$this->log->debug('remove uid: /'.$uid.'/');
 			
 			$seqNum = $this->storageMaildir['db']->getSeqById($msgId);
 			#fwrite(STDOUT, 'remove seqNum: '.$seqNum."\n");
@@ -503,7 +503,7 @@ class Server extends Thread{
 	}
 	
 	public function mailRemoveBySequenceNum($seqNum){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$seqNum."\n");
+		#$this->log->debug(__FUNCTION__.': /'.$seqNum.'/');
 		
 		if(!$this->getStorageMailbox()){
 			throw new RuntimeException('Root storage not initialized.', 1);

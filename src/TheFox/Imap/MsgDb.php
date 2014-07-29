@@ -66,7 +66,7 @@ class MsgDb extends YamlStorage{
 	}
 	
 	public function msgRemove($id){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$id."\n");
+		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': /'.$id.'/'."\n");
 		
 		$oldMsg = $this->data['msgs'][$id];
 		
