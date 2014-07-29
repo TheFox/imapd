@@ -1772,6 +1772,7 @@ class Client{
 		$flags = $this->msgGetParenthesizedlist($flagsStr);
 		unset($flags[Storage::FLAG_RECENT]);
 		$flags = array_combine($flags, $flags);
+		#ve($flags);
 		
 		$add = false;
 		$rem = false;
@@ -1825,6 +1826,7 @@ class Client{
 				}
 			}
 			
+			#ve($messageFlags);
 			$storage['object']->setFlags($msgSeqNum, $messageFlags);
 			
 			if(!$silent){
