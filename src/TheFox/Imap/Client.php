@@ -1807,6 +1807,7 @@ class Client{
 			
 			$message = $storage['object']->getMessage($msgSeqNum);
 			$messageFlags = $message->getFlags();
+			unset($messageFlags[Storage::FLAG_RECENT]);
 			
 			if(!$add && !$rem){
 				$messageFlags = $flags;
