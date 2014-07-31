@@ -3,12 +3,12 @@
 	"description": "IMAP server in PHP.",
 	"license": "GPLv3",
 	"type": "library",
-	"keywords": [ "imap", "server", "email", "mail" ],
+	"keywords": [ "imap", "email", "mail", "server", "daemon" ],
 	"homepage": "http://fox21.at",
 	"authors": [
 		{
 			"name": "Christian Mayer",
-			"email": "thefox21at@gmail.com",
+			"email": "christian@fox21.at",
 			"homepage": "http://fox21.at"
 		}
 	],
@@ -33,7 +33,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "0.1.x-dev"
+			"dev-master": "0.1.0-dev"
 		}
 	}
 }
