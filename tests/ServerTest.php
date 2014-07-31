@@ -690,11 +690,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
-	public function functionForTestEvent(){
-		#fwrite(STDOUT, "forTestEvent\n");
-		return 18;
-	}
-	
 	public function testMailGet(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
@@ -717,7 +712,11 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertTrue($message instanceof File);
 		$this->assertEquals('my_subject 1', $message->subject);
 		$this->assertEquals('my_body', $message->getContent());
-		
+	}
+	
+	public function functionForTestEvent(){
+		#fwrite(STDOUT, "forTestEvent\n");
+		return 18;
 	}
 	
 	public function testEvent(){
