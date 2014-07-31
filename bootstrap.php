@@ -11,7 +11,7 @@ ini_set('memory_limit', '128M');
 
 chdir(__DIR__);
 
-define('DEBUG', 1, true);
+#define('DEBUG', 1, true);
 define('PHP_EOL_LEN', strlen(PHP_EOL), true);
 
 
