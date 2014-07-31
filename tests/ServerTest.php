@@ -729,10 +729,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$testData = 21;
 		$event1 = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event) use(&$testData) {
-			#fwrite(STDOUT, "my function: $testData\n");
+			fwrite(STDOUT, 'my function: '.$event->getTrigger().', '.$testData."\n");
 			$testData = 24;
-			#fwrite(STDOUT, "my function: $testData\n");
-			#ve($event);
 			
 			return 42;
 		});

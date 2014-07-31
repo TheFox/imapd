@@ -448,9 +448,11 @@ class Server extends Thread{
 		}
 		$this->storageMaildir['object']->appendMessage($mail, null, $flags, $recent);
 		$lastId = $this->storageMaildir['object']->countMessages();
-		#$message = $this->storageMaildir['object']->getMessage($lastId);
+		$message = $this->storageMaildir['object']->getMessage($lastId);
 		$uid = $this->storageMaildir['object']->getUniqueId($lastId);
 		$this->storageMaildir['object']->selectFolder($oldFolder);
+		
+		$this->eventExecute(Event::TRIGGER_MAIL_ADD, array($message));
 		
 		if($this->storageMaildir['db']){
 			try{
@@ -462,6 +464,8 @@ class Server extends Thread{
 				$this->log->error('db: '.$e->getMessage());
 			}
 		}
+		
+		$this->eventExecute(Event::TRIGGER_MAIL_ADD_POST, array($msgId));
 		
 		return $msgId;
 	}
@@ -638,13 +642,13 @@ class Server extends Thread{
 		$this->events[$this->eventsId] = $event;
 	}
 	
-	private function eventExecute($trigger){
+	private function eventExecute($trigger, $args = array()){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		
 		foreach($this->events as $eventId => $event){
 			#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' event: '.$eventId."\n");
 			if($event->getTrigger() == $trigger){
-				$event->execute();
+				$event->execute($args);
 			}
 		}
 	}

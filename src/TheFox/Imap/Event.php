@@ -5,7 +5,8 @@ namespace TheFox\Imap;
 class Event{
 	
 	const TRIGGER_MAIL_ADD_PRE = 1000;
-	const TRIGGER_MAIL_ADD_POST = 1010;
+	const TRIGGER_MAIL_ADD = 1010;
+	const TRIGGER_MAIL_ADD_POST = 1020;
 	
 	private $trigger = null;
 	private $object = null;
@@ -27,16 +28,13 @@ class Event{
 		return $this->returnValue;
 	}
 	
-	public function execute(){
+	public function execute($args = array()){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		
 		$object = $this->object;
 		$function = $this->function;
 		
-		#ve($object);
-		#ve($function);
-		
-		$args = array($this);
+		array_unshift($args, $this);
 		
 		if($object){
 			$this->returnValue = call_user_func_array(array($object, $function), $args);
