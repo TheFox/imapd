@@ -39,10 +39,10 @@ class Event{
 		$args = array($this);
 		
 		if($object){
-			$this->returnValue = call_user_func(array($object, $function), $args);
+			$this->returnValue = call_user_func_array(array($object, $function), $args);
 		}
 		else{
-			$this->returnValue = call_user_func($function, $args);
+			$this->returnValue = call_user_func_array($function, $args);
 		}
 		
 		return $this->returnValue;
