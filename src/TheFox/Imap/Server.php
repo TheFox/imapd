@@ -167,8 +167,10 @@ class Server extends Thread{
 		while(!$this->getExit()){
 			$this->run();
 			
-			if(time() - $s >= 0 && !$r1){
+			if(time() - $s >= 10 && !$r1){
 				$r1 = 1;
+				
+				print __CLASS__.'->'.__FUNCTION__.' add msg A'."\n";
 				
 				try{
 					#$this->storageMaildir['object']->createFolder('test2');
@@ -181,7 +183,7 @@ class Server extends Thread{
 				$message->setBody('body');
 				
 				$message->setSubject('t1 '.date('H:i:s'));
-				#$this->mailAdd($message->toString());
+				$this->mailAdd($message->toString());
 				
 				$message->setSubject('t2 '.date('H:i:s'));
 				#$this->mailAdd($message->toString());
@@ -194,8 +196,10 @@ class Server extends Thread{
 				
 			}
 			
-			if(time() - $s >= 5 && !$r2){
+			if(time() - $s >= 300 && !$r2){
 				$r2 = 1;
+				
+				print __CLASS__.'->'.__FUNCTION__.' add msg B'."\n";
 				
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
@@ -204,9 +208,9 @@ class Server extends Thread{
 				$message->setBody('body');
 				
 				#$this->mailAdd($message->toString(), null, null, true);
-				#$this->mailAdd($message->toString(), null, null, true);
 				
-				#$this->clients[1]->dataSend('* 2 EXPUNGE');
+				$this->mailAdd($message->toString());
+				
 			}
 			
 			usleep(static::LOOP_USLEEP);
@@ -232,7 +236,7 @@ class Server extends Thread{
 	
 	private function clientNew($socket){
 		$this->clientsId++;
-		print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
+		#print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
 		
 		$client = new Client();
 		$client->setSocket($socket);
