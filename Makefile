@@ -51,7 +51,6 @@ release:
 		vendor/sebastian \
 		vendor/symfony \
 		vendor/thefox \
-		vendor/symfony \
 		vendor/zendframework
 	$(GZIP) -9 -f $(RELEASE_NAME)-$(RELEASE_VERSION).tar
 	$(MV) ${RELEASE_NAME}-${RELEASE_VERSION}.tar.gz releases
