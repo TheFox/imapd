@@ -42,8 +42,9 @@ release:
 	$(TAR) -cpf $(RELEASE_NAME)-$(RELEASE_VERSION).tar \
 		README.md \
 		application.php \
-		composer.json \
 		bootstrap.php \
+		composer.json \
+		functions.php \
 		src \
 		vendor/autoload.php \
 		vendor/composer \
