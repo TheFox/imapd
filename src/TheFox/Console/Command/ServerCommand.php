@@ -20,8 +20,10 @@ class ServerCommand extends BasicCommand{
 		$this->setName('server');
 		$this->setDescription('Run IMAP server.');
 		$this->addOption('daemon', 'd', InputOption::VALUE_NONE, 'Run in daemon mode.');
-		$this->addOption('address', 'a', InputOption::VALUE_REQUIRED, 'The address of the network interface. Default = 127.0.0.1');
-		$this->addOption('port', 'p', InputOption::VALUE_REQUIRED, 'The port of the network interface. Default = 20143');
+		$this->addOption('address', 'a', InputOption::VALUE_REQUIRED,
+			'The address of the network interface. Default = 127.0.0.1');
+		$this->addOption('port', 'p', InputOption::VALUE_REQUIRED,
+			'The port of the network interface. Default = 20143');
 		$this->addOption('shutdown', 's', InputOption::VALUE_NONE, 'Shutdown.');
 	}
 	

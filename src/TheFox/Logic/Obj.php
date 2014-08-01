@@ -26,7 +26,7 @@ class Obj{
 	}
 	
 	public function bool(){
-		return((bool)$this->value);
+		return ((bool)$this->value);
 	}
 	
 }

@@ -20,7 +20,7 @@ class NotGate extends Gate{
 			$bool = $this->getObj1()->bool();
 		}
 		#fwrite(STDOUT, 'bool: '.($bool ? 'YES' : 'no')."\n");
-		return(!$bool);
+		return (!$bool);
 	}
 	
 }

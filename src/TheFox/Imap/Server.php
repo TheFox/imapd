@@ -172,11 +172,6 @@ class Server extends Thread{
 				
 				print __CLASS__.'->'.__FUNCTION__.' add msg A'."\n";
 				
-				try{
-					#$this->storageMaildir['object']->createFolder('test2');
-				}
-				catch(Exception $e){}
-				
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
 				$message->addTo('thefox@fox21.at');
@@ -347,7 +342,7 @@ class Server extends Thread{
 	
 	public function storageMailboxGetFolders($baseFolder, $searchFolder, $recursive = false, $level = 0){
 		$func = __FUNCTION__;
-		$this->log->debug(__CLASS__.'->'.$func.$level.': '.$baseFolder.' /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
+		$this->log->debug($func.$level.': '.$baseFolder.' /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
 		
 		if($level >= 100){
 			return array();
@@ -370,43 +365,45 @@ class Server extends Thread{
 				$name = $subfolder->getLocalName();
 			}
 			
-			#$this->log->debug(__CLASS__.'->'.$func.'     subfolder: /'.$name.'/');
+			#$this->log->debug($func.'     subfolder: /'.$name.'/');
 			
 			if(fnmatch($searchFolder, $name)){
-				#$this->log->debug(__CLASS__.'->'.$func.'     add');
+				#$this->log->debug($func.'     add');
 				$rv[] = $subfolder;
 			}
 			
 			if($recursive && strtolower($name) != 'inbox'){
-				$rv = array_merge($rv, $this->$func(($baseFolder ? $baseFolder.'.' : '').$name, $searchFolder, $recursive, $level + 1));
+				$subrv = $this->$func(($baseFolder ? $baseFolder.'.' : '').$name,
+					$searchFolder, $recursive, $level + 1);
+				$rv = array_merge($rv, $subrv);
 			}
 		}
 		return $rv;
 	}
 	
 	public function storageMailboxGetDbNextId(){
-		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
+		#$this->log->debug(__FUNCTION__.'');
 		
 		$storage = $this->getStorageMailbox();
 		if($storage['db']){
-			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok');
+			#$this->log->debug(__FUNCTION__.': db ok');
 			return $storage['db']->getNextId();
 		}
 		
-		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db failed');
+		#$this->log->debug(__FUNCTION__.': db failed');
 		return null;
 	}
 	
 	public function storageMailboxGetDbSeqById($msgId){
-		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
+		#$this->log->debug(__FUNCTION__.'');
 		
 		$storage = $this->getStorageMailbox();
 		if($storage['db']){
-			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db ok');
+			#$this->log->debug(__FUNCTION__.': db ok');
 			return $storage['db']->getSeqById($msgId);
 		}
 		
-		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': db failed');
+		#$this->log->debug(__FUNCTION__.': db failed');
 		return null;
 	}
 	
@@ -441,7 +438,8 @@ class Server extends Thread{
 		$uid = null;
 		$msgId = null;
 		
-		// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317) in the Zendframework we must reselect the current folder.
+		// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317)
+		// in the Zendframework we must reselect the current folder.
 		$oldFolder = $this->storageMaildir['object']->getCurrentFolder();
 		if($folder){
 			$this->storageMaildir['object']->selectFolder($folder);

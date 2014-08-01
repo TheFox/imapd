@@ -31,7 +31,7 @@ class Client{
 	private $ip = '';
 	private $port = 0;
 	private $recvBufferTmp = '';
-	private $expunge = array(); # TODO
+	private $expunge = array();
 	private $subscriptions = array();
 	
 	// Remember the selected mailbox for each client.
@@ -209,7 +209,8 @@ class Client{
 				$msgRaw = substr($msgRaw, 0, -1);
 			}
 			
-			while(strlen($msgRaw)){
+			$msgRawLen = strlen($msgRaw);
+			while($msgRawLen){
 				if($msgRaw[0] == '(' || $msgRaw[0] == '['){
 					
 					$pair = ')';
@@ -246,6 +247,7 @@ class Client{
 					$msgRaw = substr($msgRaw, 1);
 				}
 				
+				$msgRawLen = strlen($msgRaw);
 				#usleep(100000);
 			}
 		}
@@ -555,7 +557,7 @@ class Client{
 			$args = $this->msgParseString($args, 2);
 			#ve($args);
 			
-			#$this->log('debug', 'client '.$this->id.' list: /'.(isset($args[0]) ? $args[0] : 'N/A').'/ /'.(isset($args[1]) ? $args[1] : 'N/A').'/');
+			#$this->log('debug', 'client '.$this->id.' list');
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && isset($args[1]) && $args[1]){
@@ -886,7 +888,12 @@ class Client{
 			#$this->dataSend('* OK [UIDNEXT '.$nextId.'] Predicted next UID');
 			$this->sendOk('Predicted next UID', null, 'UIDNEXT '.$nextId);
 		}
-		$this->dataSend('* FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DRAFT.')');
+		$availableFlags = array(Storage::FLAG_ANSWERED,
+			Storage::FLAG_FLAGGED,
+			Storage::FLAG_DELETED,
+			Storage::FLAG_SEEN,
+			Storage::FLAG_DRAFT);
+		$this->dataSend('* FLAGS ('.join(' ', $availableFlags).')');
 		#$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
 		$this->sendOk('Limited', null, 'PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)');
 	}
@@ -932,7 +939,7 @@ class Client{
 			$this->subscriptions[] = $folder->getGlobalName();
 			$this->subscriptions = array_unique($this->subscriptions);
 			#ve($this->subscriptions);
-			# TODO
+			# NOT_IMPLEMENTED
 			
 			
 			return $this->sendOk('SUBSCRIBE completed', $tag);
@@ -950,7 +957,7 @@ class Client{
 			
 			unset($this->subscriptions[$folder->getGlobalName()]);
 			#ve($this->subscriptions);
-			# TODO
+			# NOT_IMPLEMENTED
 			
 			return $this->sendOk('UNSUBSCRIBE completed', $tag);
 		}
@@ -962,7 +969,7 @@ class Client{
 	private function sendList($tag, $baseFolder, $folder){
 		$this->log('debug', 'client '.$this->id.' list: /'.$baseFolder.'/ /'.$folder.'/');
 		
-		$folder = str_replace('%', '*', $folder); # TODO
+		$folder = str_replace('%', '*', $folder); # NOT_IMPLEMENTED
 		
 		$storage = $this->getServer()->getStorageMailbox();
 		
@@ -1054,8 +1061,6 @@ class Client{
 	}
 	
 	private function sendAppend($data = ''){
-		#$this->log('debug', 'client '.$this->id.' append: '.$this->getStatus('appendStep').', '.$this->getStatus('appendTag').', '.$this->getStatus('appendFolder').', '.count($this->getStatus('appendFlags')).', '.$this->getStatus('appendDate').', '.$this->getStatus('appendLiteral').' '.strlen($this->getStatus('appendMsg')).' "'.$data.'"');
-		
 		if($this->getStatus('appendStep') == 1){
 			$this->status['appendStep']++;
 			
@@ -1072,7 +1077,8 @@ class Client{
 				$message = Message::fromString($this->getStatus('appendMsg'));
 				
 				try{
-					$this->getServer()->mailAdd($message->toString(), $this->getStatus('appendFolder'), $this->getStatus('appendFlags'));
+					$this->getServer()->mailAdd($message->toString(), $this->getStatus('appendFolder'),
+						$this->getStatus('appendFlags'));
 					$this->sendOk('APPEND completed', $this->getStatus('appendTag'));
 				}
 				catch(Exception $e){
@@ -1113,7 +1119,9 @@ class Client{
 		try{
 			$msgSeqNums = $this->createSequenceSet('*');
 		}
-		catch(Exception $e){}
+		catch(Exception $e){
+			$this->log('debug', 'client '.$this->id.' sendExpungeRaw error: '.$e->getMessage());
+		}
 		
 		$storage = $this->getServer()->getStorageMailbox();
 		
@@ -1196,12 +1204,45 @@ class Client{
 			else{
 				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'pos: '.$pos.' /'.$item.'/'."\n");
 				$itemcmp = strtolower($item);
-				if($itemcmp == 'all' || $itemcmp == 'answered' || $itemcmp == 'deleted' || $itemcmp == 'draft' || $itemcmp == 'flagged' || $itemcmp == 'new' || $itemcmp == 'old' || $itemcmp == 'recent' || $itemcmp == 'seen' || $itemcmp == 'unanswered' || $itemcmp == 'undeleted' || $itemcmp == 'undraft' || $itemcmp == 'unflagged' || $itemcmp == 'unseen'){
+				if(
+					$itemcmp == 'all'
+					|| $itemcmp == 'answered'
+					|| $itemcmp == 'deleted'
+					|| $itemcmp == 'draft'
+					|| $itemcmp == 'flagged'
+					|| $itemcmp == 'new'
+					|| $itemcmp == 'old'
+					|| $itemcmp == 'recent'
+					|| $itemcmp == 'seen'
+					|| $itemcmp == 'unanswered'
+					|| $itemcmp == 'undeleted'
+					|| $itemcmp == 'undraft'
+					|| $itemcmp == 'unflagged'
+					|| $itemcmp == 'unseen'
+				){
 					$itemWithArgs = $item;
 				}
-				elseif($itemcmp == 'bcc' || $itemcmp == 'before' || $itemcmp == 'body' || $itemcmp == 'cc' || $itemcmp == 'from' || $itemcmp == 'keyword' || $itemcmp == 'larger' || $itemcmp == 'on' || $itemcmp == 'sentbefore' || $itemcmp == 'senton' || $itemcmp == 'sentsince' || $itemcmp == 'since' || $itemcmp == 'smaller' || $itemcmp == 'subject' || $itemcmp == 'text' || $itemcmp == 'to' || $itemcmp == 'uid' || $itemcmp == 'unkeyword'){
+				elseif($itemcmp == 'bcc'
+					|| $itemcmp == 'before'
+					|| $itemcmp == 'body'
+					|| $itemcmp == 'cc'
+					|| $itemcmp == 'from'
+					|| $itemcmp == 'keyword'
+					|| $itemcmp == 'larger'
+					|| $itemcmp == 'on'
+					|| $itemcmp == 'sentbefore'
+					|| $itemcmp == 'senton'
+					|| $itemcmp == 'sentsince'
+					|| $itemcmp == 'since'
+					|| $itemcmp == 'smaller'
+					|| $itemcmp == 'subject'
+					|| $itemcmp == 'text'
+					|| $itemcmp == 'to'
+					|| $itemcmp == 'uid'
+					|| $itemcmp == 'unkeyword'
+				){
 					$itemWithArgs = $item.' '.$list[$pos + 1];
-					$offset += 1;
+					$offset++;
 				}
 				elseif($itemcmp == 'header'){
 					$itemWithArgs = $item.' '.$list[$pos + 1].' '.$list[$pos + 2];
@@ -1268,15 +1309,9 @@ class Client{
 		return $rv;
 	}
 	
-	public function searchMessageCondition($message, $messageSeqNum, $messageUid, $isUid, $searchKey){
+	public function searchMessageCondition($message, $messageSeqNum, $messageUid, $searchKey){
 		$items = preg_split('/ /', $searchKey, 3);
-		#ve($items);
 		$itemcmp = strtolower($items[0]);
-		
-		#fwrite(STDOUT, '    condition: /'.$searchKey.'/'."\n");
-		#fwrite(STDOUT, '    bcc: '.$message->getHeader('BCC')."\n");
-		#ve(get_class_methods($message));
-		#ve($message->getHeaders());
 		
 		$rv = false;
 		switch($itemcmp){
@@ -1289,18 +1324,15 @@ class Client{
 			case 'bcc':
 				try{
 					$searchStr = strtolower($items[1]);
-					#$bcc = $message->getHeader('BCC');
-					#$bcc = $message->getHeader('BCC', 'string');
 					$bcc = $message->bcc;
-					#ve($bcc);
-					#ve( (string) $bcc);
 					$rv = strpos(strtolower($bcc), $searchStr) !== false;
-					#ve($rv);
 				}
-				catch(Exception $e){}
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'before':
-				# TODO
+				# NOT_IMPLEMENTED
 				break;
 			case 'body':
 				$searchStr = strtolower($items[1]);
@@ -1311,64 +1343,58 @@ class Client{
 					$searchStr = strtolower($items[1]);
 					$rv = strpos(strtolower($message->cc), $searchStr) !== false;
 				}
-				catch(Exception $e){}
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'deleted':
 				$rv = $message->hasFlag(Storage::FLAG_DELETED);
 				break;
 			case 'draft':
 				$rv = $message->hasFlag(Storage::FLAG_DRAFT);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'flagged':
 				$rv = $message->hasFlag(Storage::FLAG_FLAGGED);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'from':
 				try{
 					$searchStr = strtolower($items[1]);
 					$rv = strpos(strtolower($message->from), $searchStr) !== false;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'header':
 				try{
 					$searchStr = strtolower($items[2]);
 					$val = $message->getHeader($items[1], 'string');
-					#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.$val."\n");
 					$rv = strpos(strtolower($val), $searchStr) !== false;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'keyword':
-				# TODO
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				# NOT_IMPLEMENTED
 				break;
 			case 'larger':
 				$rv = $message->getSize() > (int)$items[1];
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv.' '.$message->getSize()."\n");
 				break;
 			case 'new':
 				$rv = $message->hasFlag(Storage::FLAG_RECENT) && !$message->hasFlag(Storage::FLAG_SEEN);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv.', '.(int)$message->hasFlag(Storage::FLAG_RECENT).', '.(int)$message->hasFlag(Storage::FLAG_SEEN).' '."\n");
 				break;
 			case 'old':
 				$rv = !$message->hasFlag(Storage::FLAG_RECENT);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'on':
-				# TODO
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				# NOT_IMPLEMENTED
 				break;
 			case 'recent':
 				$rv = $message->hasFlag(Storage::FLAG_RECENT);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'seen':
 				$rv = $message->hasFlag(Storage::FLAG_SEEN);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'sentbefore':
 				try{
@@ -1377,8 +1403,9 @@ class Client{
 					$messageDate = new DateTime($messageDate->format('Y-m-d'));
 					$rv = $messageDate < $checkDate;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'senton':
 				try{
@@ -1387,8 +1414,9 @@ class Client{
 					$messageDate = new DateTime($messageDate->format('Y-m-d'));
 					$rv = $messageDate == $checkDate;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'sentsince':
 				try{
@@ -1397,16 +1425,15 @@ class Client{
 					$messageDate = new DateTime($messageDate->format('Y-m-d'));
 					$rv = $messageDate >= $checkDate;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'since':
-				# TODO
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				# NOT_IMPLEMENTED
 				break;
 			case 'smaller':
 				$rv = $message->getSize() < (int)$items[1];
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'subject':
 				try{
@@ -1418,58 +1445,51 @@ class Client{
 					$searchStr = strtolower($items[1]);
 					$rv = strpos(strtolower($message->subject), $searchStr) !== false;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'text':
 				$searchStr = strtolower($items[1]);
 				$text = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
 				$rv = strpos(strtolower($message->getContent()), $searchStr) !== false;
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'to':
 				try{
 					$searchStr = strtolower($items[1]);
 					$rv = strpos(strtolower($message->to), $searchStr) !== false;
 				}
-				catch(Exception $e){}
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv.' '.$message->to."\n");
+				catch(Exception $e){
+					$this->log('error', 'search message condition: '.$e->getMessage());
+				}
 				break;
 			case 'uid':
 				$searchId = (int)$items[1];
 				$rv = $searchId == $messageUid;
-				#fwrite(STDOUT, '    condition: /'.$searchId.'/ '.(int)$rv.', '.$messageSeqNum.', '.$messageUid.', '.(int)$isUid.''."\n");
 				break;
 			case 'unanswered':
 				$rv = !$message->hasFlag(Storage::FLAG_ANSWERED);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'undeleted':
 				$rv = !$message->hasFlag(Storage::FLAG_DELETED);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'undraft':
 				$rv = !$message->hasFlag(Storage::FLAG_DRAFT);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'unflagged':
 				$rv = !$message->hasFlag(Storage::FLAG_FLAGGED);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			case 'unkeyword':
-				# TODO
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
+				# NOT_IMPLEMENTED
 				break;
 			case 'unseen':
 				$rv = !$message->hasFlag(Storage::FLAG_SEEN);
-				#fwrite(STDOUT, '    condition: /'.$searchKey.'/ '.(int)$rv."\n");
 				break;
 			
 			default:
 				if(is_numeric($itemcmp)){
 					$searchId = (int)$itemcmp;
 					$rv = $searchId == $messageSeqNum;
-					#fwrite(STDOUT, '    condition: /'.$searchId.'/ '.(int)$rv.', '.$messageSeqNum.', '.$messageUid.', '.(int)$isUid.''."\n");
 				}
 		}
 		return $rv;
@@ -1495,7 +1515,7 @@ class Client{
 		else{
 			#fwrite(STDOUT, $func.': other '.get_class($gate).''."\n");
 			#fwrite(STDOUT, $func.': other '.$gate->getValue().', '.get_class($gate).''."\n");
-			$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $isUid, $gate->getValue());
+			$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $gate->getValue());
 			$gate->setValue($val);
 			#return $gate->bool();
 		}
@@ -1515,7 +1535,7 @@ class Client{
 			}
 			elseif($subgate instanceof Obj){
 				#fwrite(STDOUT, 'subgate: Obj: '.$subgate->getValue()."\n");
-				$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $isUid, $subgate->getValue());
+				$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $subgate->getValue());
 				$subgate->setValue($val);
 				#$subgate->setValue($val.'xyz');
 				#fwrite(STDOUT, $func.' subgate: Obj: '.$val."\n");
@@ -1527,7 +1547,7 @@ class Client{
 		return $gate->bool();
 	}
 	
-	private function sendSearchRaw($tag, $criteriaStr, $isUid = false){
+	private function sendSearchRaw($criteriaStr, $isUid = false){
 		#fwrite(STDOUT, 'sendSearchRaw: "'.$criteriaStr.'"'."\n");
 		
 		$criteria = array();
@@ -1597,7 +1617,7 @@ class Client{
 		sort($ids);
 		
 		$rv = '';
-		while(count($ids)){
+		while($ids){
 			
 			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
@@ -1618,7 +1638,7 @@ class Client{
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$rv = '';
-		$rv .= $this->sendSearchRaw($tag, $criteriaStr, false);
+		$rv .= $this->sendSearchRaw($criteriaStr, false);
 		$rv .= $this->sendOk('SEARCH completed', $tag);
 		return $rv;
 	}
@@ -1723,9 +1743,6 @@ class Client{
 							catch(InvalidArgumentException $e){
 							}
 						}
-					}
-					else{
-						#$this->log('debug', 'client '.$this->id.' fetch all');
 					}
 					
 					$msgStr .= Headers::EOL;
@@ -1934,7 +1951,7 @@ class Client{
 			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
 			$criteriaStr = $args;
-			$rv .= $this->sendSearchRaw($tag, $criteriaStr, true);
+			$rv .= $this->sendSearchRaw($criteriaStr, true);
 			$rv .= $this->sendOk('UID SEARCH completed', $tag);
 		}
 		else{

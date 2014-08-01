@@ -37,25 +37,25 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array('TAG1  cmd2 arg1 arg2', $expect);
 		
 		$expect['args'] = array('arg1', 'arg21 still arg22', 'aaarrg3');
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still arg22" aaarrg3', $expect);
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still arg22"  aaarrg3', $expect);
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still arg22"  aaarrg3', $expect);
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still arg22"   aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still arg22" aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still arg22"  aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still arg22"  aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still arg22"   aaarrg3', $expect);
 		
 		$expect['args'] = array('arg1', 'arg21 still arg22 ', 'aaarrg3');
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still arg22 " aaarrg3', $expect);
-		$rv[] =  array('TAG1 cmd2 arg1  "arg21 still arg22 " aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still arg22 " aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1  "arg21 still arg22 " aaarrg3', $expect);
 		
 		$expect['args'] = array('arg1', 'arg21 still  arg22', 'aaarrg3');
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still  arg22" aaarrg3', $expect);
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still  arg22"  aaarrg3', $expect);
-		$rv[] =   array('TAG1 cmd2 arg1 "arg21 still  arg22"   aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still  arg22" aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still  arg22"  aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 "arg21 still  arg22"   aaarrg3', $expect);
 		
 		$expect['args'] = array('arg1', ' arg21 still arg22', 'aaarrg3');
-		$rv[] =   array('TAG1 cmd2 arg1 " arg21 still arg22" aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 " arg21 still arg22" aaarrg3', $expect);
 		
 		$expect['args'] = array('arg1', ' arg21 still arg22 ', 'aaarrg3');
-		$rv[] =   array('TAG1 cmd2 arg1 " arg21 still arg22 " aaarrg3', $expect);
+		$rv[] = array('TAG1 cmd2 arg1 " arg21 still arg22 " aaarrg3', $expect);
 		
 		return $rv;
 	}
@@ -300,7 +300,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setId(1);
 		
 		$msg = $client->msgHandle('1 capability');
-		$this->assertEquals('* CAPABILITY IMAP4rev1 AUTH=PLAIN'.Client::MSG_SEPARATOR.'1 OK CAPABILITY completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* CAPABILITY IMAP4rev1 AUTH=PLAIN'.Client::MSG_SEPARATOR;
+		$expect .= '1 OK CAPABILITY completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleNoop(){
@@ -328,7 +330,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setId(1);
 		
 		$msg = $client->msgHandle('3 LOGOUT');
-		$this->assertEquals('* BYE IMAP4rev1 Server logging out'.Client::MSG_SEPARATOR.'3 OK LOGOUT completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* BYE IMAP4rev1 Server logging out'.Client::MSG_SEPARATOR;
+		$expect .= '3 OK LOGOUT completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleAuthenticate(){
@@ -418,7 +422,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('7 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
 		$msg = $client->msgHandle('7 create test_dir/test_subdir1');
-		$this->assertEquals('7 NO CREATE failure: invalid name - no directory separator allowed in folder name'.Client::MSG_SEPARATOR, $msg);
+		$expect = '7 NO CREATE failure: invalid name';
+		$expect .= ' - no directory separator allowed in folder name'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('7 create test_dir.test_subdir2');
 		$this->assertEquals('7 OK CREATE completed'.Client::MSG_SEPARATOR, $msg);
@@ -510,12 +516,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
 		
 		$msg = $client->msgHandle('10 LIST "" INBOX');
-		$this->assertEquals('* LIST () "." "INBOX"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* LIST () "." "INBOX"'.Client::MSG_SEPARATOR;
+		$expect .= '10 OK LIST completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$server->storageFolderAdd('test_dir1');
 		
 		$msg = $client->msgHandle('10 LIST "" test_dir1');
-		$this->assertEquals('* LIST () "." "test_dir1"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* LIST () "." "test_dir1"'.Client::MSG_SEPARATOR;
+		$expect .= '10 OK LIST completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('10 LIST "" test_dir1.*');
 		$this->assertEquals('10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
@@ -523,10 +533,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->storageFolderAdd('test_dir1.test_subdir2');
 		
 		#$msg = $client->msgHandle('10 LIST "" test_dir1.*');
-		#$this->assertEquals('* LIST () "." "test_dir1.test_subdir2"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		#$expect = '* LIST () "." "test_dir1.test_subdir2"'.Client::MSG_SEPARATOR;
+		#$expect .= '10 OK LIST completed'.Client::MSG_SEPARATOR;
+		#$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('10 LIST "test_dir1" test_sub*');
-		$this->assertEquals('* LIST () "." "test_dir1.test_subdir2"'.Client::MSG_SEPARATOR.'10 OK LIST completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* LIST () "." "test_dir1.test_subdir2"'.Client::MSG_SEPARATOR;
+		$expect .= '10 OK LIST completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleLsub(){
@@ -554,12 +568,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$client->msgHandle('8 subscribe test_dir1');
 		$msg = $client->msgHandle('11 lsub test_dir1');
-		$this->assertEquals('* LSUB () "." "test_dir1"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* LSUB () "." "test_dir1"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$server->storageFolderAdd('test_dir2');
 		$client->msgHandle('8 subscribe test_dir2');
 		$msg = $client->msgHandle('11 lsub test_dir2');
-		$this->assertEquals('* LSUB () "." "test_dir1"'.Client::MSG_SEPARATOR.'* LSUB () "." "test_dir2"'.Client::MSG_SEPARATOR.'11 OK LSUB completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* LSUB () "." "test_dir1"'.Client::MSG_SEPARATOR;
+		$expect .= '* LSUB () "." "test_dir2"'.Client::MSG_SEPARATOR;
+		$expect .= '11 OK LSUB completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	/*public function testMsgHandleAppend(){
@@ -699,7 +717,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('14 expunge');
-		$this->assertEquals('* 1 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'* 4 EXPUNGE'.Client::MSG_SEPARATOR.'* 4 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* 1 EXPUNGE'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 EXPUNGE'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 EXPUNGE'.Client::MSG_SEPARATOR;
+		$expect .= '14 OK EXPUNGE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleExpunge2(){
@@ -749,7 +772,10 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->mailAdd($message->toString(), null, array(Storage::FLAG_DELETED));
 		
 		$msg = $client->msgHandle('14 expunge');
-		$this->assertEquals('* 2 EXPUNGE'.Client::MSG_SEPARATOR.'* 2 EXPUNGE'.Client::MSG_SEPARATOR.'14 OK EXPUNGE completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
+		$expect .= '14 OK EXPUNGE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function providerParseSearchKeys(){
@@ -801,9 +827,15 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('BCC', 'thefox', 'BCC', '21'), array('BCC thefox', 'AND', 'BCC 21'));
 		$rv[] = array(array('BCC', 'thefox', 'AND', 'BCC', '21'), array('BCC thefox', 'AND', 'BCC 21'));
 		
-		$rv[] = array(array('BCC', 'at', 'OR', 'BCC', 'thefox', 'BCC', '21'), array('BCC at', 'AND', array('BCC thefox', 'OR', 'BCC 21')));
-		$rv[] = array(array('OR', 'BCC', 'thefox', 'BCC', '21', 'AND', 'BCC', 'at'), array(array('BCC thefox', 'OR', 'BCC 21'), 'AND', 'BCC at'));
-		$rv[] = array(array('OR', 'SEEN', 'UNFLAGGED', 'AND', 'BCC', 'at'), array(array('SEEN', 'OR', 'UNFLAGGED'), 'AND', 'BCC at'));
+		$expect = array('BCC', 'at', 'OR', 'BCC', 'thefox', 'BCC', '21');
+		$rv[] = array($expect, array('BCC at', 'AND', array('BCC thefox', 'OR', 'BCC 21')));
+		
+		$expect = array('OR', 'BCC', 'thefox', 'BCC', '21', 'AND', 'BCC', 'at');
+		$rv[] = array($expect, array(array('BCC thefox', 'OR', 'BCC 21'), 'AND', 'BCC at'));
+		
+		$expect = array('OR', 'SEEN', 'UNFLAGGED', 'AND', 'BCC', 'at');
+		$rv[] = array($expect, array(array('SEEN', 'OR', 'UNFLAGGED'), 'AND', 'BCC at'));
+		
 		$rv[] = array(array('BCC', 'thefox', 'NOT', 'BCC', '21'), array('BCC thefox', 'AND', 'NOT', 'BCC 21'));
 		
 		#return $rv;
@@ -895,11 +927,13 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array(array('OR', '1', '2'), array(array('1', 'OR', '2')));
 		$rv[] = array(array('OR', 'OR', '1', '2', '3'), array(array(array('1', 'OR', '2'), 'OR', '3')));
 		
-		$rv[] = array(array('OR', 'OR', 'BCC', 'thefox', 'TO', 'thefox', 'CC', 'thefox'), array(array(array('BCC thefox', 'OR', 'TO thefox'), 'OR', 'CC thefox')));
+		$expect = array('OR', 'OR', 'BCC', 'thefox', 'TO', 'thefox', 'CC', 'thefox');
+		$rv[] = array($expect, array(array(array('BCC thefox', 'OR', 'TO thefox'), 'OR', 'CC thefox')));
 		
 		$rv[] = array(array('OR', array('1', '2'), '3'), array(array(array('1', 'AND', '2'), 'OR', '3')));
 		
-		$rv[] = array(array('123', 'OR', array('1', '2'), '3'), array('123', 'AND', array(array('1', 'AND', '2'), 'OR', '3')));
+		$expect = array('123', 'OR', array('1', '2'), '3');
+		$rv[] = array($expect, array('123', 'AND', array(array('1', 'AND', '2'), 'OR', '3')));
 		
 		return $rv;
 	}
@@ -963,7 +997,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->mailAdd($message->toString(), null, null, false);
 		
 		$headers = new Headers();
-		$headers->addHeader(Date::fromString('Date: ' . date('r', mktime(0, 0, 0, 2, 21, 1987))));
+		$headers->addHeader(Date::fromString('Date: '.date('r', mktime(0, 0, 0, 2, 21, 1987))));
 		
 		$message = new Message();
 		$message->setHeaders($headers);
@@ -982,7 +1016,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->mailAdd($message->toString(), null, null, false);
 		
 		$headers = new Headers();
-		$headers->addHeader(Date::fromString('Date: ' . date('r', mktime(0, 0, 0, 11, 20, 1986))));
+		$headers->addHeader(Date::fromString('Date: '.date('r', mktime(0, 0, 0, 11, 20, 1986))));
 		
 		$message = new Message();
 		$message->setHeaders($headers);
@@ -1115,100 +1149,154 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('17 uid SEARCH ALL');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 ';
+		$expect .= '100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 ';
+		$expect .= '100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH ANSWERED');
-		$this->assertEquals('* SEARCH 100002 100019'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100002 100019'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH BCC apple');
-		$this->assertEquals('* SEARCH 100003'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100003'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
-		$msg = $client->msgHandle('17 uid SEARCH BEFORE 1990');
-		#$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		#$msg = $client->msgHandle('17 uid SEARCH BEFORE 1990');
+		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		#$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH BODY world');
-		$this->assertEquals('* SEARCH 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH DELETED');
-		$this->assertEquals('* SEARCH 100007 100020'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100007 100020'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH DRAFT');
-		$this->assertEquals('* SEARCH 100008 100021'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100008 100021'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH FLAGGED');
-		$this->assertEquals('* SEARCH 100009 100022'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100009 100022'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH FROM test@');
-		$this->assertEquals('* SEARCH 100010'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100010'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH HEADER Date 1987');
-		$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH LARGER 40');
-		$this->assertEquals('* SEARCH 100011'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100011'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH NEW');
-		$this->assertEquals('* SEARCH 100012'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100012'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH OLD');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		#$msg = $client->msgHandle('17 uid SEARCH ON 1987-02-21');
-		#$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		#$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH OR 5 6');
-		$this->assertEquals('* SEARCH 100005 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100005 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH OR OR 5 6 7');
-		$this->assertEquals('* SEARCH 100005 100006 100007'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100005 100006 100007'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH RECENT');
-		$this->assertEquals('* SEARCH 100012'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100012'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH SEEN');
-		$this->assertEquals('* SEARCH 100001 100003 100004 100005 100006 100010 100011 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100003 100004 100005 100006 100010 100011 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH SENTBEFORE 1990-01-01');
-		$this->assertEquals('* SEARCH 100004 100005 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100004 100005 100006'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH SENTON 1987-02-21');
-		$this->assertEquals('* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH SENTSINCE 1987-02-21');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100007 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100007 100008 100009 100010 100011 100012 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH SMALLER 30');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100012 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH SUBJECT "t 13"');
-		$this->assertEquals('* SEARCH 100013'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100013'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH TEXT test');
-		$this->assertEquals('* SEARCH 100011 100015'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100011 100015'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH TO steve');
-		$this->assertEquals('* SEARCH 100017'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100017'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH UID 100018');
-		$this->assertEquals('* SEARCH 100018'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100018'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH UNANSWERED');
-		$this->assertEquals('* SEARCH 100001 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100020 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100020 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH UNDELETED');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100008 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100021 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100008 100009 100010 100011 100012 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100019 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH UNDRAFT');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100009 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100009 100010 100011 100012 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100019 100020 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH UNFLAGGED');
-		$this->assertEquals('* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100010 100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100010 100011 100012 100013';
+		$expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		#$msg = $client->msgHandle('17 uid SEARCH UNKEYWORD');
-		#$this->assertEquals('* SEARCH 123'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 123'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		#$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH UNSEEN');
-		$this->assertEquals('* SEARCH 100002 100007 100008 100009 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 100022'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* SEARCH 100002 100007 100008 100009 100012 100013 100014 100015 100016 100017 100018';
+		$expect .= ' 100019 100020 100021 100022'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		
 		
@@ -1230,7 +1318,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#$this->assertEquals('x17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
 		
 		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100021');
-		
 	}
 	
 	public function testMsgHandleUidFetch1(){
@@ -1286,31 +1373,28 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (ALL)');
-		$this->assertEquals(
-			'* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR
-			.'* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR
-			.'* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR
-			.'* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR
-			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
-			, $msg);
+		$expect = '* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR;
+		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (FAST)');
-		$this->assertEquals(
-			'* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR
-			.'* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR
-			.'* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR
-			.'* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR
-			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
-			, $msg);
+		$expect = '* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR;
+		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (FULL)');
-		$this->assertEquals(
-			'* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR
-			.'* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR
-			.'* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR
-			.'* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR
-			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
-			, $msg);
+		$expect = '* 1 FETCH (UID 100001)'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 FETCH (UID 100002)'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100003)'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004)'.Client::MSG_SEPARATOR;
+		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleUidFetch2(){
@@ -1356,13 +1440,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (FLAGS)');
-		$this->assertEquals(
-			'* 1 FETCH (UID 100003 FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR
-			.'* 2 FETCH (UID 100001 FLAGS (\Recent))'.Client::MSG_SEPARATOR
-			.'* 3 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR
-			.'* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR
-			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
-			, $msg);
+		$expect = '* 1 FETCH (UID 100003 FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 FETCH (UID 100001 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleUidFetch3(){
@@ -1408,12 +1491,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('15 UID fetch 100002:100004 (FLAGS)');
-		$this->assertEquals(
-			'* 2 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR
-			.'* 3 FETCH (UID 100003 FLAGS (\Recent))'.Client::MSG_SEPARATOR
-			.'* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR
-			.'15 OK UID FETCH completed'.Client::MSG_SEPARATOR
-			, $msg);
+		$expect = '* 2 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100003 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 	}
 	
 	public function testMsgHandleUidStore(){
@@ -1482,7 +1564,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('18 uid store 100001 -FLAGS ('.Storage::FLAG_RECENT.')');
-		$this->assertEquals('* 1 FETCH (FLAGS ())'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* 1 FETCH (FLAGS ())'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/new')->files();
@@ -1494,7 +1577,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('18 uid store 100001 +FLAGS ('.Storage::FLAG_SEEN.')');
-		$this->assertEquals('* 1 FETCH (FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* 1 FETCH (FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,S');
@@ -1502,7 +1587,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('18 uid store 100002 +FLAGS ('.Storage::FLAG_SEEN.')');
-		$this->assertEquals('* 2 FETCH (FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* 2 FETCH (FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,S');
@@ -1510,39 +1597,64 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.')');
-		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$expect = '* 3 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,RS');
 		$this->assertEquals(1, count($files));
 		
 		
-		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.')');
-		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_FLAGGED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$raw = '18 uid store 100003 +FLAGS ';
+		$raw .= '('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.')';
+		$msg = $client->msgHandle($raw);
+		$expect = '* 3 FETCH (FLAGS (';
+		$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_FLAGGED.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,FRS');
 		$this->assertEquals(1, count($files));
 		
 		
-		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.')');
-		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$raw = '18 uid store 100003 +FLAGS (';
+		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.')';
+		$msg = $client->msgHandle($raw);
+		$expect = '* 3 FETCH (FLAGS (';
+		$expect .= Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED;
+		$expect .= '))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,FRST');
 		$this->assertEquals(1, count($files));
 		
 		
-		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')');
-		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$raw = '18 uid store 100003 +FLAGS (';
+		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED;
+		$raw .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')';
+		$msg = $client->msgHandle($raw);
+		$expect = '* 3 FETCH (FLAGS (';
+		$expect .= Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' ';
+		$expect .= Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,DFRST');
 		$this->assertEquals(1, count($files));
 		
 		
-		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')');
-		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$raw = '18 uid store 100003 +FLAGS (';
+		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED;
+		$raw .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')';
+		$msg = $client->msgHandle($raw);
+		$expect = '* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' ';
+		$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,DFRST');
@@ -1554,8 +1666,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(2, count($files));
 		
 		
-		$msg = $client->msgHandle('18 uid store 100003:100004 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')');
-		$this->assertEquals('* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR.'* 4 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
+		$raw = '18 uid store 100003:100004 +FLAGS (';
+		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' ';
+		$raw .= Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')';
+		$msg = $client->msgHandle($raw);
+		$expect = '* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED;
+		$expect .= ' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED;
+		$expect .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/cur')->name('*,DFRST');
@@ -1578,8 +1698,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(0, count($files));
 		
 		
-		
-		
 		/*
 		$finder = new Finder();
 		$files = $finder->in($maildirPath.'/*')->name('*');
@@ -1589,7 +1707,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			fwrite(STDOUT, "file: $file\n");
 		}
 		*/
-		
 	}
 	
 	public function testMsgHandleCopy(){
@@ -1763,7 +1880,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		
 		$msg = $client->msgHandle('15 UID copy 100001 test_dir3');
-		$this->assertEquals('15 NO [TRYCREATE] Can not get folder: no subfolder named test_dir3'.Client::MSG_SEPARATOR, $msg);
+		$expect = '15 NO [TRYCREATE] Can not get folder: no subfolder named test_dir3'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
 	}
