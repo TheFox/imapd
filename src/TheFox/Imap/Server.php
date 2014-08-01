@@ -165,14 +165,14 @@ class Server extends Thread{
 	}
 	
 	public function loop(){
-		$s = time();
-		$r1 = 0;
-		$r2 = 0;
+		#$s = time();
+		#$r1 = 0;
+		#$r2 = 0;
 		
 		while(!$this->getExit()){
 			$this->run();
-			
-			if(time() - $s >= 10 && !$r1){ # TODO
+			/*
+			if(time() - $s >= 10 && !$r1){ # TO_DO
 				$r1 = 1;
 				
 				print __CLASS__.'->'.__FUNCTION__.' add msg A'."\n";
@@ -187,7 +187,7 @@ class Server extends Thread{
 				$this->mailAdd($message);
 			}
 			
-			if(time() - $s >= 300 && !$r2){ # TODO
+			if(time() - $s >= 300 && !$r2){ # TO_DO
 				$r2 = 1;
 				
 				print __CLASS__.'->'.__FUNCTION__.' add msg B'."\n";
@@ -200,7 +200,7 @@ class Server extends Thread{
 				
 				$this->mailAdd($message);
 			}
-			
+			*/
 			usleep(static::LOOP_USLEEP);
 		}
 		
