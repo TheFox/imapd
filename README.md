@@ -1,6 +1,15 @@
 # IMAPd
 IMAP server (library) written in PHP.
 
+## Why this project?
+Believe it or not, **email is still the killer feature of the Internet**. There are tons of projects for accessing and fetching emails from an IMAP/POP3 server. But there are not so many providing a programmatically interface to serve emails to an email client.
+
+With this interface you can do something like this for your app users:
+
+	User <-> MUA (like Thunderbird) <-> IMAP <-> Your PHP App
+
+This is useful when you have a messaging application written in PHP but no graphical user interface for it. So your graphical user interface can be any [email client](http://en.wikipedia.org/wiki/Email_client). [Thunderbird](https://www.mozilla.org/en-US/thunderbird/) for instance.
+
 ## Installation
 The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapd) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
 
