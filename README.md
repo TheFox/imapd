@@ -29,7 +29,7 @@ You can change the IP and port (default port is 20143):
 `./application.php server -a 0.0.0.0 -p 143`
 
 ## RFC 3501 Implementation
-### Complete
+### Complete implementation
 - 6.1.2 NOOP Command
 - 6.1.3 LOGOUT Command
 - 6.4.1 CHECK Command
@@ -40,7 +40,9 @@ You can change the IP and port (default port is 20143):
 - 7.1.5 BYE Response
 - 7.4.1 EXPUNGE Response
 
-### Incomplete
+### Incomplete implemention
+- 2.3.1.1 Unique Identifier (UID) Message Attribute
+- 2.3.1.2 Message Sequence Number Message Attribute
 - 2.3.2 Flags Message Attribute
 - 6.1.1 CAPABILITY Command
 - 6.2.2 AUTHENTICATE Command
