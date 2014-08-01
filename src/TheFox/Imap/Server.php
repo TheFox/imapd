@@ -172,7 +172,7 @@ class Server extends Thread{
 		while(!$this->getExit()){
 			$this->run();
 			
-			if(time() - $s >= 10 && !$r1){
+			if(time() - $s >= 10 && !$r1){ # TODO
 				$r1 = 1;
 				
 				print __CLASS__.'->'.__FUNCTION__.' add msg A'."\n";
@@ -182,21 +182,12 @@ class Server extends Thread{
 				$message->addTo('thefox@fox21.at');
 				$message->setBody('body');
 				
-				$message->setSubject('t1 '.date('H:i:s'));
-				$this->mailAdd($message->toString());
+				$message->setSubject('t1 10s '.date('H:i:s'));
 				
-				$message->setSubject('t2 '.date('H:i:s'));
-				#$this->mailAdd($message->toString());
-				
-				$message->setSubject('t3 '.date('H:i:s'));
-				#$this->mailAdd($message->toString());
-				
-				$message->setSubject('t4 '.date('H:i:s'));
-				#$this->mailAdd($message->toString());
-				
+				$this->mailAdd($message);
 			}
 			
-			if(time() - $s >= 300 && !$r2){
+			if(time() - $s >= 300 && !$r2){ # TODO
 				$r2 = 1;
 				
 				print __CLASS__.'->'.__FUNCTION__.' add msg B'."\n";
@@ -204,13 +195,10 @@ class Server extends Thread{
 				$message = new Message();
 				$message->addFrom('thefox21at@gmail.com');
 				$message->addTo('thefox@fox21.at');
-				$message->setSubject('test '.date('H:i:s'));
+				$message->setSubject('test 300s '.date('H:i:s'));
 				$message->setBody('body');
 				
-				#$this->mailAdd($message->toString(), null, null, true);
-				
-				$this->mailAdd($message->toString());
-				
+				$this->mailAdd($message);
 			}
 			
 			usleep(static::LOOP_USLEEP);
