@@ -60,6 +60,7 @@ You can change the IP and port (default port is 20143):
 Some tasks are commented with `NOT_IMPLEMENTED`. `TODO` are to be complete the PHP Code Sniffer tests before releasing a new version.
 
 ## Related Links
+- [Believe it or not, email is still the killer app](http://www.digitaltrends.com/mobile/believe-it-or-not-email-is-still-the-killer-app/#!bs4oTU)
 - [Developers: stop re-AOLizing the web!](http://technicalfault.net/2014/07/03/developers-stop-re-aolizing-the-web/)
 - [Set up your own email server in 5 steps](https://forum.bytemark.co.uk/t/set-up-your-own-email-server-in-5-steps/1864)
 
