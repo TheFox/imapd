@@ -1077,7 +1077,7 @@ class Client{
 				$message = Message::fromString($this->getStatus('appendMsg'));
 				
 				try{
-					$this->getServer()->mailAdd($message->toString(), $this->getStatus('appendFolder'),
+					$this->getServer()->mailAdd($message, $this->getStatus('appendFolder'),
 						$this->getStatus('appendFlags'));
 					$this->sendOk('APPEND completed', $this->getStatus('appendTag'));
 				}

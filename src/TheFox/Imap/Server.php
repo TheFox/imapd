@@ -449,13 +449,13 @@ class Server extends Thread{
 		if($folder){
 			$this->storageMaildir['object']->selectFolder($folder);
 		}
-		$this->storageMaildir['object']->appendMessage($mail, null, $flags, $recent);
+		$this->storageMaildir['object']->appendMessage($mail->toString(), null, $flags, $recent);
 		$lastId = $this->storageMaildir['object']->countMessages();
-		$message = $this->storageMaildir['object']->getMessage($lastId);
+		#$message = $this->storageMaildir['object']->getMessage($lastId);
 		$uid = $this->storageMaildir['object']->getUniqueId($lastId);
 		$this->storageMaildir['object']->selectFolder($oldFolder);
 		
-		$this->eventExecute(Event::TRIGGER_MAIL_ADD, array($message));
+		$this->eventExecute(Event::TRIGGER_MAIL_ADD, array($mail));
 		
 		if($this->storageMaildir['db']){
 			try{
