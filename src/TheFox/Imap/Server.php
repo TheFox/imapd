@@ -21,6 +21,7 @@ class Server extends Thread{
 	const LOOP_USLEEP = 10000;
 	
 	private $log;
+	private $socket;
 	private $isListening = false;
 	private $ip;
 	private $port;
@@ -100,6 +101,10 @@ class Server extends Thread{
 	public function run(){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		#print __CLASS__.'->'.__FUNCTION__.': client '.count($this->clients)."\n";
+		
+		if(!$this->socket){
+			throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
+		}
 		
 		$readHandles = array();
 		$writeHandles = null;
