@@ -1268,8 +1268,7 @@ class Client{
 		return $rv;
 	}
 	
-	public function searchMessageConditionn($message, $messageSeqNum, $messageUid, $isUid, $searchKey){
-		#fwrite(STDOUT, '    condition: '.$searchKey.''."\n");
+	public function searchMessageCondition($message, $messageSeqNum, $messageUid, $isUid, $searchKey){
 		$items = preg_split('/ /', $searchKey, 3);
 		#ve($items);
 		$itemcmp = strtolower($items[0]);
@@ -1496,7 +1495,7 @@ class Client{
 		else{
 			#fwrite(STDOUT, $func.': other '.get_class($gate).''."\n");
 			#fwrite(STDOUT, $func.': other '.$gate->getValue().', '.get_class($gate).''."\n");
-			$val = $this->searchMessageConditionn($message, $messageSeqNum, $messageUid, $isUid, $gate->getValue());
+			$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $isUid, $gate->getValue());
 			$gate->setValue($val);
 			#return $gate->bool();
 		}
@@ -1516,7 +1515,7 @@ class Client{
 			}
 			elseif($subgate instanceof Obj){
 				#fwrite(STDOUT, 'subgate: Obj: '.$subgate->getValue()."\n");
-				$val = $this->searchMessageConditionn($message, $messageSeqNum, $messageUid, $isUid, $subgate->getValue());
+				$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $isUid, $subgate->getValue());
 				$subgate->setValue($val);
 				#$subgate->setValue($val.'xyz');
 				#fwrite(STDOUT, $func.' subgate: Obj: '.$val."\n");
