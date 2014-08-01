@@ -730,6 +730,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$testData = 21;
 		$event1 = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event) use(&$testData) {
 			#fwrite(STDOUT, 'my function: '.$event->getTrigger().', '.$testData."\n");
+			$this->assertEquals(21, $testData);
+			
 			$testData = 24;
 			
 			return 42;
@@ -738,6 +740,18 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$event2 = new Event(Event::TRIGGER_MAIL_ADD_PRE, $this, 'functionForTestEvent');
 		$server->eventAdd($event2);
+		
+		$event3 = new Event(Event::TRIGGER_MAIL_ADD, null, function($event, $mail){
+			$this->assertTrue(is_object($mail));
+			$this->assertEquals('my_subject 1', $mail->getSubject());
+		});
+		$server->eventAdd($event3);
+		
+		$event4 = new Event(Event::TRIGGER_MAIL_ADD_POST, null, function($event, $msgId){
+			$this->assertEquals(100001, $msgId);
+		});
+		$server->eventAdd($event4);
+		
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -749,6 +763,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(24, $testData);
 		$this->assertEquals(42, $event1->getReturnValue());
 		$this->assertEquals(18, $event2->getReturnValue());
+		$this->assertEquals(null, $event3->getReturnValue());
+		$this->assertEquals(null, $event4->getReturnValue());
 	}
 	
 }
