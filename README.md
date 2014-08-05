@@ -20,8 +20,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 
 	`git clone https://github.com/TheFox/imapd.git`
 
-2. Change to cloned directory.
-3. Install dependencies.
+2. Install dependencies.
 
 	`make`
 
