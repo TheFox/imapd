@@ -1,5 +1,5 @@
 
-RELEASE_VERSION = 0.1.0
+RELEASE_VERSION = 0.2.x-dev
 RELEASE_NAME = imapd
 
 RM = rm -rfd
@@ -19,7 +19,7 @@ install: composer.phar
 
 update: composer.phar
 	./composer.phar selfupdate
-	./composer.phar update -vv
+	./composer.phar update
 
 composer.phar:
 	curl -sS https://getcomposer.org/installer | php

@@ -16,17 +16,26 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 `composer.phar require "thefox/imapd=~0.1"`
 
 ## Stand-alone server
-To start a stand-alone server you can type the following command in your shell:
+1. Clone project from GitHub.
 
-`./application.php server -d`
+	`git clone https://github.com/TheFox/imapd.git`
 
-To show the usage options use `-h`:
+2. Change to cloned directory.
+3. Install dependencies.
 
-`./application.php server -h`
+	`make`
 
-You can change the IP and port (default port is 20143):
+3. To start a stand-alone server you can type the following command in your shell:
 
-`./application.php server -a 0.0.0.0 -p 143`
+	`./application.php server -d`
+	
+	To show the usage options use `-h`:
+	
+	`./application.php server -h`
+	
+	You can change the IP and port. Default port is 20143.
+	
+	`./application.php server -a 0.0.0.0 -p 143`
 
 ## RFC 3501 Implementation
 ### Complete implementation
