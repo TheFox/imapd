@@ -79,6 +79,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 Some tasks are commented with `NOT_IMPLEMENTED`. `TODO` are to be complete the PHP Code Sniffer tests before releasing a new version.
 
 ## Related Links
+- [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
 - [Believe it or not, email is still the killer app](http://www.digitaltrends.com/mobile/believe-it-or-not-email-is-still-the-killer-app/#!bs4oTU)
 - [Developers: stop re-AOLizing the web!](http://technicalfault.net/2014/07/03/developers-stop-re-aolizing-the-web/)
 - [Set up your own email server in 5 steps](https://forum.bytemark.co.uk/t/set-up-your-own-email-server-in-5-steps/1864)
