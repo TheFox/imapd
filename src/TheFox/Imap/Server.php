@@ -335,7 +335,7 @@ class Server extends Thread{
 	
 	public function storageMailboxGetFolders($baseFolder, $searchFolder, $recursive = false, $level = 0){
 		$func = __FUNCTION__;
-		$this->log->debug($func.$level.': '.$baseFolder.' /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
+		$this->log->debug($func.$level.': /'.$baseFolder.'/ /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
 		
 		if($level >= 100){
 			return array();
