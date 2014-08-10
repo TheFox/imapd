@@ -1068,9 +1068,9 @@ class Client{
 	}
 	
 	private function sendAppend($data = ''){
-		$this->log('debug', 'client '.$this->id.' append step: '.$this->getStatus('appendStep'));
-		$this->log('debug', 'client '.$this->id.' append len: '.strlen($this->getStatus('appendMsg')));
-		$this->log('debug', 'client '.$this->id.' append lit: '.$this->getStatus('appendLiteral'));
+		#$this->log('debug', 'client '.$this->id.' append step: '.$this->getStatus('appendStep'));
+		#$this->log('debug', 'client '.$this->id.' append len: '.strlen($this->getStatus('appendMsg')));
+		#$this->log('debug', 'client '.$this->id.' append lit: '.$this->getStatus('appendLiteral'));
 		
 		if($this->getStatus('appendStep') == 1){
 			$this->status['appendStep']++;
@@ -1090,7 +1090,7 @@ class Client{
 				try{
 					$this->getServer()->mailAdd($message, $this->getStatus('appendFolder'),
 						$this->getStatus('appendFlags'), false);
-					$this->log('debug', 'client '.$this->id.' append completed: '.$this->getStatus('appendStep'));
+					#$this->log('debug', 'client '.$this->id.' append completed: '.$this->getStatus('appendStep'));
 					return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
 				}
 				catch(Exception $e){
