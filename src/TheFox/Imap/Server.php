@@ -415,7 +415,7 @@ class Server extends Thread{
 		return null;
 	}
 	
-	public function mailAdd($mail, $folder = null, $flags = array(), $recent = true){
+	public function mailAdd(Message $mail, $folder = null, $flags = array(), $recent = true){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
 		$this->storageInit();
