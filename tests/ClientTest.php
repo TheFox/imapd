@@ -580,9 +580,166 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 	}
 	
-	/*public function testMsgHandleAppend(){
-		$this->markTestIncomplete('This test has not been implemented yet.');
-	}*/
+	public function testMsgHandleAppend1(){
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append');
+		$this->assertEquals('19 NO append failure'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$client->setStatus('hasAuth', true);
+		
+		$msg = $client->msgHandle('19 append');
+		$this->assertEquals('19 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent"');
+		$this->assertEquals('19 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent" (\Seen)');
+		$this->assertEquals('19 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+	}
+	
+	public function testMsgHandleAppend2(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$server->storageFolderAdd('Sent');
+		
+		$client->setStatus('hasAuth', true);
+		
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_SEEN.') {427}');
+		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(2, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+		$this->assertEquals(null, $msg);
+		
+		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+		$msg = $client->msgHandle('From: Christian Mayer <christian@fox21.at>');
+		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
+		$msg = $client->msgHandle($raw);
+		$msg = $client->msgHandle('MIME-Version: 1.0');
+		$msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+		$msg = $client->msgHandle('Subject: test2a');
+		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
+		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		$msg = $client->msgHandle('');
+		$msg = $client->msgHandle('test2');
+		#$msg = $client->msgHandle('');
+		
+		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(3, $client->getStatus('appendStep'));
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/.Sent/cur')->files();
+		$this->assertEquals(1, count($files));
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/.Sent/cur')->name('*,S');
+		$this->assertEquals(1, count($files));
+		
+		
+		
+		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_ANSWERED.') {425}');
+		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(2, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+		$this->assertEquals(null, $msg);
+		
+		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+		$msg = $client->msgHandle('From: Christian Mayer <christian@fox21.at>');
+		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
+		$msg = $client->msgHandle($raw);
+		$msg = $client->msgHandle('MIME-Version: 1.0');
+		$msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+		$msg = $client->msgHandle('Subject: test2b');
+		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
+		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		$msg = $client->msgHandle('');
+		$msg = $client->msgHandle('tes');
+		#$msg = $client->msgHandle('');
+		
+		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(3, $client->getStatus('appendStep'));
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/.Sent/cur')->files();
+		$this->assertEquals(2, count($files));
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/.Sent/cur')->name('*,R');
+		$this->assertEquals(1, count($files));
+	}
+	
+	public function testMsgHandleAppend3(){
+		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		$server->storageAddMaildir($maildirPath);
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$server->storageFolderAdd('Sent');
+		
+		$client->setStatus('hasAuth', true);
+		
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent" {429}');
+		
+		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(2, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+		$this->assertEquals(null, $msg);
+		
+		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+		$msg = $client->msgHandle('From: Christian Mayer <christian@fox21.at>');
+		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
+		$msg = $client->msgHandle($raw);
+		$msg = $client->msgHandle('MIME-Version: 1.0');
+		$msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+		$msg = $client->msgHandle('Subject: test3');
+		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
+		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		$msg = $client->msgHandle('');
+		$msg = $client->msgHandle('test333');
+		#$msg = $client->msgHandle('');
+		
+		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(3, $client->getStatus('appendStep'));
+		
+		$finder = new Finder();
+		$files = $finder->in($maildirPath.'/.Sent/cur')->files();
+		$this->assertEquals(1, count($files));
+	}
 	
 	public function testMsgHandleCheck(){
 		$server = new Server('', 0);
