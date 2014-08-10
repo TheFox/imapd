@@ -1,5 +1,5 @@
 
-RELEASE_VERSION = 0.2.x-dev
+RELEASE_VERSION = 0.1.2
 RELEASE_NAME = imapd
 
 RM = rm -rfd
