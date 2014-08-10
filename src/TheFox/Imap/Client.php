@@ -595,7 +595,7 @@ class Client{
 			
 			#ve($args);
 			
-			$this->log('debug', 'client '.$this->id.' append: "'.$args[0].'" "'.$args[1].'"');
+			$this->log('debug', 'client '.$this->id.' append');
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
