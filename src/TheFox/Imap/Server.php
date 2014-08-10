@@ -349,22 +349,14 @@ class Server extends Thread{
 		
 		$rv = array();
 		$folders = $storage['object']->getFolders($baseFolder);
-		#$folders = $storage['object']->getFolders();
 		foreach($folders as $subfolder){
 			$name = 'N/A';
 			if(is_object($subfolder)){
-				#ve($subfolder);
-				#$name = $subfolder->getGlobalName();
 				$name = $subfolder->getLocalName();
 			}
-			
-			#$this->log->debug($func.'     subfolder: /'.$name.'/');
-			
 			if(fnmatch($searchFolder, $name)){
-				#$this->log->debug($func.'     add');
 				$rv[] = $subfolder;
 			}
-			
 			if($recursive && strtolower($name) != 'inbox'){
 				$subrv = $this->$func(($baseFolder ? $baseFolder.'.' : '').$name,
 					$searchFolder, $recursive, $level + 1);
