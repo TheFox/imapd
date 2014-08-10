@@ -599,7 +599,7 @@ class Client{
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0] && isset($args[1]) && $args[1]){
-					if($this->selectedFolder !== null){
+					#if($this->selectedFolder !== null){
 						$this->setStatus('appendStep', 1);
 						$this->setStatus('appendTag', $tag);
 						$this->setStatus('appendFolder', $args[0]);
@@ -649,10 +649,10 @@ class Client{
 						$this->setStatus('appendLiteral', $literal);
 						
 						$this->sendAppend();
-					}
-					else{
-						$this->sendNo('No mailbox selected.', $tag);
-					}
+					#}
+					#else{
+					#	$this->sendNo('No mailbox selected.', $tag);
+					#}
 				}
 				else{
 					$this->sendBad('Arguments invalid.', $tag);
