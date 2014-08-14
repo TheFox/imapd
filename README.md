@@ -13,28 +13,28 @@ This is useful when you have a messaging application written in PHP but no graph
 ## Installation
 The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapd) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
 
-`composer.phar require "thefox/imapd=~0.1"`
+	composer.phar require "thefox/imapd=~0.1"
 
 ## Stand-alone server
 1. Clone project from GitHub.
 
-	`git clone https://github.com/TheFox/imapd.git`
+		git clone https://github.com/TheFox/imapd.git
 
 2. Install dependencies.
 
-	`make`
+		make
 
 3. To start a stand-alone server you can type the following command in your shell:
 
-	`./application.php server -d`
+		./application.php server -d
 	
 	To show the usage options use `-h`:
 	
-	`./application.php server -h`
+		./application.php server -h
 	
 	You can change the IP and port. Default port is 20143.
 	
-	`./application.php server -a 0.0.0.0 -p 143`
+		./application.php server -a 0.0.0.0 -p 143
 
 ## RFC 3501 Implementation
 ### Complete implementation
