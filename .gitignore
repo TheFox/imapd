@@ -5,6 +5,7 @@ mailbox
 log
 pid
 *.yml
+!.travis.yml
 tests/test_*
 tmp_mailbox_*
 releases
