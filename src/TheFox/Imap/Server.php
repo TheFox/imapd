@@ -401,8 +401,10 @@ class Server extends Thread{
 			try{
 				$uid = $this->storageMaildir['object']->getUniqueId($seqNum);
 				#$this->log->debug(__FUNCTION__.' uid: '.$uid);
+				fwrite(STDOUT, __FUNCTION__.' uid: '.$uid."\n");
 				$msgId = $this->storageMaildir['db']->getMsgIdByUid($uid);
 				#$this->log->debug(__FUNCTION__.' msgid: '.$msgId);
+				fwrite(STDOUT, __FUNCTION__.' msgid: '.$msgId."\n");
 				return $msgId;
 			}
 			catch(Exception $e){
