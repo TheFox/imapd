@@ -128,6 +128,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
+		fwrite(STDOUT, 'maildir: '.$maildirPath."\n");
+		
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
