@@ -216,6 +216,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$seq = $client->createSequenceSet('100001', true);
+		ve($seq);
 		$this->assertEquals(array(1), $seq);
 		
 		$seq = $client->createSequenceSet('100002', true);
