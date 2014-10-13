@@ -275,12 +275,12 @@ class Client{
 		// Collect messages with sequence-sets.
 		$setStr = trim($setStr);
 		#$this->log('debug', 'createSequenceSet: '.$setStr);
-		$this->log('debug', 'createSequenceSet');
+		#fwrite(STDOUT, 'createSequenceSet'."\n");
 		
 		$msgSeqNums = array();
 		foreach(preg_split('/,/', $setStr) as $seqItem){
 			$seqItem = trim($seqItem);
-			fwrite(STDOUT, 'createSequenceSet: '.$seqItem."\n");
+			#fwrite(STDOUT, 'createSequenceSet: '.$seqItem."\n");
 			
 			$seqMin = 0;
 			$seqMax = 0;
@@ -355,23 +355,23 @@ class Client{
 			
 			$seqLen = $seqMax + 1 - $seqMin;
 			#$this->log('debug', 'sequence len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
-			fwrite(STDOUT, 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll."\n");
+			#fwrite(STDOUT, 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll."\n");
 			
 			if($isUid){
 				if($seqLen >= 1){
 					#$this->log('debug', 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"');
-					fwrite(STDOUT, 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"'."\n");
+					#fwrite(STDOUT, 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"'."\n");
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 						$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
 						
 						$tmp = 'createSequenceSet msg: '.$msgSeqNum.', '.$uid.' ['.$seqMin.'/'.$seqMax.'] => ';
 						$tmp .= (int)($uid >= $seqMin).' '.(int)($uid <= $seqMax);
 						#$this->log('debug', $tmp);
-						fwrite(STDOUT, $tmp."\n");
+						#fwrite(STDOUT, $tmp."\n");
 						
 						if($uid >= $seqMin && $uid <= $seqMax || $seqAll){
 							#$this->log('debug', "\t add");
-							fwrite(STDOUT, "\t add");
+							#fwrite(STDOUT, "\t add");
 							$nums[] = (int)$msgSeqNum;
 						}
 						
@@ -388,22 +388,22 @@ class Client{
 				if($seqLen == 1){
 					#$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($seqMin);
 					#$this->log('debug', 'createSequenceSet msg: '.$seqMin);
-					fwrite(STDOUT, 'createSequenceSet msg: '.$seqMin.''."\n");
+					#fwrite(STDOUT, 'createSequenceSet msg: '.$seqMin.''."\n");
 					#$nums[] =(int)$uid;
 					$nums[] = (int)$seqMin;
 				}
 				elseif($seqLen >= 2){
 					#$this->log('debug', 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"');
-					fwrite(STDOUT, 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"'."\n");
+					#fwrite(STDOUT, 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"'."\n");
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 						$tmp = 'createSequenceSet msg: '.$msgSeqNum.' ['.$seqMin.'/'.$seqMax.'] => ';
 						$tmp .= (int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum <= $seqMax);
 						#$this->log('debug', $tmp);
-						fwrite(STDOUT, $tmp."\n");
+						#fwrite(STDOUT, $tmp."\n");
 						
 						if($msgSeqNum >= $seqMin && $msgSeqNum <= $seqMax){
 							#$this->log('debug', "\t add");
-							fwrite(STDOUT, "\t add");
+							#fwrite(STDOUT, "\t add");
 							$nums[] = (int)$msgSeqNum;
 						}
 						
