@@ -128,7 +128,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->init();
 		$server->storageAddMaildir($maildirPath);
 		
-		fwrite(STDOUT, 'maildir: '.$maildirPath."\n");
+		fwrite(STDOUT, 'maildir: '.$maildirPath.' '.(int)file_exists($maildirPath)."\n");
 		
 		$client = new Client();
 		$client->setServer($server);
@@ -137,6 +137,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->storageFolderAdd('test_dir1');
 		$client->msgHandle('6 select test_dir1');
 		
+		fwrite(STDOUT, 'add mail1'."\n");
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
@@ -144,6 +145,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message);
 		
+		fwrite(STDOUT, 'add mail2'."\n");
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
@@ -151,6 +153,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message);
 		
+		fwrite(STDOUT, 'add mail3'."\n");
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
@@ -158,6 +161,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message);
 		
+		fwrite(STDOUT, 'add mail4'."\n");
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
@@ -165,6 +169,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message);
 		
+		fwrite(STDOUT, 'add mail5'."\n");
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
@@ -172,6 +177,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message);
 		
+		fwrite(STDOUT, 'add mail6'."\n");
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
@@ -179,85 +185,142 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->mailAdd($message);
 		
+		fwrite(STDOUT, 'find files'."\n");
+		$finder = new Finder();
+		$files = $finder->in($maildirPath)->files()->name('*');
+		foreach($files as $fileId => $file){
+			fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
+		}
 		
-		$seq = $client->createSequenceSet('1');
+		fwrite(STDOUT, 'seq set: 1'."\n");
+		$seq = $client->createSequenceSet('1', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1), $seq);
 		
-		$seq = $client->createSequenceSet('3');
+		fwrite(STDOUT, 'seq set: 3'."\n");
+		$seq = $client->createSequenceSet('3', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3), $seq);
 		
-		$seq = $client->createSequenceSet('3,5');
+		fwrite(STDOUT, 'seq set: 3,5'."\n");
+		$seq = $client->createSequenceSet('3,5', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 5), $seq);
 		
-		$seq = $client->createSequenceSet('3,5,6,4');
+		fwrite(STDOUT, 'seq set: 3,5,6,4'."\n");
+		$seq = $client->createSequenceSet('3,5,6,4', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4, 5, 6), $seq);
 		
-		$seq = $client->createSequenceSet('3, 5');
+		fwrite(STDOUT, 'seq set: 3, 5'."\n");
+		$seq = $client->createSequenceSet('3, 5', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 5), $seq);
 		
-		$seq = $client->createSequenceSet('3:3');
+		fwrite(STDOUT, 'seq set: 3:3'."\n");
+		$seq = $client->createSequenceSet('3:3', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3), $seq);
 		
-		$seq = $client->createSequenceSet('3:4');
+		fwrite(STDOUT, 'seq set: 3:4'."\n");
+		$seq = $client->createSequenceSet('3:4', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4), $seq);
 		
-		$seq = $client->createSequenceSet('3:5');
+		fwrite(STDOUT, 'seq set: 3:5'."\n");
+		$seq = $client->createSequenceSet('3:5', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4, 5), $seq);
 		
-		$seq = $client->createSequenceSet('3:5,2');
+		fwrite(STDOUT, 'seq set: 3:5,2'."\n");
+		$seq = $client->createSequenceSet('3:5,2', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
-		$seq = $client->createSequenceSet('*');
+		fwrite(STDOUT, 'seq set: *'."\n");
+		$seq = $client->createSequenceSet('*', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
-		$seq = $client->createSequenceSet('3:*');
+		fwrite(STDOUT, 'seq set: 3:*'."\n");
+		$seq = $client->createSequenceSet('3:*', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4, 5, 6), $seq);
 		
-		$seq = $client->createSequenceSet('3:*,2');
+		fwrite(STDOUT, 'seq set: 3:*,2'."\n");
+		$seq = $client->createSequenceSet('3:*,2', false);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
 		
 		
+		fwrite(STDOUT, 'seq set: 100001'."\n");
 		$seq = $client->createSequenceSet('100001', true);
-		ve($seq);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002'."\n");
 		$seq = $client->createSequenceSet('100002', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002,100004'."\n");
 		$seq = $client->createSequenceSet('100002,100004', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 4), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002, 100004'."\n");
 		$seq = $client->createSequenceSet('100002, 100004', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 4), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002,100005,100004,100003'."\n");
 		$seq = $client->createSequenceSet('100002,100005,100004,100003', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002:100002'."\n");
 		$seq = $client->createSequenceSet('100002:100002', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002:100003'."\n");
 		$seq = $client->createSequenceSet('100002:100003', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002:100004'."\n");
 		$seq = $client->createSequenceSet('100002:100004', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002:100004,100005'."\n");
 		$seq = $client->createSequenceSet('100002:100004,100005', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
+		fwrite(STDOUT, 'seq set: *'."\n");
 		$seq = $client->createSequenceSet('*', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002:*'."\n");
 		$seq = $client->createSequenceSet('100002:*', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100002:*,100001'."\n");
 		$seq = $client->createSequenceSet('100002:*,100001', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
+		fwrite(STDOUT, 'seq set: 100007'."\n");
 		$seq = $client->createSequenceSet('100007', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(), $seq);
 		
+		fwrite(STDOUT, 'seq set: 999999:*'."\n");
 		$seq = $client->createSequenceSet('999999:*', true);
+		fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(6), $seq);
 	}
 	
@@ -1864,7 +1927,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		foreach($files as $fileId => $file){
 			$file = str_replace($maildirPath.'/', '', $file);
-			fwrite(STDOUT, "file: $file\n");
+			fwrite(STDOUT, 'file: '.$file."\n");
 		}
 		*/
 	}
