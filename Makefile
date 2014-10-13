@@ -1,7 +1,4 @@
 
-RELEASE_VERSION = 0.2.x-dev
-RELEASE_NAME = imapd
-
 RM = rm -rfd
 MKDIR = mkdir -p
 TAR = tar
