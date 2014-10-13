@@ -354,8 +354,8 @@ class Client{
 			}
 			
 			$seqLen = $seqMax + 1 - $seqMin;
-			$this->log('debug', 'sequence len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
-			fwrite(STDOUT, 'createSequenceSet: '.'len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll."\n");
+			#$this->log('debug', 'sequence len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
+			fwrite(STDOUT, 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll."\n");
 			
 			if($isUid){
 				if($seqLen >= 1){
