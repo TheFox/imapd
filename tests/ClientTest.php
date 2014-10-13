@@ -857,7 +857,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('13 OK CLOSE completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
-	public function testMsgHandleExpunge1(){
+	/*public function testMsgHandleExpunge1(){
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
 		$server->init();
@@ -999,7 +999,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
 		$expect .= '14 OK EXPUNGE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
-	}
+	}*/
 	
 	public function providerParseSearchKeys(){
 		$rv = array();
