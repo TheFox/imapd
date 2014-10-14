@@ -475,7 +475,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
-	public function testMailRemove2(){
+	/*public function testMailRemove2(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -546,7 +546,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(5, $server->storageMailboxGetDbSeqById(100006));
 		
 		$server->shutdown();
-	}
+	}*/
 	
 	public function testMailCopy1(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
