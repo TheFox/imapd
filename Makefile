@@ -1,5 +1,5 @@
 
-RM = rm -rfd
+RM = rm -rf
 MKDIR = mkdir -p
 TAR = tar
 GZIP = gzip
