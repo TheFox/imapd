@@ -742,14 +742,14 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$event2 = new Event(Event::TRIGGER_MAIL_ADD_PRE, $this, 'functionForTestEvent');
 		$server->eventAdd($event2);
 		
-		$event3 = new Event(Event::TRIGGER_MAIL_ADD, null, function($event, $mail){
-			$this->assertTrue(is_object($mail));
-			$this->assertEquals('my_subject 1', $mail->getSubject());
+		$event3 = new Event(Event::TRIGGER_MAIL_ADD, null, function($event, $mail) use($phpunit) {
+			$phpunit->assertTrue(is_object($mail));
+			$phpunit->assertEquals('my_subject 1', $mail->getSubject());
 		});
 		$server->eventAdd($event3);
 		
-		$event4 = new Event(Event::TRIGGER_MAIL_ADD_POST, null, function($event, $msgId){
-			$this->assertEquals(100001, $msgId);
+		$event4 = new Event(Event::TRIGGER_MAIL_ADD_POST, null, function($event, $msgId) use($phpunit) {
+			$phpunit->assertEquals(100001, $msgId);
 		});
 		$server->eventAdd($event4);
 		
