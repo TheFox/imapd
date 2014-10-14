@@ -190,7 +190,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#$files = $finder->in($maildirPath)->files()->name('*');
 		#foreach($files as $fileId => $file){
 		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
-		}
+		#}
 		
 		#fwrite(STDOUT, 'seq set: 1'."\n");
 		$seq = $client->createSequenceSet('1', false);
@@ -1721,7 +1721,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 	}*/
 	
-	public function testMsgHandleUidStore(){
+	/*public function testMsgHandleUidStore(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -1921,16 +1921,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(0, count($files));
 		
 		
-		/*
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/*')->name('*');
-		
-		foreach($files as $fileId => $file){
-			$file = str_replace($maildirPath.'/', '', $file);
-			fwrite(STDOUT, 'file: '.$file."\n");
-		}
-		*/
-	}
+		#$finder = new Finder();
+		#$files = $finder->in($maildirPath)->files()->name('*');
+		#foreach($files as $fileId => $file){
+		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
+		#}
+	}*/
 	
 	public function testMsgHandleCopy(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
