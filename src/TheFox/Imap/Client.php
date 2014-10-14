@@ -644,7 +644,9 @@ class Client{
 						$literal = $args[3];
 					}
 					
-					$flags = array_combine($flags, $flags);
+					if($flags){
+						$flags = array_combine($flags, $flags);
+					}
 					$this->setStatus('appendFlags', $flags);
 					
 					#fwrite(STDOUT, 'flags'."\n");
