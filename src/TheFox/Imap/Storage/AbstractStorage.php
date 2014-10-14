@@ -61,14 +61,20 @@ abstract class AbstractStorage{
 	public function genFolderPath($path){
 		#fwrite(STDOUT, __FUNCTION__.' A: '.$path."\n");
 		
-		$seperator = $this->getDirectorySeperator();
-		$path = str_replace('.', $seperator, $path);
-		$path = $this->path.DIRECTORY_SEPARATOR.$path;
-		$path = str_replace('//', '/', $path);
-		
-		if(substr($path, -1) == '/'){
-			$path = substr($path, 0, -1);
+		if($path){
+			$seperator = $this->getDirectorySeperator();
+			$path = str_replace('.', $seperator, $path);
+			$path = $this->path.DIRECTORY_SEPARATOR.$path;
+			$path = str_replace('//', '/', $path);
+			
+			if(substr($path, -1) == '/'){
+				$path = substr($path, 0, -1);
+			}
 		}
+		else{
+			$path = $this->path;
+		}
+		
 		
 		#fwrite(STDOUT, __FUNCTION__.' B: '.$path."\n");
 		
@@ -79,9 +85,15 @@ abstract class AbstractStorage{
 	
 	abstract protected function getFolders($baseFolder, $searchFolder, $recursive = false);
 	
-	abstract protected function addMail($folder, $mailStr);
+	abstract protected function addMail($mailStr, $folder, $flags, $recent);
 	
-	abstract protected function getSeqById($msgId);
+	abstract protected function removeMail($msgId);
+	
+	abstract protected function getMsgSeqById($msgId);
+	
+	abstract protected function getMsgIdBySeq($seqNum, $folder = null);
+	
+	abstract protected function getNextMsgId();
 	
 	public function save(){
 		if($this->db){

@@ -28,11 +28,23 @@ class TestStorage extends AbstractStorage{
 		return $folders;
 	}
 	
-	public function addMail($folder, $mailStr){
+	public function addMail($mailStr, $folder, $flags, $recent){
 		return null;
 	}
 	
-	public function getSeqById($msgId){
+	public function removeMail($msgId){
+		
+	}
+	
+	public function getMsgSeqById($msgId){
+		return null;
+	}
+	
+	public function getMsgIdBySeq($seqNum, $folder = null){
+		return null;
+	}
+	
+	public function getNextMsgId(){
 		return null;
 	}
 	

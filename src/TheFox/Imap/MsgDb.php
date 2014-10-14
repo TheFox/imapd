@@ -40,19 +40,41 @@ class MsgDb extends YamlStorage{
 		return false;
 	}
 	
-	public function addMsg($path){
+	public function addMsg($path, $flags, $recent = true){
+		if($flags === null){
+			$flags = array();
+		}
+		
 		$this->data['msgsId']++;
-		$this->data['msgs'][$this->data['msgsId']] = array(
+		$msg = array(
 			'id' => $this->data['msgsId'],
 			'path' => $path,
-			'flags' => '',
+			'flags' => $flags,
+			'recent' => $recent,
 		);
+		
+		$this->data['msgs'][$this->data['msgsId']] = $msg;
+		$this->msgsByPath[$path] = $msg;
 		$this->setDataChanged(true);
 		
 		return $this->data['msgsId'];
 	}
 	
+	public function removeMsg($msgId){
+		$msg = $this->data['msgs'][$msgId];
+		unset($this->data['msgs'][$msgId]);
+		unset($this->msgsByPath[$msg['path']]);
+		
+		$this->setDataChanged(true);
+		
+		return $msg;
+	}
+	
 	public function getMsgIdByPath($path){
+		#fwrite(STDOUT, 'getMsgIdByPath: '.$path.' '.(int)isset($this->msgsByPath[$path])."\n");
+		
+		#\Doctrine\Common\Util\Debug::dump($this->msgsByPath);
+		
 		if(isset($this->msgsByPath[$path])){
 			return $this->msgsByPath[$path]['id'];
 		}
@@ -94,36 +116,11 @@ class MsgDb extends YamlStorage{
 		$this->setDataChanged(true);
 		
 		return $this->data['msgsId'];
-	}
+	}*/
 	
-	public function msgRemove($id){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': /'.$id.'/'."\n");
-		
-		$oldMsg = $this->data['msgs'][$id];
-		
-		#ve($oldMsg);
-		
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' unset uid: '.$oldMsg['uid']."\n");
-		unset($this->msgIdByUid[$oldMsg['uid']]);
-		
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' unset id: '.$oldMsg['id']."\n");
-		unset($this->msgUidById[$oldMsg['id']]);
-		
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' unset: '.$id."\n");
-		unset($this->data['msgs'][$id]);
-		
-		$newSeq = 1;
-		foreach($this->data['msgs'] as $msgId => $msg){
-			if($msg['folder'] == $oldMsg['folder']){
-				$this->data['msgs'][$msgId]['seq'] = $newSeq;
-				$newSeq++;
-			}
-		}
-		
-		$this->setDataChanged(true);
-	}
 	
-	public function getMsgUidById($id){
+	
+	/*public function getMsgUidById($id){
 		if(isset($this->msgUidById[$id])){
 			return $this->msgUidById[$id];
 		}
@@ -154,9 +151,10 @@ class MsgDb extends YamlStorage{
 		}
 		return null;
 	}
+	*/
 	
 	public function getNextId(){
 		return $this->data['msgsId'] + 1;
 	}
-	*/
+	
 }

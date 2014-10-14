@@ -68,7 +68,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testAddFolder(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		#$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
@@ -78,9 +78,9 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
 		
-		$storage2 = new TestStorage();
-		$storage2->setPath($path2);
-		$server->addStorage($storage2);
+		#$storage2 = new TestStorage();
+		#$storage2->setPath($path2);
+		#$server->addStorage($storage2);
 		
 		$server->addFolder('test_dir1');
 		$this->assertFileExists($path1.'/test_dir1');
@@ -199,9 +199,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(0, count($folders));
 	}
 	
-	/*public function testGetNextDbId(){
+	public function testGetNextMsgId(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -213,11 +212,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
-		
-		$storage2 = new TestStorage();
-		$storage2->setPath($path2);
-		$storage2->setType('temp');
-		$server->addStorage($storage2);
 		
 		
 		$message = new Message();
@@ -248,12 +242,11 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		
-		$this->assertEquals(100005, $server->getNextDbId());
-	}*/
+		$this->assertEquals(100005, $server->getNextMsgId());
+	}
 	
-	public function testAddMail(){
+	public function testGetMsgSeqById(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -266,10 +259,125 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
 		
-		$storage2 = new TestStorage();
-		$storage2->setPath($path2);
-		$storage2->setType('temp');
-		$server->addStorage($storage2);
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals(1, $server->getMsgSeqById($msgId));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals(2, $server->getMsgSeqById($msgId));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals(3, $server->getMsgSeqById($msgId));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals(4, $server->getMsgSeqById($msgId));
+	}
+	
+	public function testGetMsgIdBySeq(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals($msgId, $server->getMsgIdBySeq(1));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals($msgId, $server->getMsgIdBySeq(2));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals($msgId, $server->getMsgIdBySeq(3));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		$this->assertEquals($msgId, $server->getMsgIdBySeq(4));
+		
+		
+		$server->addFolder('test_dir1');
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 9');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message, 'test_dir1');
+		#fwrite(STDOUT, 'test_dir1: 1, '.$msgId."\n");
+		$this->assertEquals($msgId, $server->getMsgIdBySeq(1, 'test_dir1'));
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 10');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message, 'test_dir1');
+		#fwrite(STDOUT, 'test_dir1: 2, '.$msgId."\n");
+		$this->assertEquals($msgId, $server->getMsgIdBySeq(2, 'test_dir1'));
+		
+		
+		$server->shutdown();
+	}
+	
+	public function testAddMail(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
 		
 		
 		$message = new Message();
@@ -279,7 +387,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(100001, $msgId);
-		$this->assertEquals(1, $server->getDbSeqById($msgId));
+		$this->assertEquals(1, $server->getMsgSeqById($msgId));
 		
 		
 		$message = new Message();
@@ -289,7 +397,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(100002, $msgId);
-		$this->assertEquals(2, $server->getDbSeqById($msgId));
+		$this->assertEquals(2, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -298,7 +406,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(100003, $msgId);
-		$this->assertEquals(3, $server->getDbSeqById($msgId));
+		$this->assertEquals(3, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -307,7 +415,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(100004, $msgId);
-		$this->assertEquals(4, $server->getDbSeqById($msgId));
+		$this->assertEquals(4, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -316,7 +424,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(100005, $msgId);
-		$this->assertEquals(5, $server->getDbSeqById($msgId));
+		$this->assertEquals(5, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -325,7 +433,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(100006, $msgId);
-		$this->assertEquals(6, $server->getDbSeqById($msgId));
+		$this->assertEquals(6, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -334,7 +442,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, null, null, false);
 		$this->assertEquals(100007, $msgId);
-		$this->assertEquals(7, $server->getDbSeqById($msgId));
+		$this->assertEquals(7, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -343,17 +451,13 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, null, null, false);
 		$this->assertEquals(100008, $msgId);
-		$this->assertEquals(8, $server->getDbSeqById($msgId));
+		$this->assertEquals(8, $server->getMsgSeqById($msgId));
 		
 		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
-		$this->assertEquals(6, count($files));
+		$files = $finder->in($path1)->files();
+		$this->assertEquals(8, count($files));
 		
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/cur')->files();
-		$this->assertEquals(2, count($files));
 		
-		/*
 		
 		$server->addFolder('test_dir1');
 		
@@ -364,7 +468,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
 		$this->assertEquals(100009, $msgId);
-		$this->assertEquals(1, $server->getDbSeqById($msgId));
+		$this->assertEquals(1, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
@@ -373,8 +477,250 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
 		$this->assertEquals(100010, $msgId);
-		$this->assertEquals(2, $server->getDbSeqById($msgId));
-		*/
+		$this->assertEquals(2, $server->getMsgSeqById($msgId));
+		
+		
+		$server->shutdown();
+	}
+	
+	public function testRemoveMail1(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		fwrite(STDOUT, 'msgId: '.$msgId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		fwrite(STDOUT, 'msgId: '.$msgId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		fwrite(STDOUT, 'msgId: '.$msgId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		fwrite(STDOUT, 'msgId: '.$msgId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		fwrite(STDOUT, 'msgId: '.$msgId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('my_body');
+		$msgId = $server->addMail($message);
+		fwrite(STDOUT, 'msgId: '.$msgId."\n");
+		
+		
+		$finder = new Finder();
+		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
+		$this->assertEquals(6, count($files));
+		
+		$server->removeMail(100002);
+		
+		$finder = new Finder();
+		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
+		$this->assertEquals(5, count($files));
+		
+		$this->assertEquals(4, $server->getMsgSeqById(100005));
+		$this->assertEquals(5, $server->getMsgSeqById(100006));
+		
+		$server->shutdown();
+	}
+	
+	public function testRemoveMail2(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		$msgId = $tmpId;
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		
+		$finder = new Finder();
+		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
+		$this->assertEquals(6, count($files));
+		
+		$server->removeMailBySequenceNum(4);
+		
+		$finder = new Finder();
+		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
+		$this->assertEquals(5, count($files));
+		
+		$this->assertEquals(null, $server->getMsgSeqById(100004));
+		$this->assertEquals(4, $server->getMsgSeqById(100005));
+		$this->assertEquals(5, $server->getMsgSeqById(100006));
+		
+		$server->shutdown();
+	}
+	
+	public function testMailCopy1(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 5');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		$message = new Message();
+		$message->addFrom('thefox21at@gmail.com');
+		$message->addTo('thefox@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('my_body');
+		$tmpId = $server->addMail($message);
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
+		
+		$finder = new Finder();
+		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
+		$this->assertEquals(6, count($files));
+		
+		
+		$server->addFolder('test_dir1');
+		
+		$server->mailCopy(100002, 'test_dir1');
+		$server->mailCopy(100004, 'test_dir1');
+		
+		$this->assertEquals(1, $server->getMsgSeqById(100007));
+		$this->assertEquals(2, $server->getMsgSeqById(100008));
 		
 		$server->shutdown();
 	}
@@ -408,304 +754,17 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	
 	
-	public function testgetDbSeqById(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		
-		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
-		$server->init();
-		$server->storageAddMaildir($maildirPath);
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 1');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals(1, $server->getDbSeqById($msgId));
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 2');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals(2, $server->getDbSeqById($msgId));
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 3');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals(3, $server->getDbSeqById($msgId));
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 4');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals(4, $server->getDbSeqById($msgId));
-	}
-	
-	public function testStorageMaildirGetDbMsgIdBySeqNum(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		
-		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
-		$server->init();
-		$server->storageAddMaildir($maildirPath);
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 1');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals($msgId, $server->storageMaildirGetDbMsgIdBySeqNum(1));
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 2');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals($msgId, $server->storageMaildirGetDbMsgIdBySeqNum(2));
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 3');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals($msgId, $server->storageMaildirGetDbMsgIdBySeqNum(3));
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 4');
-		$message->setBody('my_body');
-		$msgId = $server->addMail($message);
-		$this->assertEquals($msgId, $server->storageMaildirGetDbMsgIdBySeqNum(4));
-	}
 	
 	
 	
-	public function testMailRemove1(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		
-		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
-		$server->init();
-		$server->storageAddMaildir($maildirPath);
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 1');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 2');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 3');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 4');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 5');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 6');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
-		$this->assertEquals(6, count($files));
-		
-		$server->mailRemove(100002);
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
-		$this->assertEquals(5, count($files));
-		
-		$this->assertEquals(4, $server->getDbSeqById(100005));
-		$this->assertEquals(5, $server->getDbSeqById(100006));
-		
-		$server->shutdown();
-	}
 	
-	public function testMailRemove2(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		
-		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
-		$server->init();
-		$server->storageAddMaildir($maildirPath);
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 1');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 2');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		$msgId = $tmpId;
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 3');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 4');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 5');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 6');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
-		$this->assertEquals(6, count($files));
-		
-		$server->mailRemoveBySequenceNum(4);
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
-		$this->assertEquals(5, count($files));
-		
-		$this->assertEquals(null, $server->getDbSeqById(100004));
-		$this->assertEquals(4, $server->getDbSeqById(100005));
-		$this->assertEquals(5, $server->getDbSeqById(100006));
-		
-		$server->shutdown();
-	}
 	
-	public function testMailCopy1(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		
-		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
-		$server->init();
-		$server->storageAddMaildir($maildirPath);
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 1');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 2');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 3');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 4');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 5');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
-		$message->setSubject('my_subject 6');
-		$message->setBody('my_body');
-		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
-		
-		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
-		$this->assertEquals(6, count($files));
-		
-		$server->addFolder('test_dir1');
-		
-		$server->mailCopy(100002, 'test_dir1');
-		$server->mailCopy(100004, 'test_dir1');
-		
-		$this->assertEquals(1, $server->getDbSeqById(100007));
-		$this->assertEquals(2, $server->getDbSeqById(100008));
-		
-		$server->shutdown();
-	}
+	
+	
+	
+	
+	
+	
 	
 	public function testMailCopy2(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
@@ -772,8 +831,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->mailCopyBySequenceNum(2, 'test_dir1');
 		$server->mailCopyBySequenceNum(4, 'test_dir1');
 		
-		$this->assertEquals(1, $server->getDbSeqById(100007));
-		$this->assertEquals(2, $server->getDbSeqById(100008));
+		$this->assertEquals(1, $server->getMsgSeqById(100007));
+		$this->assertEquals(2, $server->getMsgSeqById(100008));
 		
 		$server->shutdown();
 	}

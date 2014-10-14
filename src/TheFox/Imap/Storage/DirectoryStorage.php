@@ -65,14 +65,14 @@ class DirectoryStorage extends AbstractStorage{
 		return $folders;
 	}
 	
-	public function addMail($folder, $mailStr){
+	public function addMail($mailStr, $folder, $flags, $recent){
 		$msgId = null;
 		
 		$fileName = 'mail_'.sprintf('%.32f', microtime(true)).'_'.mt_rand(100000, 999999).'.eml';
 		$filePath = $this->genFolderPath($folder).'/'.$fileName;
 		
 		if($this->getDb()){
-			$msgId = $this->getDb()->addMsg($filePath);
+			$msgId = $this->getDb()->addMsg($filePath, $flags, $recent);
 		}
 		
 		file_put_contents($filePath, $mailStr);
@@ -80,7 +80,17 @@ class DirectoryStorage extends AbstractStorage{
 		return $msgId;
 	}
 	
-	public function getSeqById($msgId){
+	public function removeMail($msgId){
+		if($this->getDb()){
+			$msg = $this->getDb()->removeMsg($msgId);
+			fwrite(STDOUT, 'path: '.$msg['path']."\n");
+			
+			$filesystem = new Filesystem();
+			$filesystem->remove($msg['path']);
+		}
+	}
+	
+	public function getMsgSeqById($msgId){
 		if($this->getDb()){
 			$msg = $this->getDb()->getMsgById($msgId);
 			if($msg){
@@ -89,7 +99,7 @@ class DirectoryStorage extends AbstractStorage{
 				if(isset($pathinfo['dirname']) && isset($pathinfo['basename'])){
 					$seq = 0;
 					$finder = new Finder();
-					$files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*');
+					$files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml');
 					foreach($files as $file){
 						#\Doctrine\Common\Util\Debug::dump($file);
 						$seq++;
@@ -101,6 +111,37 @@ class DirectoryStorage extends AbstractStorage{
 					return $seq;
 				}
 			}
+		}
+		
+		return null;
+	}
+	
+	public function getMsgIdBySeq($seqNum, $folder = null){
+		#fwrite(STDOUT, 'getMsgIdBySeq'."\n");
+		
+		if($this->getDb()){
+			$path = $this->genFolderPath($folder);
+			
+			$seq = 0;
+			$finder = new Finder();
+			$files = $finder->in($path)->files()->depth(0)->name('*.eml');
+			foreach($files as $file){
+				$seq++;
+				#fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.', '.$file->getPathname()."\n");
+				if($seq >= $seqNum){
+					$id = $this->getDb()->getMsgIdByPath($file->getPathname());
+					#fwrite(STDOUT, 'id: '.$id."\n");
+					return $id;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	public function getNextMsgId(){
+		if($this->getDb()){
+			return $this->getDb()->getNextId();
 		}
 		
 		return null;
