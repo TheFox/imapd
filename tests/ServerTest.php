@@ -249,7 +249,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(4, $server->storageMailboxGetDbSeqById($msgId));
 	}
 	
-	public function testStorageMaildirGetDbMsgIdBySeqNum(){
+	/*public function testStorageMaildirGetDbMsgIdBySeqNum(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -288,7 +288,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$msgId = $server->mailAdd($message);
 		$this->assertEquals($msgId, $server->storageMaildirGetDbMsgIdBySeqNum(4));
-	}
+	}*/
 	
 	public function testMailAdd(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
