@@ -1176,7 +1176,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $rv);
 	}
 	
-	public function testMsgHandleUidSearch(){
+	/*public function testMsgHandleUidSearch(){
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
 		$server->init();
@@ -1719,7 +1719,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
 		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
-	}
+	}*/
 	
 	public function testMsgHandleUidStore(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
