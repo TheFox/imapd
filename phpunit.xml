@@ -21,12 +21,14 @@
 	
 	<testsuites>
 		<testsuite name="My Test Suite">
-			<!--<file>tests/BasicTest.php</file>//-->
+			<file>tests/AbstractStorageTest.php</file>
 			<file>tests/ClientTest.php</file>
 			<file>tests/CriteriaTreeTest.php</file>
+			<file>tests/DirectoryStorageTest.php</file>
 			<file>tests/LogicGateTest.php</file>
 			<file>tests/ServerTest.php</file>
 			<file>tests/StringParserTest.php</file>
+			<file>tests/TestStorageTest.php</file>
 			<file>tests/ZendMailStorageTest.php</file>
 		</testsuite>
 	</testsuites>

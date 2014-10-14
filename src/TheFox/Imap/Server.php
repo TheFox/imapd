@@ -12,6 +12,8 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Filesystem\Filesystem;
 
 use TheFox\Imap\Exception\NotImplementedException;
+use TheFox\Imap\Storage\AbstractStorage;
+use TheFox\Imap\Storage\DirectoryStorage;
 use TheFox\Logger\Logger;
 use TheFox\Logger\StreamHandler;
 use TheFox\Network\Socket;
@@ -27,7 +29,9 @@ class Server extends Thread{
 	private $port;
 	private $clientsId = 0;
 	private $clients = array();
-	private $storageMaildir;
+	private $defaultStoragePath = 'maildata';
+	private $defaultStorage;
+	private $storages;
 	private $eventsId = 0;
 	private $events = array();
 	
@@ -217,7 +221,7 @@ class Server extends Thread{
 		}
 		
 		// Remove all temp files and save dbs.
-		$this->storageRemoveTempAndSave();
+		$this->shutdownStorages();
 		
 		#$this->log->debug('shutdown done');
 	}
@@ -256,84 +260,73 @@ class Server extends Thread{
 		unset($this->clients[$clientsId]);
 	}
 	
-	public function getStorageMailbox(){
-		$this->storageInit();
-		return $this->storageMaildir;
+	public function setDefaultStoragePath($path){
+		$this->defaultStoragePath = $path;
 	}
 	
-	public function storageInit(){
-		#$this->log->debug(__CLASS__.'->'.__FUNCTION__.'');
-		if(!$this->storageMaildir){
-			#$this->log->debug(__CLASS__.'->'.__FUNCTION__.': no storage is set. create one...');
+	public function getDefaultStorage(){
+		if(!$this->defaultStorage){
+			$storage = new DirectoryStorage();
+			$storage->setPath($this->defaultStoragePath);
 			
-			$mailboxPath = './tmp_mailbox_'.mt_rand(1, 9999999);
-			return $this->storageAddMaildir($mailboxPath, 'temp');
+			$this->addStorage($storage);
 		}
-		
-		return null;
+		return $this->defaultStorage;
 	}
 	
-	public function storageAddMaildir($path, $type = 'normal'){
-		if(!file_exists($path)){
-			try{
-				Maildir::initMaildir($path);
-			}
-			catch(Exception $e){
-				$this->log->error('initMaildir: '.$e->getMessage());
-			}
-		}
+	public function addStorage(AbstractStorage $storage){
+		#fwrite(STDOUT, 'addStorage: '.count($this->storages).', '.(int)($this->defaultStorage === null)."\n");
 		
-		try{
-			$dbPath = $path;
+		if(!$this->defaultStorage){
+			$this->defaultStorage = $storage;
+			
+			$dbPath = $storage->getPath();
 			if(substr($dbPath, -1) == '/'){
 				$dbPath = substr($dbPath, 0, -1);
 			}
-			$dbPath .= '.msgs.yml';
-			#$this->log->debug('dbpath: '.$dbPath);
+			$dbPath .= '.yml';
+			$storage->setDbPath($dbPath);
+			
 			$db = new MsgDb($dbPath);
 			$db->load();
-			
-			$storage = new Maildir(array('dirname' => $path));
-			
-			$this->storageMaildir = array(
-				'object' => $storage,
-				'path' => $path,
-				'type' => $type,
-				'db' => $db,
-			);
-			
-			return $this->storageMaildir;
-		}
-		catch(Exception $e){
-			$this->log->error('storageAddMaildir: '.$e->getMessage());
-		}
-		
-		return null;
-	}
-	
-	public function storageFolderAdd($path){
-		$this->storageInit();
-		
-		$this->storageMaildir['object']->createFolder($path);
-	}
-	
-	public function storageRemoveTempAndSave(){
-		if($this->storageMaildir['type'] == 'temp'){
-			$filesystem = new Filesystem();
-			$filesystem->remove($this->storageMaildir['path']);
-			if($this->storageMaildir['db']){
-				$filesystem->remove($this->storageMaildir['db']->getFilePath());
-			}
+			$storage->setDb($db);
 		}
 		else{
-			if($this->storageMaildir['db']){
-				#$this->log->debug('save db: '.$this->storageMaildir['db']->getFilePath());
-				$this->storageMaildir['db']->save();
+			$this->storages[] = $storage;
+		}
+	}
+	
+	public function shutdownStorages(){
+		$filesystem = new Filesystem();
+		
+		$this->getDefaultStorage()->save();
+		
+		foreach($this->storages as $storageId => $storage){
+			if($storage->getType() == 'temp'){
+				$filesystem->remove($storage->getPath());
+				
+				if($storage->getDbPath()){
+					$filesystem->remove($storage->getDbPath());
+				}
+			}
+			elseif($storage->getType() == 'normal'){
+				$storage->save();
 			}
 		}
 	}
 	
-	public function storageMailboxGetFolders($baseFolder, $searchFolder, $recursive = false, $level = 0){
+	public function addFolder($path){
+		#fwrite(STDOUT, 'add folder A: '.$path."\n");
+		$this->getDefaultStorage()->createFolder($path);
+		
+		#fwrite(STDOUT, 'add folder storages: '.count($this->storages)."\n");
+		foreach($this->storages as $storageId => $storage){
+			#fwrite(STDOUT, 'add folder B: '.$path."\n");
+			$storage->createFolder($path);
+		}
+	}
+	
+	public function getFolders($baseFolder, $searchFolder, $recursive = false, $level = 0){
 		$func = __FUNCTION__;
 		$this->log->debug($func.$level.': /'.$baseFolder.'/ /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
 		
@@ -344,55 +337,46 @@ class Server extends Thread{
 		if($baseFolder == '' && $searchFolder == 'INBOX'){
 			return $this->$func('INBOX', '*', true, $level + 1);
 		}
-		
-		$storage = $this->getStorageMailbox();
-		
-		$rv = array();
-		$folders = $storage['object']->getFolders($baseFolder);
-		foreach($folders as $subfolder){
-			$name = 'N/A';
-			if(is_object($subfolder)){
-				$name = $subfolder->getLocalName();
-			}
-			if(fnmatch($searchFolder, $name)){
-				$rv[] = $subfolder;
-			}
-			if($recursive && strtolower($name) != 'inbox'){
-				$subrv = $this->$func(($baseFolder ? $baseFolder.'.' : '').$name,
-					$searchFolder, $recursive, $level + 1);
-				$rv = array_merge($rv, $subrv);
-			}
+		if($baseFolder == 'INBOX'){
+			$baseFolder = '.';
 		}
-		return $rv;
+		
+		$storage = $this->getDefaultStorage();
+		
+		$folders = $storage->getFolders($baseFolder, $searchFolder, $recursive);
+		return $folders;
 	}
 	
-	public function storageMailboxGetDbNextId(){
+	public function getNextDbId(){
 		#$this->log->debug(__FUNCTION__.'');
 		
-		$storage = $this->getStorageMailbox();
-		if($storage['db']){
+		$storage = $this->getDefaultStorage();
+		if($storage->getDb()){
 			#$this->log->debug(__FUNCTION__.': db ok');
-			return $storage['db']->getNextId();
+			return $storage->getDb()->getNextId();
 		}
 		
 		#$this->log->debug(__FUNCTION__.': db failed');
 		return null;
 	}
 	
-	public function storageMailboxGetDbSeqById($msgId){
+	public function getDbSeqById($msgId){
 		#$this->log->debug(__FUNCTION__.'');
 		
-		$storage = $this->getStorageMailbox();
-		if($storage['db']){
+		$storage = $this->getDefaultStorage();
+		return $storage->getSeqById($msgId);
+		
+		/*$storage = $this->getDefaultStorage();
+		if($storage->getDb()){
 			#$this->log->debug(__FUNCTION__.': db ok');
-			return $storage['db']->getSeqById($msgId);
+			return $storage->getDb()->getSeqById($msgId);
 		}
 		
 		#$this->log->debug(__FUNCTION__.': db failed');
-		return null;
+		return null;*/
 	}
 	
-	public function storageMaildirGetDbMsgIdBySeqNum($seqNum){
+	public function getDbMsgIdBySeqNum($seqNum){
 		#$this->log->debug(__FUNCTION__.': '.$seqNum);
 		
 		if($this->storageMaildir['db']){
@@ -417,14 +401,23 @@ class Server extends Thread{
 		return null;
 	}
 	
-	public function mailAdd(Message $mail, $folder = null, $flags = array(), $recent = true){
+	public function addMail(Message $mail, $folder = null, $flags = array(), $recent = true){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
-		$this->storageInit();
 		
-		$uid = null;
-		$msgId = null;
+		$storage = $this->getDefaultStorage();
+		$mailStr = $mail->toString();
 		
+		$msgId = $storage->addMail($folder, $mailStr);
+		
+		foreach($this->storages as $storageId => $storage){
+			$storage->addMail($folder, $mailStr);
+		}
+		
+		$this->eventExecute(Event::TRIGGER_MAIL_ADD, array($mail));
+		
+		
+		/*
 		// Because of ISSUE 6317 (https://github.com/zendframework/zf2/issues/6317)
 		// in the Zendframework we must reselect the current folder.
 		$oldFolder = $this->storageMaildir['object']->getCurrentFolder();
@@ -443,12 +436,13 @@ class Server extends Thread{
 			try{
 				#fwrite(STDOUT, "add msg: ".$uid."\n");
 				$msgId = $this->storageMaildir['db']->msgAdd($uid, $lastId, $folder ? $folder : $oldFolder);
-				#ve($storage['db']);
+				#ve($storage->getDb());
 			}
 			catch(Exception $e){
 				$this->log->error('db: '.$e->getMessage());
 			}
 		}
+		*/
 		
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_POST, array($msgId));
 		
@@ -496,7 +490,6 @@ class Server extends Thread{
 				}
 			}
 		}
-		
 	}
 	
 	public function mailRemoveBySequenceNum($seqNum){

@@ -6,8 +6,9 @@ use TheFox\Storage\YamlStorage;
 
 class MsgDb extends YamlStorage{
 	
-	private $msgIdByUid = array();
-	private $msgUidById = array();
+	#private $msgIdByUid = array();
+	#private $msgUidById = array();
+	private $msgsByPath = array();
 	
 	public function __construct($filePath = null){
 		#print __CLASS__.'->'.__FUNCTION__.''."\n";
@@ -25,8 +26,9 @@ class MsgDb extends YamlStorage{
 			
 			if(array_key_exists('msgs', $this->data) && $this->data['msgs']){
 				foreach($this->data['msgs'] as $msgId => $msgAr){
-					$this->msgIdByUid[$msgAr['uid']] = $msgAr['id'];
-					$this->msgUidById[$msgAr['id']] = $msgAr['uid'];
+					#$this->msgIdByUid[$msgAr['uid']] = $msgAr['id'];
+					#$this->msgUidById[$msgAr['id']] = $msgAr['uid'];
+					$this->msgsByPath[$msgAr['path']] = $msgAr;
 					
 					#print __CLASS__.'->'.__FUNCTION__.': '.$msgAr['id'].' -> '.$msgAr['uid']."\n";
 				}
@@ -38,6 +40,35 @@ class MsgDb extends YamlStorage{
 		return false;
 	}
 	
+	public function addMsg($path){
+		$this->data['msgsId']++;
+		$this->data['msgs'][$this->data['msgsId']] = array(
+			'id' => $this->data['msgsId'],
+			'path' => $path,
+			'flags' => '',
+		);
+		$this->setDataChanged(true);
+		
+		return $this->data['msgsId'];
+	}
+	
+	public function getMsgIdByPath($path){
+		if(isset($this->msgsByPath[$path])){
+			return $this->msgsByPath[$path]['id'];
+		}
+		
+		return null;
+	}
+	
+	public function getMsgById($msgId){
+		if(isset($this->data['msgs'][$msgId])){
+			return $this->data['msgs'][$msgId];
+		}
+		
+		return null;
+	}
+	
+	/*
 	public function msgAdd($uid, $seq = 0, $folder = null){
 		#fwrite(STDOUT, "msgAdd: ".$uid."\n");
 		
@@ -127,5 +158,5 @@ class MsgDb extends YamlStorage{
 	public function getNextId(){
 		return $this->data['msgsId'] + 1;
 	}
-	
+	*/
 }

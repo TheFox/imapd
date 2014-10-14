@@ -79,6 +79,9 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - Some tasks are commented with `NOT_IMPLEMENTED`.
 - `TODO` are to be complete the PHP Code Sniffer tests before releasing a new version.
 
+## Alternatives for `Zend\Mail`
+- [exorus/php-mime-mail-parser](https://packagist.org/packages/exorus/php-mime-mail-parser) (requires ext-mailparse PHP extension)
+
 ## Related Links
 - [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
 - [Email Will Last Forever](http://blog.frontapp.com/email-will-last-forever/)

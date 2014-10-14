@@ -120,7 +120,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
 	}
 	
-	/*public function testCreateSequenceSet(){
+	public function testCreateSequenceSet(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -322,7 +322,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$seq = $client->createSequenceSet('999999:*', true);
 		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(6), $seq);
-	}*/
+	}
 	
 	public function providerMsgHandle(){
 		$rv = array(
@@ -857,7 +857,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('13 OK CLOSE completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
-	/*public function testMsgHandleExpunge1(){
+	public function testMsgHandleExpunge1(){
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
 		$server->init();
@@ -999,7 +999,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
 		$expect .= '14 OK EXPUNGE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
-	}*/
+	}
 	
 	public function providerParseSearchKeys(){
 		$rv = array();
@@ -1176,7 +1176,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $rv);
 	}
 	
-	/*public function testMsgHandleUidSearch(){
+	public function testMsgHandleUidSearch(){
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
 		$server->init();
@@ -1719,9 +1719,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
 		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
-	}*/
+	}
 	
-	/*public function testMsgHandleUidStore(){
+	public function testMsgHandleUidStore(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -1926,7 +1926,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#foreach($files as $fileId => $file){
 		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
 		#}
-	}*/
+	}
 	
 	public function testMsgHandleCopy(){
 		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
