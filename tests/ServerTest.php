@@ -728,7 +728,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->storageAddMaildir($maildirPath);
 		
 		$testData = 21;
-		$event1 = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event) use(&$testData) {
+		$phpunit = $this;
+		$event1 = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event) use($phpunit, &$testData) {
 			#fwrite(STDOUT, 'my function: '.$event->getTrigger().', '.$testData."\n");
 			$this->assertEquals(21, $testData);
 			
