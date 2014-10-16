@@ -96,6 +96,11 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 ## Contribute
 You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapd>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
 
+## Links
+- [Packagist Package](https://packagist.org/packages/thefox/imapd)
+- [Travis CI Repository](https://travis-ci.org/TheFox/imapd)
+- [PHPWeekly - Issue August 7, 2014](http://phpweekly.com/archive/2014-08-07.html)
+
 ## License
 Copyright (C) 2014 Christian Mayer <http://fox21.at>
 
