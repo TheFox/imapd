@@ -215,29 +215,29 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -261,32 +261,32 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(1, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(2, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals(3, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -309,32 +309,32 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals($msgId, $server->getMsgIdBySeq(1));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals($msgId, $server->getMsgIdBySeq(2));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		$this->assertEquals($msgId, $server->getMsgIdBySeq(3));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -344,8 +344,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->addFolder('test_dir1');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 9');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
@@ -353,8 +353,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($msgId, $server->getMsgIdBySeq(1, 'test_dir1'));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 10');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
@@ -381,8 +381,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -391,8 +391,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -400,8 +400,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(2, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -409,8 +409,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(3, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -418,8 +418,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(4, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -427,8 +427,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(5, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -436,8 +436,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(6, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 7');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, null, null, false);
@@ -445,8 +445,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(7, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 8');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, null, null, false);
@@ -462,8 +462,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->addFolder('test_dir1');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 9');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
@@ -471,8 +471,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(1, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 10');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
@@ -499,48 +499,48 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
@@ -579,16 +579,16 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
@@ -596,32 +596,32 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$msgId = $tmpId;
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
@@ -645,7 +645,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
-	public function testMailCopy1(){
+	public function testCopyMail1(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
@@ -661,48 +661,48 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
 		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
@@ -716,8 +716,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$server->addFolder('test_dir1');
 		
-		$server->mailCopy(100002, 'test_dir1');
-		$server->mailCopy(100004, 'test_dir1');
+		$server->copyMail(100002, 'test_dir1');
+		$server->copyMail(100004, 'test_dir1');
 		
 		$this->assertEquals(1, $server->getMsgSeqById(100007));
 		$this->assertEquals(2, $server->getMsgSeqById(100008));
@@ -725,111 +725,78 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
-	public function testShutdownStorages(){
+	public function testCopyMail2(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
+		$server->setLog($log);
 		$server->init();
 		
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
 		
-		$storage2 = new TestStorage();
-		$storage2->setPath($path2);
-		$storage2->setType('temp');
-		$server->addStorage($storage2);
-		
-		$server->addFolder('test_dir1');
-		$server->shutdownStorages();
-		
-		$this->assertTrue(file_exists($path1));
-		$this->assertFalse(file_exists($path2));
-	}
-	
-	
-	/*
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public function testMailCopy2(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		
-		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
-		$server->init();
-		$server->storageAddMaildir($maildirPath);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
+		
 		
 		$finder = new Finder();
-		$files = $finder->in($maildirPath.'/new')->files();
+		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
 		$this->assertEquals(6, count($files));
 		
 		$server->addFolder('test_dir1');
 		
-		$server->mailCopyBySequenceNum(2, 'test_dir1');
-		$server->mailCopyBySequenceNum(4, 'test_dir1');
+		$server->copyMailBySequenceNum(2, 'test_dir1');
+		$server->copyMailBySequenceNum(4, 'test_dir1');
 		
 		$this->assertEquals(1, $server->getMsgSeqById(100007));
 		$this->assertEquals(2, $server->getMsgSeqById(100008));
@@ -837,28 +804,35 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->shutdown();
 	}
 	
-	public function testMailGet(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+	public function testGetMail(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
+		$server->setLog($log);
 		$server->init();
-		$server->storageAddMaildir($maildirPath);
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
 		
 		$this->assertEquals(100001, $msgId);
 		
-		$message = $server->mailGet($msgId);
-		#ve($message);
-		$this->assertTrue($message instanceof File);
-		$this->assertEquals('my_subject 1', $message->subject);
-		$this->assertEquals('my_body', $message->getContent());
+		$message = $server->getMailById($msgId);
+		#\Doctrine\Common\Util\Debug::dump($message);
+		$this->assertTrue($message instanceof Message);
+		$this->assertEquals('my_subject 1', $message->getSubject());
+		$this->assertEquals('my_body', $message->getBody());
 	}
 	
 	public function functionForTestEvent(){
@@ -867,12 +841,19 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testEvent(){
-		$maildirPath = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
+		$server->setLog($log);
 		$server->init();
-		$server->storageAddMaildir($maildirPath);
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
 		
 		$testData = 21;
 		$phpunit = $this;
@@ -902,8 +883,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
@@ -914,5 +895,30 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(null, $event3->getReturnValue());
 		$this->assertEquals(null, $event4->getReturnValue());
 	}
-	*/
+	
+	
+	public function testShutdownStorages(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		$storage2 = new TestStorage();
+		$storage2->setPath($path2);
+		$storage2->setType('temp');
+		$server->addStorage($storage2);
+		
+		$server->addFolder('test_dir1');
+		$server->shutdownStorages();
+		
+		$this->assertTrue(file_exists($path1));
+		$this->assertFalse(file_exists($path2));
+	}
+	
 }

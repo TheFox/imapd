@@ -89,6 +89,10 @@ abstract class AbstractStorage{
 	
 	abstract protected function removeMail($msgId);
 	
+	abstract protected function copyMail($msgId, $folder);
+	
+	abstract protected function getPlainMailById($msgId);
+	
 	abstract protected function getMsgSeqById($msgId);
 	
 	abstract protected function getMsgIdBySeq($seqNum, $folder = null);

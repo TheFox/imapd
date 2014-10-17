@@ -36,6 +36,14 @@ class TestStorage extends AbstractStorage{
 		
 	}
 	
+	public function copyMail($msgId, $folder){
+		
+	}
+	
+	public function getPlainMailById($msgId){
+		return '';
+	}
+	
 	public function getMsgSeqById($msgId){
 		return null;
 	}

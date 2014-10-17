@@ -406,91 +406,34 @@ class Server extends Thread{
 		}
 	}
 	
-	public function mailCopy($msgId, $folder){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$msgId.', '.$folder."\n");
-		/*
-		if(!$this->getStorageMailbox()){
-			throw new RuntimeException('Root storage not initialized.', 1);
-		}
+	public function copyMail($msgId, $folder){
+		$storage = $this->getDefaultStorage();
+		$this->log->debug('copy msgId: /'.$msgId.'/');
+		$storage->copyMail($msgId, $folder);
 		
-		if($this->storageMaildir['db']){
-			#fwrite(STDOUT, "copy: $msgId\n");
-			
-			$seqNum = $this->storageMaildir['db']->getSeqById($msgId);
-			#fwrite(STDOUT, "seqNum: $seqNum\n");
-			
-			if($seqNum){
-				$this->mailCopyBySequenceNum($seqNum, $folder);
-			}
-			
-		}*/
+		foreach($this->storages as $storageId => $storage){
+			$storage->copyMail($msgId, $folder);
+		}
 	}
 	
-	public function mailCopyBySequenceNum($seqNum, $folder){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.$seqNum.', '.$folder."\n");
+	public function copyMailBySequenceNum($seqNum, $folder){
+		$storage = $this->getDefaultStorage();
+		$this->log->debug('copy seq: /'.$seqNum.'/');
+		$storage->copyMailBySequenceNum($seqNum, $folder);
 		
-		/*
-		if(!$this->getStorageMailbox()){
-			throw new RuntimeException('Root storage not initialized.', 1);
+		foreach($this->storages as $storageId => $storage){
+			$storage->copyMailBySequenceNum($seqNum, $folder);
 		}
-		
-		if($this->storageMaildir['db']){
-			$this->storageMaildir['object']->copyMessage($seqNum, $folder);
-			
-			$oldFolder = $this->storageMaildir['object']->getCurrentFolder();
-			#fwrite(STDOUT, "oldFolder: $oldFolder\n");
-			
-			$this->storageMaildir['object']->selectFolder($folder);
-			#fwrite(STDOUT, "folder: $folder\n");
-			
-			$lastId = $this->storageMaildir['object']->countMessages();
-			#fwrite(STDOUT, "lastId: $lastId\n");
-			
-			$uid = $this->storageMaildir['object']->getUniqueId($lastId);
-			#fwrite(STDOUT, "uid: $uid\n");
-			
-			$this->storageMaildir['object']->selectFolder($oldFolder);
-			
-			$this->storageMaildir['db']->msgAdd($uid, $lastId, $folder);
-		}*/
 	}
 	
-	public function mailGet($msgId){
-		/*
-		if($this->storageMaildir['db']){
-			$this->log->debug(__CLASS__.'->'.__FUNCTION__.' db ok: '.$msgId);
-			
-			$uid = $this->storageMaildir['db']->getMsgUidById($msgId);
-			$this->log->debug(__CLASS__.'->'.__FUNCTION__.' uid: '.$uid);
-			
-			$seqNum = 0;
-			
-			try{
-				$seqNum = $this->storageMaildir['object']->getNumberByUniqueId($uid);
-				$this->log->debug(__CLASS__.'->'.__FUNCTION__.' seqNum: '.$seqNum);
-			}
-			catch(Exception $e){
-				$this->log->error(__FUNCTION__.': '.$e->getMessage());
-			}
-			
-			if(!$seqNum){
-				// If this failover is used ZF2 ISSUE 6317 is still not fixed.
-				// https://github.com/zendframework/zf2/issues/6317
-				
-				$seqNum = $this->storageMaildir['db']->getSeqById($msgId);
-				$this->log->debug(__CLASS__.'->'.__FUNCTION__.' failover: '.$seqNum);
-			}
-			if($seqNum){
-				$message = $this->storageMaildir['object']->getMessage($seqNum);
-				#ve($message);
-				return $message;
-			}
-			
-			return null;
-		}
+	public function getMailById($msgId){
+		$this->log->debug('get msgId: /'.$msgId.'/');
 		
-		return null;
-		*/
+		$storage = $this->getDefaultStorage();
+		$mailStr = $storage->getPlainMailById($msgId);
+		$mail = Message::fromString($mailStr);
+		
+		return $mail;
 	}
 	
 	public function eventAdd(Event $event){

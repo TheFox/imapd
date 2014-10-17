@@ -65,7 +65,7 @@ class DirectoryStorage extends AbstractStorage{
 		return $folders;
 	}
 	
-	public function addMail($mailStr, $folder, $flags, $recent){
+	public function addMail($mailStr, $folder, $flags = array(), $recent = true){
 		$msgId = null;
 		
 		$fileName = 'mail_'.sprintf('%.32f', microtime(true)).'_'.mt_rand(100000, 999999).'.eml';
@@ -88,6 +88,49 @@ class DirectoryStorage extends AbstractStorage{
 			$filesystem = new Filesystem();
 			$filesystem->remove($msg['path']);
 		}
+	}
+	
+	public function copyMail($msgId, $folder){
+		if($this->getDb()){
+			$msg = $this->getDb()->getMsgById($msgId);
+			if(file_exists($msg['path'])){
+				#\Doctrine\Common\Util\Debug::dump($msg);
+				$pathinfo = pathinfo($msg['path']);
+				#\Doctrine\Common\Util\Debug::dump($pathinfo);
+				
+				
+				$dstFolder = $this->genFolderPath($folder);
+				$dstFile = $dstFolder.'/'.$pathinfo['basename'];
+				
+				#fwrite(STDOUT, 'path: '.$dstFolder."\n");
+				#fwrite(STDOUT, 'dstFile: '.$dstFile."\n");
+				
+				#$filesystem = new Filesystem();
+				#$filesystem->copy($msg['path'], $dstFile);
+				
+				$mailStr = file_get_contents($msg['path']);
+				$this->addMail($mailStr, $folder);
+			}
+		}
+	}
+	
+	public function copyMailBySequenceNum($seqNum, $folder){
+		$msgId = $this->getMsgIdBySeq($seqNum);
+		if($msgId){
+			$this->copyMail($msgId, $folder);
+		}
+	}
+	
+	public function getPlainMailById($msgId){
+		if($this->getDb()){
+			$msg = $this->getDb()->getMsgById($msgId);
+			if(file_exists($msg['path'])){
+				$mailStr = file_get_contents($msg['path']);
+				return $mailStr;
+			}
+		}
+		
+		return '';
 	}
 	
 	public function getMsgSeqById($msgId){
