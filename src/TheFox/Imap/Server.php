@@ -318,7 +318,7 @@ class Server extends Thread{
 	public function addFolder($path){
 		#fwrite(STDOUT, 'add folder A: '.$path."\n");
 		$storage = $this->getDefaultStorage();
-		$storage->createFolder($path);
+		$successful = $storage->createFolder($path);
 		
 		#\Doctrine\Common\Util\Debug::dump($this->storages);
 		
@@ -327,6 +327,8 @@ class Server extends Thread{
 			#fwrite(STDOUT, 'add folder B: '.$path."\n");
 			$storage->createFolder($path);
 		}
+		
+		return $successful;
 	}
 	
 	public function getFolders($baseFolder, $searchFolder, $recursive = false, $level = 0){
@@ -340,14 +342,29 @@ class Server extends Thread{
 		if($baseFolder == '' && $searchFolder == 'INBOX'){
 			return $this->$func('INBOX', '*', true, $level + 1);
 		}
-		if($baseFolder == 'INBOX'){
-			$baseFolder = '.';
-		}
 		
 		$storage = $this->getDefaultStorage();
-		
 		$folders = $storage->getFolders($baseFolder, $searchFolder, $recursive);
-		return $folders;
+		$rv = array();
+		foreach($folders as $folder){
+			#fwrite(STDOUT, ' -> folder: '.$folder."\n");
+			$folder = str_replace('/', '.', $folder);
+			$rv[] = $folder;
+		}
+		return $rv;
+	}
+	
+	public function getFolder($folder){
+		$storage = $this->getDefaultStorage();
+		$msgs = $storage->getFolder($folder);
+		#\Doctrine\Common\Util\Debug::dump($msgs);
+		
+	}
+	
+	public function folderExists($folder){
+		#fwrite(STDOUT, ' -> folderExists: '.$folder."\n");
+		$storage = $this->getDefaultStorage();
+		return $storage->folderExists($folder);
 	}
 	
 	public function getNextMsgId(){
@@ -367,9 +384,26 @@ class Server extends Thread{
 		return $storage->getMsgIdBySeq($seqNum, $folder);
 	}
 	
+	public function getFlagsById($msgId){
+		$storage = $this->getDefaultStorage();
+		return $storage->getFlagsById($msgId);
+	}
+	
+	public function getFlagsBySeq($seqNum, $folder){
+		$storage = $this->getDefaultStorage();
+		return $storage->getFlagsById($msgId, $folder);
+	}
+	
+	public function getCountMailsByFolder($folder){
+		$storage = $this->getDefaultStorage();
+		return $storage->getMailsCountByFolder($folder);
+	}
+	
 	public function addMail(Message $mail, $folder = null, $flags = array(), $recent = true){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
+		
+		#\Doctrine\Common\Util\Debug::dump($flags);
 		
 		$storage = $this->getDefaultStorage();
 		$mailStr = $mail->toString();
@@ -434,6 +468,23 @@ class Server extends Thread{
 		$mail = Message::fromString($mailStr);
 		
 		return $mail;
+	}
+	
+	public function getMailBySeq($seqNum){
+		#$this->log->debug('get seq: /'.$seqNum.'/');
+		/*
+		$storage = $this->getDefaultStorage();
+		$mailStr = $storage->getPlainMailById($msgId);
+		$mail = Message::fromString($mailStr);
+		
+		return $mail;*/
+	}
+	
+	public function getMailIdsByFlags($flags){
+		#$this->log->debug('getMailsByFlags');
+		$storage = $this->getDefaultStorage();
+		$msgsIds = $storage->getMsgsByFlags($flags);
+		return $msgsIds;
 	}
 	
 	public function eventAdd(Event $event){

@@ -19,13 +19,25 @@ class TestStorage extends AbstractStorage{
 		}
 	}
 	
-	public function createFolder($path){
+	public function createFolder($folder){
 		
 	}
 	
 	public function getFolders($baseFolder, $searchFolder, $recursive = false){
 		$folders = array();
 		return $folders;
+	}
+	
+	public function getFolder($folder){
+		return array();
+	}
+	
+	public function folderExists($folder){
+		return false;
+	}
+	
+	public function getMailsCountByFolder($folder){
+		return 0;
 	}
 	
 	public function addMail($mailStr, $folder, $flags, $recent){
@@ -48,8 +60,20 @@ class TestStorage extends AbstractStorage{
 		return null;
 	}
 	
-	public function getMsgIdBySeq($seqNum, $folder = null){
+	public function getMsgIdBySeq($seqNum, $folder){
 		return null;
+	}
+	
+	public function getMsgsByFlags($flags){
+		return array();
+	}
+	
+	public function getFlagsById($msgId){
+		return array();
+	}
+	
+	public function getFlagsBySeq($seqNum, $folder){
+		return array();
 	}
 	
 	public function getNextMsgId(){

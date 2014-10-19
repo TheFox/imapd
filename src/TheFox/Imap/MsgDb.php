@@ -90,6 +90,33 @@ class MsgDb extends YamlStorage{
 		return null;
 	}
 	
+	public function getMsgIdsByFlags($flags){
+		#fwrite(STDOUT, 'getMsgIdsByFlags'."\n");
+		
+		$rv = array();
+		foreach($this->data['msgs'] as $msgId => $msg){
+			#fwrite(STDOUT, ' -> '.$msgId."\n");
+			
+			foreach($flags as $flag){
+				#fwrite(STDOUT, '   -> '.$flag."\n");
+				if(in_array($flag, $msg['flags'])){
+					#fwrite(STDOUT, '   -> ok'."\n");
+					$rv[] = $msg['id'];
+					break;
+				}
+			}
+		}
+		return $rv;
+	}
+	
+	public function getFlagsById($msgId){
+		if(isset($this->data['msgs'][$msgId])){
+			return $this->data['msgs'][$msgId]['flags'];
+		}
+		
+		return array();
+	}
+	
 	/*
 	public function msgAdd($uid, $seq = 0, $folder = null){
 		#fwrite(STDOUT, "msgAdd: ".$uid."\n");

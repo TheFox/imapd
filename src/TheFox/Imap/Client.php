@@ -294,10 +294,14 @@ class Client{
 			$nums = array();
 			#ve($items);
 			
-			$storage = $this->getServer()->getStorageMailbox();
-			$count = $storage['object']->countMessages();
+			#fwrite(STDOUT, 'selected folder: /'.$this->selectedFolder.'/'."\n");
+			
+			#$storage = $this->getServer()->getStorageMailbox(); # TODO
+			#$count = $storage['object']->countMessages();
+			$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
 			if(!$count){
-				throw new RuntimeException('No messages in selected mailbox.', 2);
+				#throw new RuntimeException('No messages in selected mailbox.', 2);
+				return array();
 			}
 			
 			// Check if it's a range.
@@ -307,9 +311,10 @@ class Client{
 					if($isUid){
 						// Search the last msg
 						for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-							$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
+							$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 							
 							#$this->log('debug', 'createSequenceSet search: '.$uid.'');
+							#fwrite(STDOUT, 'createSequenceSet search: '.$uid."\n");
 							
 							if($uid > $seqMax){
 								$seqMax = $uid;
@@ -362,10 +367,10 @@ class Client{
 					#$this->log('debug', 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"');
 					#fwrite(STDOUT, 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"'."\n");
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-						$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
+						$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 						
-						$tmp = 'createSequenceSet msg: '.$msgSeqNum.', '.$uid.' ['.$seqMin.'/'.$seqMax.'] => ';
-						$tmp .= (int)($uid >= $seqMin).' '.(int)($uid <= $seqMax);
+						#$tmp = 'createSequenceSet msg: '.$msgSeqNum.', '.$uid.' ['.$seqMin.'/'.$seqMax.'] => ';
+						#$tmp .= (int)($uid >= $seqMin).' '.(int)($uid <= $seqMax);
 						#$this->log('debug', $tmp);
 						#fwrite(STDOUT, $tmp."\n");
 						
@@ -386,7 +391,7 @@ class Client{
 			}
 			else{
 				if($seqLen == 1){
-					#$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($seqMin);
+					#$uid = $this->getServer()->getMsgIdBySeq($seqMin, $this->selectedFolder);
 					#$this->log('debug', 'createSequenceSet msg: '.$seqMin);
 					#fwrite(STDOUT, 'createSequenceSet msg: '.$seqMin.''."\n");
 					#$nums[] =(int)$uid;
@@ -396,8 +401,8 @@ class Client{
 					#$this->log('debug', 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"');
 					#fwrite(STDOUT, 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"'."\n");
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-						$tmp = 'createSequenceSet msg: '.$msgSeqNum.' ['.$seqMin.'/'.$seqMax.'] => ';
-						$tmp .= (int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum <= $seqMax);
+						#$tmp = 'createSequenceSet msg: '.$msgSeqNum.' ['.$seqMin.'/'.$seqMax.'] => ';
+						#$tmp .= (int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum <= $seqMax);
 						#$this->log('debug', $tmp);
 						#fwrite(STDOUT, $tmp."\n");
 						
@@ -496,6 +501,7 @@ class Client{
 			#ve($args);
 			
 			#$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
+			#fwrite(STDOUT, 'client '.$this->id.' select: "'.$args[0].'"'."\n");
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
@@ -645,7 +651,8 @@ class Client{
 					}
 					
 					if($flags){
-						$flags = array_combine($flags, $flags);
+						#$flags = array_combine($flags, $flags);
+						$flags = array_unique($flags);
 					}
 					$this->setStatus('appendFlags', $flags);
 					
@@ -847,7 +854,7 @@ class Client{
 	}
 	
 	private function sendNoop($tag){
-		$this->select();
+		#$this->select();
 		if($this->selectedFolder !== null){
 			$this->sendSelectedFolderInfos();
 		}
@@ -875,8 +882,13 @@ class Client{
 	}
 	
 	private function sendSelectedFolderInfos(){
-		$nextId = $this->getServer()->storageMailboxGetDbNextId();
-		$storage = $this->getServer()->getStorageMailbox();
+		$msgs = $this->getServer()->getFolder($this->selectedFolder);
+		#\Doctrine\Common\Util\Debug::dump($msgs);
+		fwrite(STDOUT, 'sendSelectedFolderInfos count: '.count($msgs)."\n");
+		
+		/*
+		$nextId = $this->getServer()->getNextMsgId();
+		$storage = $this->getServer()->getStorageMailbox(); # TODO
 		$count = $storage['object']->countMessages();
 		
 		$firstUnseen = 0;
@@ -915,6 +927,7 @@ class Client{
 		$this->dataSend('* FLAGS ('.join(' ', $availableFlags).')');
 		#$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
 		$this->sendOk('Limited', null, 'PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)');
+		*/
 	}
 	
 	private function sendSelect($tag, $folder){
@@ -923,66 +936,63 @@ class Client{
 			// e.g. Inbox, INbOx or something like this.
 			$folder = 'INBOX';
 		}
-		try{
-			$this->select($folder);
-		}
-		catch(Exception $e){
-			$this->selectedFolder = null;
-			return $this->sendNo('"'.$folder.'" no such mailbox', $tag);
+		
+		#fwrite(STDOUT, 'folder: '.$folder."\n");
+		
+		if($this->select($folder)){
+			#fwrite(STDOUT, 'folder: ok'."\n");
+			$this->sendSelectedFolderInfos();
+			return $this->sendOk('SELECT completed', $tag, 'READ-WRITE');
 		}
 		
-		$this->sendSelectedFolderInfos();
-		
-		return $this->sendOk('SELECT completed', $tag, 'READ-WRITE');
+		#fwrite(STDOUT, 'folder: failed'."\n");
+		return $this->sendNo('"'.$folder.'" no such mailbox', $tag);
 	}
 	
 	private function sendCreate($tag, $folder){
-		try{
-			$storage = $this->getServer()->getStorageMailbox();
-			$storage['object']->createFolder($folder);
+		fwrite(STDOUT, __FUNCTION__.': '.$folder."\n");
+		
+		if(strpos($folder, '/') !== false){
+			$msg = 'invalid name';
+			$msg .= ' - no directory separator allowed in folder name';
+			return $this->sendNo('CREATE failure: '.$msg, $tag);
+		}
+		
+		if($this->getServer()->addFolder($folder)){
 			return $this->sendOk('CREATE completed', $tag);
 		}
-		catch(Exception $e){
-			return $this->sendNo('CREATE failure: '.$e->getMessage(), $tag);
-		}
+		
+		return $this->sendNo('CREATE failure: folder already exists', $tag);
 	}
 	
 	private function sendSubscribe($tag, $folder){
-		try{
-			$storage = $this->getServer()->getStorageMailbox();
-			$folder = $storage['object']->getFolders($folder);
-			
-			
-			#ve($folder);
-			
-			$this->subscriptions[] = $folder->getGlobalName();
-			$this->subscriptions = array_unique($this->subscriptions);
-			#ve($this->subscriptions);
+		if($this->getServer()->folderExists($folder)){
 			# NOT_IMPLEMENTED
 			
+			fwrite(STDOUT, 'subsc: '.$folder."\n");
+			
+			#$folders = $this->getServer()->getFolders($folder);
+			#\Doctrine\Common\Util\Debug::dump($folders);
+			$this->subscriptions[] = $folder;
 			
 			return $this->sendOk('SUBSCRIBE completed', $tag);
-			
 		}
-		catch(Exception $e){
-			return $this->sendNo('SUBSCRIBE failure: '.$e->getMessage(), $tag);
-		}
+		
+		return $this->sendNo('SUBSCRIBE failure: no subfolder named test_dir', $tag);
 	}
 	
 	private function sendUnsubscribe($tag, $folder){
-		try{
-			$storage = $this->getServer()->getStorageMailbox();
-			$folder = $storage['object']->getFolders($folder);
-			
-			unset($this->subscriptions[$folder->getGlobalName()]);
-			#ve($this->subscriptions);
+		if($this->getServer()->folderExists($folder)){
 			# NOT_IMPLEMENTED
+			
+			#$folders = $this->getServer()->getFolders($folder);
+			#\Doctrine\Common\Util\Debug::dump($folders);
+			#unset($this->subscriptions[$folder]);
 			
 			return $this->sendOk('UNSUBSCRIBE completed', $tag);
 		}
-		catch(Exception $e){
-			return $this->sendNo('UNSUBSCRIBE failure: '.$e->getMessage(), $tag);
-		}
+		
+		return $this->sendNo('UNSUBSCRIBE failure: no subfolder named test_dir', $tag);
 	}
 	
 	private function sendList($tag, $baseFolder, $folder){
@@ -990,78 +1000,24 @@ class Client{
 		
 		$folder = str_replace('%', '*', $folder); # NOT_IMPLEMENTED
 		
-		$storage = $this->getServer()->getStorageMailbox();
-		
-		/*
-		$restoreSelectedFolder = false;
-		if($baseFolder){
-			$restoreSelectedFolder = true;
-			$oldSelectedFolder = $this->selectedFolder;
-			$storage['object']->selectFolder($baseFolder);
-		}
-		*/
-		
-		$folders = array();
-		/*if(strpos($folder, '*') === false){
-			$this->log('debug', 'client '.$this->id.' list: found no *');
-			try{
-				$folders = $storage['object']->getFolders($folder);
-			}
-			catch(Exception $e){
-				return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
+		$folders = $this->getServer()->getFolders($baseFolder, $folder, true);
+		$rv = '';
+		if(count($folders)){
+			foreach($folders as $cfolder){
+				$rv .= $this->dataSend('* LIST () "." "'.$cfolder.'"');
 			}
 		}
 		else{
-			$this->log('debug', 'client '.$this->id.' list: found a *');
-			$items = preg_split('/\'.'*'.'/', $folder, 2);
-			ve($items);
-			
-			$search = '';
-			if(count($items) <= 1){
-				$search = null;
+			if($this->getServer()->folderExists($folder)){
+				fwrite(STDOUT, 'folder: ok'."\n");
+				$rv .= $this->dataSend('* LIST () "." "'.$folder.'"');
 			}
 			else{
-				$search = $items[0];
+				fwrite(STDOUT, 'folder failed: '.$folder."\n");
 			}
-			
-			$search = $folder;
-			
-			$this->log('debug', 'client '.$this->id.' list: search "'.$search.'"');
-			try{
-				$folders = $this->getServer()->storageMailboxGetFolders($search, true);
-				#$folders = $this->getServer()->storageMailboxGetFolders($folder, true);
-			}
-			catch(Exception $e){
-				return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
-			}
-		}*/
-		
-		#$storage['object']->selectFolder('test_dir1');
-		#$storage['object']->selectFolder('INBOX');
-		#$folders = $storage['object']->getFolders('test_dir1');
-		#$folders = $storage['object']->getFolders();
-		
-		
-		try{
-			$folders = $this->getServer()->storageMailboxGetFolders($baseFolder, $folder, true);
-		}
-		catch(Exception $e){
-			return $this->sendNo('LIST failure: '.$e->getMessage(), $tag);
 		}
 		
-		#ve($folders);
-		$rv = '';
-		foreach($folders as $cfolder){
-			#$this->log('debug', 'client '.$this->id.'    folder '.$cfolder->getGlobalName());
-			
-			$attrs = array();
-			$rv .= $this->dataSend('* LIST ('.join(' ', $attrs).') "." "'.$cfolder->getGlobalName().'"');
-		}
 		$rv .= $this->sendOk('LIST completed', $tag);
-		
-		#if($restoreSelectedFolder){
-		#	$storage['object']->selectFolder($oldSelectedFolder);
-		#}
 		
 		return $rv;
 	}
@@ -1100,7 +1056,7 @@ class Client{
 				$message = Message::fromString($this->getStatus('appendMsg'));
 				
 				try{
-					$this->getServer()->mailAdd($message, $this->getStatus('appendFolder'),
+					$this->getServer()->addMail($message, $this->getStatus('appendFolder'),
 						$this->getStatus('appendFlags'), false);
 					#$this->log('debug', 'client '.$this->id.' append completed: '.$this->getStatus('appendStep'));
 					return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
@@ -1122,7 +1078,7 @@ class Client{
 	}
 	
 	private function sendClose($tag){
-		$this->select();
+		#$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$rv = '';
@@ -1139,27 +1095,22 @@ class Client{
 		$msgSeqNumsExpunge = array();
 		$expungeDiff = 0;
 		
-		$msgSeqNums = array();
-		try{
-			$msgSeqNums = $this->createSequenceSet('*');
-		}
-		catch(Exception $e){
-			$this->log('debug', 'client '.$this->id.' sendExpungeRaw error: '.$e->getMessage());
-		}
+		$msgSeqNums = $this->createSequenceSet('*');
 		
-		$storage = $this->getServer()->getStorageMailbox();
+		#$storage = $this->getServer()->getStorageMailbox(); # TODO
 		
 		foreach($msgSeqNums as $msgSeqNum){
 			$expungeSeqNum = $msgSeqNum - $expungeDiff;
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$expungeDiff.', '.$expungeSeqNum);
 			
-			$message = null;
+			/*$message = null;
 			try{
 				$message = $storage['object']->getMessage($expungeSeqNum);
 			}
 			catch(Exception $e){
 				$this->log('error', 'client '.$this->id.' getMessage: '.$e->getMessage());
 			}
+			
 			
 			if($message && $message->hasFlag(Storage::FLAG_DELETED)){
 				$this->log('debug', 'client '.$this->id.'      del msg: '.$expungeSeqNum);
@@ -1174,13 +1125,27 @@ class Client{
 				$msgSeqNumsExpunge[] = $expungeSeqNum;
 				$expungeDiff++;
 			}
+			
+			
+			$mail = $this->getServer()->getMailBySeq($expungeSeqNum);
+			if($mail){
+				$this->log('debug', 'mail ok');
+			}
+			else{
+				$this->warning('debug', 'mail not found');
+			}*/
+			
+			$flags = $this->getServer()->getFlagsBySeq($expungeSeqNum);
+			
+			\Doctrine\Common\Util\Debug::dump($flags);
+			
 		}
 		
 		return $msgSeqNumsExpunge;
 	}
 	
 	private function sendExpunge($tag){
-		$this->select();
+		#$this->select();
 		#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$rv = '';
@@ -1593,12 +1558,12 @@ class Client{
 		
 		$ids = array();
 		
-		$storage = $this->getServer()->getStorageMailbox();
+		$storage = $this->getServer()->getStorageMailbox(); # TODO
 		#fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
 		
 		$msgSeqNums = $this->createSequenceSet('*');
 		foreach($msgSeqNums as $msgSeqNum){
-			$uid = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
+			$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 			#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
 			
 			$message = null;
@@ -1658,7 +1623,7 @@ class Client{
 	}
 	
 	private function sendSearch($tag, $criteriaStr){
-		$this->select();
+		#$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$rv = '';
@@ -1719,14 +1684,14 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
-		$storage = $this->getServer()->getStorageMailbox();
+		$storage = $this->getServer()->getStorageMailbox(); # TODO
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
 			$message = $storage['object']->getMessage($msgSeqNum);
 			$flags = $message->getFlags();
 			
-			$msgId = $this->getServer()->storageMaildirGetDbMsgIdBySeqNum($msgSeqNum);
+			$msgId = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 			if(!$msgId){
 				$this->log('error', 'Can not get ID for seq num '.$msgSeqNum.' from root storage.');
 				continue;
@@ -1801,7 +1766,7 @@ class Client{
 	}
 	
 	/*private function sendFetch($tag, $seq, $name){
-		$this->select();
+		#$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$this->sendFetchRaw($tag, $seq, $name, false);
@@ -1813,7 +1778,8 @@ class Client{
 		
 		$flags = $this->msgGetParenthesizedlist($flagsStr);
 		unset($flags[Storage::FLAG_RECENT]);
-		$flags = array_combine($flags, $flags);
+		#$flags = array_combine($flags, $flags);
+		$flags = array_unique($flags);
 		#ve($flags);
 		
 		$add = false;
@@ -1841,7 +1807,7 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
-		$storage = $this->getServer()->getStorageMailbox();
+		$storage = $this->getServer()->getStorageMailbox(); # TODO
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
@@ -1881,7 +1847,7 @@ class Client{
 	}
 	
 	private function sendStore($tag, $seq, $name, $flagsStr){
-		$this->select();
+		#$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$this->sendStoreRaw($tag, $seq, $name, $flagsStr, false);
@@ -1900,7 +1866,7 @@ class Client{
 		#fwrite(STDOUT, "msgSeqNums\n");ve($msgSeqNums);
 		
 		try{
-			$storage = $this->getServer()->getStorageMailbox();
+			$storage = $this->getServer()->getStorageMailbox(); # TODO
 			$storage['object']->getFolders($folder);
 		}
 		catch(Exception $e){
@@ -1948,7 +1914,7 @@ class Client{
 			$rv .= $this->sendCopy($tag, $seq, $folder, true);
 		}
 		elseif($commandcmp == 'fetch'){
-			$this->select();
+			#$this->select();
 			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
 			$args = $this->msgParseString($args, 2);
@@ -1959,7 +1925,7 @@ class Client{
 			$rv .= $this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
-			$this->select();
+			#$this->select();
 			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
 			$args = $this->msgParseString($args, 3);
@@ -1971,7 +1937,7 @@ class Client{
 			$rv .= $this->sendOk('UID STORE completed', $tag);
 		}
 		elseif($commandcmp == 'search'){
-			$this->select();
+			#$this->select();
 			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 			
 			$criteriaStr = $args;
@@ -2025,25 +1991,22 @@ class Client{
 		}
 	}
 	
-	public function select($folder = null){
-		$storage = $this->getServer()->getStorageMailbox();
+	public function select($folder){
+		#fwrite(STDOUT, 'select: '.$folder."\n");
 		
-		if($folder === null){
-			// Restore the previous selected mailbox. Maybe another client has
-			// selected another mailbox so we must jump back to the folder for
-			// this client.
-			if($this->selectedFolder !== null){
-				$storage['object']->selectFolder($this->selectedFolder);
-			}
-		}
-		else{
-			// Select a new folder.
-			$storage['object']->selectFolder($folder);
+		if($this->getServer()->folderExists($folder)){
+			#fwrite(STDOUT, 'select: ok'."\n");
 			
-			$this->log('debug', 'client '.$this->id.' old select folder: "'.$this->selectedFolder.'"');
+			$this->log('debug', 'client '.$this->id.' old folder: "'.$this->selectedFolder.'"');
 			$this->selectedFolder = $folder;
-			$this->log('debug', 'client '.$this->id.' new select folder: "'.$this->selectedFolder.'"');
+			$this->log('debug', 'client '.$this->id.' new folder: "'.$this->selectedFolder.'"');
+			
+			return true;
 		}
+		
+		#fwrite(STDOUT, 'select: failed'."\n");
+		$this->selectedFolder = null;
+		return false;
 	}
 	
 }

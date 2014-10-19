@@ -11,6 +11,7 @@ abstract class AbstractStorage{
 	
 	#private $hasSetup = false;
 	private $path;
+	private $pathLen;
 	private $dbPath;
 	private $db;
 	private $type = 'normal';
@@ -25,10 +26,15 @@ abstract class AbstractStorage{
 		#fwrite(STDOUT, 'AbstractStorage->setPath: '.$path."\n");
 		
 		$this->path = $path;
+		$this->pathLen = strlen($this->path);
 	}
 	
 	public function getPath(){
 		return $this->path;
+	}
+	
+	public function getPathLen(){
+		return $this->pathLen;
 	}
 	
 	public function setDbPath($dbPath){
@@ -61,6 +67,10 @@ abstract class AbstractStorage{
 	public function genFolderPath($path){
 		#fwrite(STDOUT, __FUNCTION__.' A: '.$path."\n");
 		
+		if($path == 'INBOX'){
+			$path = '.';
+		}
+		
 		if($path){
 			$seperator = $this->getDirectorySeperator();
 			$path = str_replace('.', $seperator, $path);
@@ -75,15 +85,20 @@ abstract class AbstractStorage{
 			$path = $this->path;
 		}
 		
-		
 		#fwrite(STDOUT, __FUNCTION__.' B: '.$path."\n");
 		
 		return $path;
 	}
 	
-	abstract protected function createFolder($path);
+	abstract protected function createFolder($folder);
 	
 	abstract protected function getFolders($baseFolder, $searchFolder, $recursive = false);
+	
+	abstract protected function getFolder($folder);
+	
+	abstract protected function folderExists($folder);
+	
+	abstract protected function getMailsCountByFolder($folder);
 	
 	abstract protected function addMail($mailStr, $folder, $flags, $recent);
 	
@@ -95,7 +110,13 @@ abstract class AbstractStorage{
 	
 	abstract protected function getMsgSeqById($msgId);
 	
-	abstract protected function getMsgIdBySeq($seqNum, $folder = null);
+	abstract protected function getMsgIdBySeq($seqNum, $folder);
+	
+	abstract protected function getMsgsByFlags($flags);
+	
+	abstract protected function getFlagsById($msgId);
+	
+	abstract protected function getFlagsBySeq($seqNum, $folder);
 	
 	abstract protected function getNextMsgId();
 	
