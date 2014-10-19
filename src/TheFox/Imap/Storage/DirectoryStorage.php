@@ -234,10 +234,7 @@ class DirectoryStorage extends AbstractStorage{
 	
 	public function getFlagsById($msgId){
 		if($this->getDb()){
-			$msgId = $this->getMsgIdBySeq($seqNum);
-			if($msgId){
-				return $this->getDb()->getFlagsById($msgId);
-			}
+			return $this->getDb()->getFlagsById($msgId);
 		}
 		
 		return array();

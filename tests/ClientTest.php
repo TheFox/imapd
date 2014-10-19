@@ -1056,7 +1056,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '* 4 EXPUNGE'.Client::MSG_SEPARATOR;
 		$expect .= '* 4 EXPUNGE'.Client::MSG_SEPARATOR;
 		$expect .= '14 OK EXPUNGE completed'.Client::MSG_SEPARATOR;
-		#$this->assertEquals($expect, $msg);
+		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
 	}
@@ -1100,27 +1100,29 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir');
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message, null, array(Storage::FLAG_DELETED));
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
 		$message->addFrom('thefox21at@gmail.com');
 		$message->addTo('thefox@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->addMail($message, null, array(Storage::FLAG_DELETED));
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$msg = $client->msgHandle('14 expunge');
 		$expect = '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
 		$expect .= '* 2 EXPUNGE'.Client::MSG_SEPARATOR;
 		$expect .= '14 OK EXPUNGE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
+		
+		$server->shutdown();
 	}
 	
 	public function providerParseSearchKeys(){

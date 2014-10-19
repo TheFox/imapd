@@ -377,7 +377,7 @@ class Server extends Thread{
 		return $storage->getMsgSeqById($msgId);
 	}
 	
-	public function getMsgIdBySeq($seqNum, $folder = null){
+	public function getMsgIdBySeq($seqNum, $folder){
 		#$this->log->debug(__FUNCTION__.': '.$seqNum);
 		
 		$storage = $this->getDefaultStorage();
@@ -391,7 +391,7 @@ class Server extends Thread{
 	
 	public function getFlagsBySeq($seqNum, $folder){
 		$storage = $this->getDefaultStorage();
-		return $storage->getFlagsById($msgId, $folder);
+		return $storage->getFlagsBySeq($seqNum, $folder);
 	}
 	
 	public function getCountMailsByFolder($folder){
@@ -421,7 +421,7 @@ class Server extends Thread{
 		return $msgId;
 	}
 	
-	public function removeMail($msgId){
+	public function removeMailById($msgId){
 		#$this->log->debug(__FUNCTION__);
 		
 		$storage = $this->getDefaultStorage();
@@ -433,10 +433,12 @@ class Server extends Thread{
 		}
 	}
 	
-	public function removeMailBySequenceNum($seqNum){
-		$id = $this->getMsgIdBySeq($seqNum);
-		if($id){
-			$this->removeMail($id);
+	public function removeMailBySeq($seqNum, $folder){
+		$this->log->debug('remove seq: /'.$seqNum.'/');
+		
+		$msgId = $this->getMsgIdBySeq($seqNum, $folder);
+		if($msgId){
+			$this->removeMailById($msgId);
 		}
 	}
 	

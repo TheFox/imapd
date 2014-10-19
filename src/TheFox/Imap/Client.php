@@ -1103,42 +1103,13 @@ class Client{
 			$expungeSeqNum = $msgSeqNum - $expungeDiff;
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$expungeDiff.', '.$expungeSeqNum);
 			
-			/*$message = null;
-			try{
-				$message = $storage['object']->getMessage($expungeSeqNum);
-			}
-			catch(Exception $e){
-				$this->log('error', 'client '.$this->id.' getMessage: '.$e->getMessage());
-			}
-			
-			
-			if($message && $message->hasFlag(Storage::FLAG_DELETED)){
+			$flags = $this->getServer()->getFlagsBySeq($expungeSeqNum, $this->selectedFolder);
+			if(in_array(Storage::FLAG_DELETED, $flags)){
 				$this->log('debug', 'client '.$this->id.'      del msg: '.$expungeSeqNum);
-				
-				try{
-					$this->getServer()->mailRemoveBySequenceNum($expungeSeqNum);
-				}
-				catch(Exception $e){
-					$this->log('error', 'client '.$this->id.' mailRemoveBySequenceNum: '.$e->getMessage());
-				}
-				
+				$this->getServer()->removeMailBySeq($expungeSeqNum, $this->selectedFolder);
 				$msgSeqNumsExpunge[] = $expungeSeqNum;
 				$expungeDiff++;
 			}
-			
-			
-			$mail = $this->getServer()->getMailBySeq($expungeSeqNum);
-			if($mail){
-				$this->log('debug', 'mail ok');
-			}
-			else{
-				$this->warning('debug', 'mail not found');
-			}*/
-			
-			$flags = $this->getServer()->getFlagsBySeq($expungeSeqNum);
-			
-			\Doctrine\Common\Util\Debug::dump($flags);
-			
 		}
 		
 		return $msgSeqNumsExpunge;
@@ -1558,13 +1529,13 @@ class Client{
 		
 		$ids = array();
 		
-		$storage = $this->getServer()->getStorageMailbox(); # TODO
+		#$storage = $this->getServer()->getStorageMailbox(); # TODO
 		#fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
 		
 		$msgSeqNums = $this->createSequenceSet('*');
 		foreach($msgSeqNums as $msgSeqNum){
 			$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
-			#$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
+			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
 			
 			$message = null;
 			try{

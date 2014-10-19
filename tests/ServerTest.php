@@ -632,7 +632,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
 		$this->assertEquals(6, count($files));
 		
-		$server->removeMailBySequenceNum(4);
+		$server->removeMailBySeq(4);
 		
 		$finder = new Finder();
 		$files = $finder->in($path1)->files()->depth(0)->name('*.eml');
