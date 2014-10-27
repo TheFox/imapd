@@ -147,48 +147,48 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		#fwrite(STDOUT, 'add mail1'."\n");
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
 		#fwrite(STDOUT, 'add mail2'."\n");
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
 		#fwrite(STDOUT, 'add mail3'."\n");
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
 		#fwrite(STDOUT, 'add mail4'."\n");
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
 		#fwrite(STDOUT, 'add mail5'."\n");
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
 		#fwrite(STDOUT, 'add mail6'."\n");
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
@@ -781,7 +781,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(null, $msg);
 		
 		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-		$msg = $client->msgHandle('From: Christian Mayer <christian@fox21.at>');
+		$msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
 		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
 		$msg = $client->msgHandle($raw);
 		$msg = $client->msgHandle('MIME-Version: 1.0');
@@ -814,7 +814,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(null, $msg);
 		
 		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-		$msg = $client->msgHandle('From: Christian Mayer <christian@fox21.at>');
+		$msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
 		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
 		$msg = $client->msgHandle($raw);
 		$msg = $client->msgHandle('MIME-Version: 1.0');
@@ -871,7 +871,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(null, $msg);
 		
 		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-		$msg = $client->msgHandle('From: Christian Mayer <christian@fox21.at>');
+		$msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
 		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
 		$msg = $client->msgHandle($raw);
 		$msg = $client->msgHandle('MIME-Version: 1.0');
@@ -994,57 +994,57 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 7');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 8');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir');
@@ -1096,22 +1096,22 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir', array(Storage::FLAG_DELETED));
@@ -1331,22 +1331,22 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message, null, null, false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_ANSWERED), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->addBcc('steve@apple.com');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
@@ -1357,16 +1357,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$message = new Message();
 		$message->setHeaders($headers);
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message, null, null, false);
 		
 		$message = new Message();
 		$message->setHeaders($headers);
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$server->addMail($message, null, null, false);
@@ -1376,127 +1376,127 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$message = new Message();
 		$message->setHeaders($headers);
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 6');
 		$message->setBody('hello world');
 		$server->addMail($message, null, null, false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 7');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_DELETED), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 8');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_DRAFT), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 9');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_FLAGGED), false);
 		
 		$message = new Message();
 		$message->addFrom('test@fox21.at');
-		$message->addTo('thefox@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 10');
 		$message->setBody('my_body');
 		$server->addMail($message, null, null, false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 11');
 		$message->setBody('my super fancy long body for testing the size');
 		$server->addMail($message, null, null, false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 12');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 13');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		#$message->setSubject('my_subject 14');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 15');
 		$message->setBody('this is a test body');
 		$server->addMail($message, null, array(), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 16');
 		#$message->setBody('my_body');
 		$server->addMail($message, null, array(), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
+		$message->addFrom('dev1@fox21.at');
 		$message->addTo('steve@apple.com');
 		$message->setSubject('my_subject 17');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 18');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 19');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_ANSWERED), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 20');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_DELETED), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 21');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_DRAFT), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 22');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_FLAGGED), false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 23');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_SEEN), false);
@@ -1709,29 +1709,29 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('15 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message);
@@ -1785,29 +1785,29 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->msgHandle('6 select INBOX');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message, null, null, false);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message);
@@ -1845,29 +1845,29 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->msgHandle('6 select INBOX');
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message);
@@ -1914,36 +1914,36 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$server->addMail($message);
@@ -2140,29 +2140,29 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message);
@@ -2232,29 +2232,29 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$server->addMail($message);
 		
 		$message = new Message();
-		$message->addFrom('thefox21at@gmail.com');
-		$message->addTo('thefox@fox21.at');
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$server->addMail($message);

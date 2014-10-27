@@ -182,8 +182,8 @@ class Server extends Thread{
 				print __CLASS__.'->'.__FUNCTION__.' add msg A'."\n";
 				
 				$message = new Message();
-				$message->addFrom('thefox21at@gmail.com');
-				$message->addTo('thefox@fox21.at');
+				$message->addFrom('dev1@fox21.at');
+				$message->addTo('dev2@fox21.at');
 				$message->setBody('body');
 				
 				$message->setSubject('t1 10s '.date('H:i:s'));
@@ -197,8 +197,8 @@ class Server extends Thread{
 				print __CLASS__.'->'.__FUNCTION__.' add msg B'."\n";
 				
 				$message = new Message();
-				$message->addFrom('thefox21at@gmail.com');
-				$message->addTo('thefox@fox21.at');
+				$message->addFrom('dev1@fox21.at');
+				$message->addTo('dev2@fox21.at');
 				$message->setSubject('test 300s '.date('H:i:s'));
 				$message->setBody('body');
 				
