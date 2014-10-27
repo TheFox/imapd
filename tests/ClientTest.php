@@ -2328,7 +2328,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('18 uid store 100005 -FLAGS.SILENT ('.Storage::FLAG_FLAGGED.')');
 		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
 		
-		$this->assertEquals(3, count($server->getMailIdsByFlags(array(Storage::FLAG_FLAGGED))));
+		$this->assertEquals(2, count($server->getMailIdsByFlags(array(Storage::FLAG_FLAGGED))));
 		
 		
 		#$finder = new Finder();
