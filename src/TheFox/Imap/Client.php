@@ -1246,7 +1246,9 @@ class Client{
 				$rv = !in_array(Storage::FLAG_RECENT, $flags);
 				break;
 			case 'on':
-				# NOT_IMPLEMENTED
+				$checkDate = new DateTime($items[1]);
+				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
+				$rv = $messageDate->format('Y-m-d') == $checkDate->format('Y-m-d');
 				break;
 			case 'recent':
 				$rv = in_array(Storage::FLAG_RECENT, $flags);
