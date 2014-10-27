@@ -38,6 +38,9 @@ class InfoCommand extends BasicCommand{
 		elseif($input->hasOption('version_number') && $input->getOption('version_number')){
 			print Imapd::VERSION;
 		}
+		else{
+			print Imapd::NAME.' '.Imapd::VERSION.PHP_EOL;
+		}
 		
 		#$this->executePost();
 	}
