@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use TheFox\Imap\Server;
+use TheFox\Imap\Storage\DirectoryStorage;
 
 class ServerCommand extends BasicCommand{
 	
@@ -52,7 +53,9 @@ class ServerCommand extends BasicCommand{
 		}
 		
 		try{
-			$this->server->storageAddMaildir('mailbox');
+			$storage = new DirectoryStorage();
+			$storage->setPath('mailbox');
+			$this->server->addStorage($storage);
 		}
 		catch(Exception $e){
 			$this->log->error('storage: '.$e->getMessage());
