@@ -45,8 +45,8 @@ class DirectoryStorage extends AbstractStorage{
 	public function getFolders($baseFolder, $searchFolder, $recursive = false){
 		$path = $this->genFolderPath($baseFolder);
 		
-		fwrite(STDOUT, 'getFolders path: '.$path."\n");
-		fwrite(STDOUT, 'getFolders base: '.$baseFolder."\n");
+		#fwrite(STDOUT, 'getFolders path: '.$path."\n");
+		#fwrite(STDOUT, 'getFolders base: '.$baseFolder."\n");
 		#fwrite(STDOUT, 'getFolders search: '.$searchFolder."\n");
 		#fwrite(STDOUT, 'getFolders rec: '.(int)$recursive."\n");
 		
@@ -84,7 +84,7 @@ class DirectoryStorage extends AbstractStorage{
 		
 		$msgs = array();
 		foreach($files as $fileId => $file){
-			\Doctrine\Common\Util\Debug::dump($file);
+			\Doctrine\Common\Util\Debug::dump($file); # TODO
 			#break;
 			#$msgs[] = $this->getMsgIdByPath($file->);
 		}
@@ -132,7 +132,7 @@ class DirectoryStorage extends AbstractStorage{
 		}
 	}
 	
-	public function copyMail($msgId, $folder){
+	public function copyMailById($msgId, $folder){
 		if($this->getDb()){
 			$msg = $this->getDb()->getMsgById($msgId);
 			if(file_exists($msg['path'])){
@@ -156,10 +156,10 @@ class DirectoryStorage extends AbstractStorage{
 		}
 	}
 	
-	public function copyMailBySequenceNum($seqNum, $folder){
-		$msgId = $this->getMsgIdBySeq($seqNum);
+	public function copyMailBySequenceNum($seqNum, $folder, $dstFolder){
+		$msgId = $this->getMsgIdBySeq($seqNum, $folder);
 		if($msgId){
-			$this->copyMail($msgId, $folder);
+			$this->copyMailById($msgId, $dstFolder);
 		}
 	}
 	
@@ -240,6 +240,12 @@ class DirectoryStorage extends AbstractStorage{
 		return array();
 	}
 	
+	public function setFlagsById($msgId, $flags){
+		if($this->getDb()){
+			$this->getDb()->setFlagsById($msgId, $flags);
+		}
+	}
+	
 	public function getFlagsBySeq($seqNum, $folder){
 		if($this->getDb()){
 			$path = $this->genFolderPath($folder);
@@ -257,6 +263,15 @@ class DirectoryStorage extends AbstractStorage{
 		}
 		
 		return array();
+	}
+	
+	public function setFlagsBySeq($seqNum, $folder, $flags){
+		if($this->getDb()){
+			$msgId = $this->getMsgIdBySeq($seqNum, $folder);
+			if($msgId){
+				$this->getDb()->setFlagsById($msgId, $flags);
+			}
+		}
 	}
 	
 	public function getNextMsgId(){

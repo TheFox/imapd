@@ -10,6 +10,7 @@ use DateTime;
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
 use Zend\Mail\Message;
+use Zend\Mail\Header\Date;
 
 use TheFox\Network\AbstractSocket;
 use TheFox\Logic\CriteriaTree;
@@ -832,12 +833,15 @@ class Client{
 	
 	public function dataSend($msg){
 		$output = $msg.static::MSG_SEPARATOR;
+		$tmp = $msg;
+		$tmp = str_replace("\r", '', $tmp);
+		$tmp = str_replace("\n", '\\n', $tmp);
 		if($this->getSocket()){
-			$tmp = $msg;
-			$tmp = str_replace("\r", '', $tmp);
-			$tmp = str_replace("\n", '\\n', $tmp);
 			$this->log('debug', 'client '.$this->id.' data send: "'.$tmp.'"');
 			$this->getSocket()->write($output);
+		}
+		else{
+			$this->log('debug', 'client '.$this->id.' DEBUG data send: "'.$tmp.'"');
 		}
 		return $output;
 	}
@@ -1036,8 +1040,9 @@ class Client{
 	}
 	
 	private function sendAppend($data = ''){
+		$appendMsgLen = strlen($this->getStatus('appendMsg'));
 		#$this->log('debug', 'client '.$this->id.' append step: '.$this->getStatus('appendStep'));
-		#$this->log('debug', 'client '.$this->id.' append len: '.strlen($this->getStatus('appendMsg')));
+		#$this->log('debug', 'client '.$this->id.' append len: '.$appendMsgLen);
 		#$this->log('debug', 'client '.$this->id.' append lit: '.$this->getStatus('appendLiteral'));
 		
 		if($this->getStatus('appendStep') == 1){
@@ -1046,24 +1051,29 @@ class Client{
 			return $this->dataSend('+ Ready for literal data');
 		}
 		elseif($this->getStatus('appendStep') == 2){
-			if(strlen($this->getStatus('appendMsg')) < $this->getStatus('appendLiteral')){
+			if($appendMsgLen < $this->getStatus('appendLiteral')){
 				$this->status['appendMsg'] .= $data.Headers::EOL;
+				$appendMsgLen = strlen($this->getStatus('appendMsg'));
 			}
 			
-			if(strlen($this->getStatus('appendMsg')) >= $this->getStatus('appendLiteral')){
+			if($appendMsgLen >= $this->getStatus('appendLiteral')){
 				$this->status['appendStep']++;
+				$this->log('debug', 'client '.$this->id.' append len reached: '.$appendMsgLen);
 				
 				$message = Message::fromString($this->getStatus('appendMsg'));
 				
 				try{
 					$this->getServer()->addMail($message, $this->getStatus('appendFolder'),
 						$this->getStatus('appendFlags'), false);
-					#$this->log('debug', 'client '.$this->id.' append completed: '.$this->getStatus('appendStep'));
+					$this->log('debug', 'client '.$this->id.' append completed: '.$this->getStatus('appendStep'));
 					return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
 				}
 				catch(Exception $e){
 					return $this->sendNo('Can not get folder: '.$e->getMessage(), $this->getStatus('appendTag'), 'TRYCREATE');
 				}
+			}
+			else{
+				$this->log('debug', 'client '.$this->id.' append left: '.($this->getStatus('appendLiteral') - $appendMsgLen).' ('.$appendMsgLen.')');
 			}
 		}
 	}
@@ -1273,22 +1283,28 @@ class Client{
 		$items = preg_split('/ /', $searchKey, 3);
 		$itemcmp = strtolower($items[0]);
 		
+		$flags = $this->getServer()->getFlagsById($messageUid);
+		#\Doctrine\Common\Util\Debug::dump($flags);
+		
 		$rv = false;
 		switch($itemcmp){
 			case 'all':
 				$rv = true;
 				break;
 			case 'answered':
-				$rv = $message->hasFlag(Storage::FLAG_ANSWERED);
+				$rv = in_array(Storage::FLAG_ANSWERED, $flags);
 				break;
 			case 'bcc':
-				try{
-					$searchStr = strtolower($items[1]);
-					$bcc = $message->bcc;
-					$rv = strpos(strtolower($bcc), $searchStr) !== false;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
+				$searchStr = strtolower($items[1]);
+				$bccAddressList = $message->getBcc();
+				#$this->log('debug', 'bcc: '.$bcc);
+				if(count($bccAddressList)){
+					#\Doctrine\Common\Util\Debug::dump($bccAddressList->get());
+					foreach($bccAddressList as $bcc){
+						#fwrite(STDOUT, 'bcc: '.$bcc->getEmail()."\n");
+						$rv = strpos(strtolower($bcc->getEmail()), $searchStr) !== false;
+						break;
+					}
 				}
 				break;
 			case 'before':
@@ -1296,131 +1312,120 @@ class Client{
 				break;
 			case 'body':
 				$searchStr = strtolower($items[1]);
-				$rv = strpos(strtolower($message->getContent()), $searchStr) !== false;
+				$rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
 				break;
 			case 'cc':
-				try{
-					$searchStr = strtolower($items[1]);
-					$rv = strpos(strtolower($message->cc), $searchStr) !== false;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
-				}
+				$searchStr = strtolower($items[1]);
+				$rv = strpos(strtolower($message->cc), $searchStr) !== false;
 				break;
 			case 'deleted':
-				$rv = $message->hasFlag(Storage::FLAG_DELETED);
+				$rv = in_array(Storage::FLAG_DELETED, $flags);
 				break;
 			case 'draft':
-				$rv = $message->hasFlag(Storage::FLAG_DRAFT);
+				$rv = in_array(Storage::FLAG_DRAFT, $flags);
 				break;
 			case 'flagged':
-				$rv = $message->hasFlag(Storage::FLAG_FLAGGED);
+				$rv = in_array(Storage::FLAG_FLAGGED, $flags);
 				break;
 			case 'from':
-				try{
-					$searchStr = strtolower($items[1]);
-					$rv = strpos(strtolower($message->from), $searchStr) !== false;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
+				$searchStr = strtolower($items[1]);
+				$fromAddressList = $message->getFrom();
+				if(count($fromAddressList)){
+					foreach($fromAddressList as $from){
+						$rv = strpos(strtolower($from->getEmail()), $searchStr) !== false;
+						break;
+					}
 				}
 				break;
 			case 'header':
-				try{
-					$searchStr = strtolower($items[2]);
-					$val = $message->getHeader($items[1], 'string');
-					$rv = strpos(strtolower($val), $searchStr) !== false;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
-				}
+				$searchStr = strtolower($items[2]);
+				$fieldName = $items[1];
+				$header = $message->getHeaders()->get($fieldName);
+				$val = $header->getFieldValue();
+				#fwrite(STDOUT, 'get header: '.$fieldName.' /'.$searchStr.'/ -> '.$val."\n");
+				$rv = strpos(strtolower($val), $searchStr) !== false;
 				break;
 			case 'keyword':
 				# NOT_IMPLEMENTED
 				break;
 			case 'larger':
-				$rv = $message->getSize() > (int)$items[1];
+				#fwrite(STDOUT, 'larger: /'.$items[1].'/'."\n");
+				#\Doctrine\Common\Util\Debug::dump( (string) $message->getHeaders()->toString());
+				#\Doctrine\Common\Util\Debug::dump( (string) $message->toString());
+				#$rv = strlen($message->toString()) > (int)$items[1];
+				$rv = strlen($message->getBody()) > (int)$items[1];
 				break;
 			case 'new':
-				$rv = $message->hasFlag(Storage::FLAG_RECENT) && !$message->hasFlag(Storage::FLAG_SEEN);
+				#fwrite(STDOUT, 'new'."\n");
+				#\Doctrine\Common\Util\Debug::dump($flags);
+				$rv = in_array(Storage::FLAG_RECENT, $flags) && !in_array(Storage::FLAG_SEEN, $flags);
 				break;
 			case 'old':
-				$rv = !$message->hasFlag(Storage::FLAG_RECENT);
+				$rv = !in_array(Storage::FLAG_RECENT, $flags);
 				break;
 			case 'on':
 				# NOT_IMPLEMENTED
 				break;
 			case 'recent':
-				$rv = $message->hasFlag(Storage::FLAG_RECENT);
+				#fwrite(STDOUT, 'recent'."\n");
+				#\Doctrine\Common\Util\Debug::dump($flags);
+				$rv = in_array(Storage::FLAG_RECENT, $flags);
 				break;
 			case 'seen':
-				$rv = $message->hasFlag(Storage::FLAG_SEEN);
+				#fwrite(STDOUT, 'seen'."\n");
+				#\Doctrine\Common\Util\Debug::dump($flags);
+				$rv = in_array(Storage::FLAG_SEEN, $flags);
 				break;
 			case 'sentbefore':
-				try{
-					$checkDate = new DateTime($items[1]);
-					$messageDate = new DateTime($message->date);
-					$messageDate = new DateTime($messageDate->format('Y-m-d'));
-					$rv = $messageDate < $checkDate;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
-				}
+				$checkDate = new DateTime($items[1]);
+				#$messageDate = new DateTime($message->date);
+				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
+				#$messageDate = new DateTime($messageDate->format('Y-m-d'));
+				$rv = $messageDate < $checkDate;
 				break;
 			case 'senton':
-				try{
-					$checkDate = new DateTime($items[1]);
-					$messageDate = new DateTime($message->date);
-					$messageDate = new DateTime($messageDate->format('Y-m-d'));
-					$rv = $messageDate == $checkDate;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
-				}
+				$checkDate = new DateTime($items[1]);
+				#$messageDate = new DateTime($message->date);
+				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
+				#$messageDate = new DateTime($messageDate->format('Y-m-d'));
+				$rv = $messageDate == $checkDate;
 				break;
 			case 'sentsince':
-				try{
-					$checkDate = new DateTime($items[1]);
-					$messageDate = new DateTime($message->date);
-					$messageDate = new DateTime($messageDate->format('Y-m-d'));
-					$rv = $messageDate >= $checkDate;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
-				}
+				$checkDate = new DateTime($items[1]);
+				#$messageDate = new DateTime($message->date);
+				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
+				#$messageDate = new DateTime($messageDate->format('Y-m-d'));
+				$rv = $messageDate >= $checkDate;
 				break;
 			case 'since':
 				# NOT_IMPLEMENTED
 				break;
 			case 'smaller':
-				$rv = $message->getSize() < (int)$items[1];
+				#$rv = $message->getSize() < (int)$items[1];
+				$rv = strlen($message->getBody()) < (int)$items[1];
 				break;
 			case 'subject':
-				try{
-					if(isset($items[2])){
-						$items[1] .= ' '.$items[2];
-						unset($items[2]);
-					}
-					#ve($items);
-					$searchStr = strtolower($items[1]);
-					$rv = strpos(strtolower($message->subject), $searchStr) !== false;
+				if(isset($items[2])){
+					$items[1] .= ' '.$items[2];
+					unset($items[2]);
 				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
-				}
+				$searchStr = strtolower($items[1]);
+				$rv = strpos(strtolower($message->getSubject()), $searchStr) !== false;
 				break;
 			case 'text':
 				$searchStr = strtolower($items[1]);
-				$text = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
-				$rv = strpos(strtolower($message->getContent()), $searchStr) !== false;
+				#$text = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
+				#$text = $message->toString();
+				$rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
 				break;
 			case 'to':
-				try{
-					$searchStr = strtolower($items[1]);
-					$rv = strpos(strtolower($message->to), $searchStr) !== false;
-				}
-				catch(Exception $e){
-					$this->log('error', 'search message condition: '.$e->getMessage());
+				$searchStr = strtolower($items[1]);
+				$toAddressList = $message->getTo();
+				if(count($toAddressList)){
+					foreach($toAddressList as $to){
+						$rv = strpos(strtolower($to->getEmail()), $searchStr) !== false;
+						break;
+					}
 				}
 				break;
 			case 'uid':
@@ -1428,22 +1433,22 @@ class Client{
 				$rv = $searchId == $messageUid;
 				break;
 			case 'unanswered':
-				$rv = !$message->hasFlag(Storage::FLAG_ANSWERED);
+				$rv = !in_array(Storage::FLAG_ANSWERED, $flags);
 				break;
 			case 'undeleted':
-				$rv = !$message->hasFlag(Storage::FLAG_DELETED);
+				$rv = !in_array(Storage::FLAG_DELETED, $flags);
 				break;
 			case 'undraft':
-				$rv = !$message->hasFlag(Storage::FLAG_DRAFT);
+				$rv = !in_array(Storage::FLAG_DRAFT, $flags);
 				break;
 			case 'unflagged':
-				$rv = !$message->hasFlag(Storage::FLAG_FLAGGED);
+				$rv = !in_array(Storage::FLAG_FLAGGED, $flags);
 				break;
 			case 'unkeyword':
 				# NOT_IMPLEMENTED
 				break;
 			case 'unseen':
-				$rv = !$message->hasFlag(Storage::FLAG_SEEN);
+				$rv = !in_array(Storage::FLAG_SEEN, $flags);
 				break;
 			
 			default:
@@ -1512,56 +1517,32 @@ class Client{
 		
 		$criteria = array();
 		$criteria = $this->msgGetParenthesizedlist($criteriaStr);
-		#ve($criteria);
-		
 		$criteria = $this->parseSearchKeys($criteria);
-		#ve($criteria);
 		
 		$tree = new CriteriaTree($criteria);
 		$tree->build();
-		#ve($tree->getRootGate());
-		#ve($tree->getRootGate()->bool());
 		
 		if(!$tree->getRootGate()){
 			return '';
 		}
 		
-		
-		$ids = array();
-		
 		#$storage = $this->getServer()->getStorageMailbox(); # TODO
 		#fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
 		
+		$ids = array();
 		$msgSeqNums = $this->createSequenceSet('*');
 		foreach($msgSeqNums as $msgSeqNum){
 			$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
 			
 			$message = null;
-			try{
-				$message = $storage['object']->getMessage($msgSeqNum);
-			}
-			catch(Exception $e){
-				$this->log('error', 'client '.$this->id.' getMessage: '.$e->getMessage());
-			}
+			#$message = $storage['object']->getMessage($msgSeqNum);
+			$message = $this->getServer()->getMailBySeq($msgSeqNum, $this->selectedFolder);
 			
 			$add = false;
 			if($message){
-				#ve($message);
-				
-				#$headers = $message->getHeaders();
-				
-				#ve($headers->get('To')->getFieldValue());
-				#ve($headers->get('From')->getFieldValue());
-				
 				$rootGate = clone $tree->getRootGate();
 				$add = $this->parseSearchMessage($message, $msgSeqNum, $uid, $isUid, $rootGate);
-				#fwrite(STDOUT, 'val: '.(int)$val.''."\n");
-				
-				#$add = $val;
-				
-				#ve($storage['object']->);
-				
 			}
 			if($add){
 				if($isUid){
@@ -1573,22 +1554,16 @@ class Client{
 			}
 		}
 		
-		#ve($ids);
 		sort($ids);
 		
 		$rv = '';
 		while($ids){
-			
 			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
-			
-			#ve($ids);
 			
 			$sendIds = array_slice($ids, 0, 30);
 			$ids = array_slice($ids, 30);
 			
 			$rv .= $this->dataSend('* SEARCH '.join(' ', $sendIds).'');
-			
-			#usleep(100000);
 		}
 		return $rv;
 	}
@@ -1655,18 +1630,23 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
-		$storage = $this->getServer()->getStorageMailbox(); # TODO
+		#$storage = $this->getServer()->getStorageMailbox();
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
-			$message = $storage['object']->getMessage($msgSeqNum);
-			$flags = $message->getFlags();
+			#$message = $storage['object']->getMessage($msgSeqNum);
+			#$message = $this->getMailBySeq($msgSeqNum);
+			#$flags = $message->getFlags();
+			#$flags = $this->getServer()->getFlagsBySeq($msgSeqNum);
 			
 			$msgId = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 			if(!$msgId){
 				$this->log('error', 'Can not get ID for seq num '.$msgSeqNum.' from root storage.');
 				continue;
 			}
+			
+			$message = $this->getServer()->getMailById($msgId);
+			$flags = $this->getServer()->getFlagsById($msgId);
 			
 			#$this->log('debug', 'sendFetchRaw msg: '.$msgSeqNum.' '.sprintf('%10s', $msgId));
 			
@@ -1683,7 +1663,8 @@ class Client{
 					$peek = $item == 'body.peek';
 					$section = '';
 					
-					$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
+					#$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
+					$msgStr = $message->toString();
 					if(isset($val['header'])){
 						#$this->log('debug', 'client '.$this->id.' fetch header');
 						$section = 'HEADER';
@@ -1712,7 +1693,7 @@ class Client{
 				}
 				elseif($item == 'rfc822.size'){
 					#$size = $message->getSize();
-					$size = strlen($message->getHeaders()->toString().Headers::EOL.$message->getContent());
+					$size = strlen($message->toString());
 					$output[] = 'RFC822.SIZE '.$size;
 				}
 				elseif($item == 'uid'){
@@ -1721,7 +1702,7 @@ class Client{
 			}
 			
 			if($outputHasFlag){
-				$output[] = 'FLAGS ('.join(' ', array_values($message->getFlags())).')';
+				$output[] = 'FLAGS ('.join(' ', $flags).')';
 			}
 			if($outputBody){
 				$output[] = $outputBody;
@@ -1730,7 +1711,8 @@ class Client{
 			$rv .= $this->dataSend('* '.$msgSeqNum.' FETCH ('.join(' ', $output).')');
 			
 			unset($flags[Storage::FLAG_RECENT]);
-			$storage['object']->setFlags($msgSeqNum, $flags);
+			#$storage['object']->setFlags($msgSeqNum, $flags);
+			$this->getServer()->setFlagsById($msgId, $flags);
 		}
 		
 		return $rv;
@@ -1778,15 +1760,19 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
-		$storage = $this->getServer()->getStorageMailbox(); # TODO
+		#$storage = $this->getServer()->getStorageMailbox(); # TODO
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
 			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
 			
-			$message = $storage['object']->getMessage($msgSeqNum);
-			$messageFlags = $message->getFlags();
-			unset($messageFlags[Storage::FLAG_RECENT]);
+			#$message = $storage['object']->getMessage($msgSeqNum);
+			#$messageFlags = $message->getFlags();
+			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
+			#\Doctrine\Common\Util\Debug::dump($messageFlags);
+			#if(($key = array_search(Storage::FLAG_RECENT, $messageFlags)) !== false){
+			#	unset($messageFlags[$key]);
+			#}
 			
 			if(!$add && !$rem){
 				$messageFlags = $flags;
@@ -1806,8 +1792,11 @@ class Client{
 				}
 			}
 			
+			#\Doctrine\Common\Util\Debug::dump($messageFlags);
 			#ve($messageFlags);
-			$storage['object']->setFlags($msgSeqNum, $messageFlags);
+			#$storage['object']->setFlags($msgSeqNum, $messageFlags);
+			$this->getServer()->setFlagsBySeq($msgSeqNum, $this->selectedFolder, $messageFlags);
+			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
 			
 			if(!$silent){
 				$rv .= $this->dataSend('* '.$msgSeqNum.' FETCH (FLAGS ('.join(' ', $messageFlags).'))');
@@ -1834,24 +1823,18 @@ class Client{
 			return $this->sendBad($e->getMessage(), $tag);
 		}
 		
-		#fwrite(STDOUT, "msgSeqNums\n");ve($msgSeqNums);
-		
-		try{
-			$storage = $this->getServer()->getStorageMailbox(); # TODO
-			$storage['object']->getFolders($folder);
+		#\Doctrine\Common\Util\Debug::dump($msgSeqNums);
+		if($this->getServer()->getCountMailsByFolder($this->selectedFolder) == 0){
+			return $this->sendBad('No messages in selected mailbox.', $tag);
 		}
-		catch(Exception $e){
-			return $this->sendNo('Can not get folder: '.$e->getMessage(), $tag, 'TRYCREATE');
+		
+		if(!$this->getServer()->folderExists($folder)){
+			return $this->sendNo('Can not get folder: no subfolder named '.$folder, $tag, 'TRYCREATE');
 		}
 		
 		foreach($msgSeqNums as $msgSeqNum){
-			try{
-				#fwrite(STDOUT, "\t msgSeqNum: ".$msgSeqNum."\n");
-				$this->getServer()->mailCopyBySequenceNum($msgSeqNum, $folder);
-			}
-			catch(Exception $e){
-				return $this->sendNo('Can not copy message: '.$msgSeqNum, $tag);
-			}
+			fwrite(STDOUT, 'msgSeqNum: '.$msgSeqNum."\n");
+			$this->getServer()->copyMailBySequenceNum($msgSeqNum, $this->selectedFolder, $folder);
 		}
 		
 		return $this->sendOk('COPY completed', $tag);
@@ -1978,6 +1961,10 @@ class Client{
 		#fwrite(STDOUT, 'select: failed'."\n");
 		$this->selectedFolder = null;
 		return false;
+	}
+	
+	public function getSelectedFolder(){
+		return $this->selectedFolder;
 	}
 	
 }

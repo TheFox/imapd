@@ -48,7 +48,11 @@ class TestStorage extends AbstractStorage{
 		
 	}
 	
-	public function copyMail($msgId, $folder){
+	public function copyMailById($msgId, $folder){
+		
+	}
+	
+	public function copyMailBySequenceNum($seqNum, $folder, $dstFolder){
 		
 	}
 	
@@ -72,8 +76,16 @@ class TestStorage extends AbstractStorage{
 		return array();
 	}
 	
+	public function setFlagsById($msgId, $flags){
+		
+	}
+	
 	public function getFlagsBySeq($seqNum, $folder){
 		return array();
+	}
+	
+	public function setFlagsBySeq($seqNum, $folder, $flags){
+		
 	}
 	
 	public function getNextMsgId(){

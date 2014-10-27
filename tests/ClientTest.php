@@ -126,7 +126,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -448,7 +448,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -482,7 +482,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -526,7 +526,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -564,7 +564,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -599,7 +599,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -666,7 +666,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -712,7 +712,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -752,7 +752,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -773,7 +773,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$this->assertEquals(0, $client->getStatus('appendStep'));
 		
-		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_SEEN.') {427}');
+		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_SEEN.') {416}');
 		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(2, $client->getStatus('appendStep'));
 		
@@ -789,9 +789,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('Subject: test2a');
 		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
 		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		#fwrite(STDOUT, 'msg /'.(string)$msg.'/'."\n");
 		$msg = $client->msgHandle('');
+		#fwrite(STDOUT, 'msg /'.(string)$msg.'/'."\n");
 		$msg = $client->msgHandle('test2');
-		#$msg = $client->msgHandle('');
+		#fwrite(STDOUT, 'msg /'.(string)$msg.'/'."\n");
 		
 		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(3, $client->getStatus('appendStep'));
@@ -806,7 +808,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#$server->shutdown();
 		#return;
 		
-		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_ANSWERED.') {425}');
+		
+		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_ANSWERED.') {414}');
 		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(2, $client->getStatus('appendStep'));
 		
@@ -835,13 +838,15 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$msgIds = $server->getMailIdsByFlags(array(Storage::FLAG_ANSWERED));
 		$this->assertEquals(1, count($msgIds));
+		
+		$server->shutdown();
 	}
 	
 	public function testMsgHandleAppend3(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -862,7 +867,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$this->assertEquals(0, $client->getStatus('appendStep'));
 		
-		$msg = $client->msgHandle('19 append "Sent" {429}');
+		$msg = $client->msgHandle('19 append "Sent" {417}');
 		
 		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(2, $client->getStatus('appendStep'));
@@ -895,7 +900,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -929,7 +934,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -963,7 +968,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1065,7 +1070,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1300,11 +1305,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $rv);
 	}
 	
+	/**
+	 * @group medium
+	 */
 	public function testMsgHandleUidSearch(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1547,6 +1555,10 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
+		#$msg = $client->msgHandle('17 uid SEARCH HEADER BCC x'); # TODO
+		#$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		#$this->assertEquals($expect, $msg);
+		
 		$msg = $client->msgHandle('17 uid SEARCH LARGER 40');
 		$expect = '* SEARCH 100011'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
@@ -1680,7 +1692,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1713,28 +1725,28 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (ALL)');
@@ -1766,7 +1778,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1789,14 +1801,14 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -1810,14 +1822,15 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		
 		$msg = $client->msgHandle('15 UID fetch 1:* (FLAGS)');
-		$expect = '* 1 FETCH (UID 100003 FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR;
-		$expect .= '* 2 FETCH (UID 100001 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
-		$expect .= '* 3 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
-		$expect .= '* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect = '';
+		$expect .= '* 1 FETCH (UID 100001 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 2 FETCH (UID 100002 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100003 FLAGS ('.Storage::FLAG_SEEN.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
 		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 	}
@@ -1826,7 +1839,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1849,34 +1862,35 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		
 		$msg = $client->msgHandle('15 UID fetch 100002:100004 (FLAGS)');
-		$expect = '* 2 FETCH (UID 100002 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
-		$expect .= '* 3 FETCH (UID 100003 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
-		$expect .= '* 4 FETCH (UID 100004 FLAGS (\Recent))'.Client::MSG_SEPARATOR;
+		$expect = '';
+		$expect = '* 2 FETCH (UID 100002 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 FETCH (UID 100003 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (UID 100004 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
 		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 	}
@@ -1885,7 +1899,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -1918,52 +1932,60 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, null, array(), true);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/new')->files();
-		$this->assertEquals(5, count($files));
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 6');
+		$message->setBody('my_body');
+		$server->addMail($message, null, array(), false);
 		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 7');
+		$message->setBody('my_body');
+		$server->addMail($message, null, null, false);
+		
+		
+		#\Doctrine\Common\Util\Debug::dump($server->getMailIdsByFlags(array(Storage::FLAG_RECENT)));
+		$this->assertEquals(5, count($server->getMailIdsByFlags(array(Storage::FLAG_RECENT))));
 		
 		$msg = $client->msgHandle('18 uid store 100001 -FLAGS ('.Storage::FLAG_RECENT.')');
 		$expect = '* 1 FETCH (FLAGS ())'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/new')->files();
-		$this->assertEquals(4, count($files));
+		$this->assertEquals(4, count($server->getMailIdsByFlags(array(Storage::FLAG_RECENT))));
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->files();
-		$this->assertEquals(1, count($files));
 		
 		
 		$msg = $client->msgHandle('18 uid store 100001 +FLAGS ('.Storage::FLAG_SEEN.')');
@@ -1971,9 +1993,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,S');
-		$this->assertEquals(1, count($files));
+		#\Doctrine\Common\Util\Debug::dump($server->getMailIdsByFlags(array(Storage::FLAG_SEEN)));
+		$this->assertEquals(2, count($server->getMailIdsByFlags(array(Storage::FLAG_SEEN))));
+		
 		
 		
 		$msg = $client->msgHandle('18 uid store 100002 +FLAGS ('.Storage::FLAG_SEEN.')');
@@ -1981,9 +2003,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,S');
-		$this->assertEquals(2, count($files));
+		$this->assertEquals(3, count($server->getMailIdsByFlags(array(Storage::FLAG_SEEN))));
+		
 		
 		
 		$msg = $client->msgHandle('18 uid store 100003 +FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.')');
@@ -1991,35 +2012,33 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,RS');
-		$this->assertEquals(1, count($files));
+		$this->assertEquals(4, count($server->getMailIdsByFlags(array(Storage::FLAG_SEEN, Storage::FLAG_ANSWERED))));
+		#\Doctrine\Common\Util\Debug::dump($server->getMailIdsByFlags(array(Storage::FLAG_SEEN, Storage::FLAG_ANSWERED)));
+		
 		
 		
 		$raw = '18 uid store 100003 +FLAGS ';
 		$raw .= '('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.')';
 		$msg = $client->msgHandle($raw);
 		$expect = '* 3 FETCH (FLAGS (';
-		$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_FLAGGED.'))'.Client::MSG_SEPARATOR;
+		$expect .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.'))'.Client::MSG_SEPARATOR;
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,FRS');
-		$this->assertEquals(1, count($files));
+		$this->assertEquals(1, count($server->getMailIdsByFlags(array(Storage::FLAG_FLAGGED))));
+		
 		
 		
 		$raw = '18 uid store 100003 +FLAGS (';
 		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.')';
 		$msg = $client->msgHandle($raw);
 		$expect = '* 3 FETCH (FLAGS (';
-		$expect .= Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED;
+		$expect .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED;
 		$expect .= '))'.Client::MSG_SEPARATOR.'18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,FRST');
-		$this->assertEquals(1, count($files));
+		$this->assertEquals(1, count($server->getMailIdsByFlags(array(Storage::FLAG_DELETED))));
+		
 		
 		
 		$raw = '18 uid store 100003 +FLAGS (';
@@ -2027,65 +2046,59 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$raw .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')';
 		$msg = $client->msgHandle($raw);
 		$expect = '* 3 FETCH (FLAGS (';
-		$expect .= Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' ';
+		$expect .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' ';
 		$expect .= Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR;
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,DFRST');
-		$this->assertEquals(1, count($files));
+		$this->assertEquals(1, count($server->getMailIdsByFlags(array(Storage::FLAG_DRAFT))));
+		
 		
 		
 		$raw = '18 uid store 100003 +FLAGS (';
 		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED;
 		$raw .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')';
 		$msg = $client->msgHandle($raw);
-		$expect = '* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' ';
-		$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR;
+		$expect = '* 3 FETCH (FLAGS (';
+		#$expect = .' ';
+		#$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN..'))'.Client::MSG_SEPARATOR;
+		$expect .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED;
+		$expect .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT;
+		$expect .= '))'.Client::MSG_SEPARATOR;
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,DFRST');
-		$this->assertEquals(1, count($files));
+		$this->assertEquals(1, count($server->getMailIdsByFlags(array(Storage::FLAG_DRAFT))));
+		$this->assertEquals(2, count($server->getMailIdsByFlags(array(Storage::FLAG_RECENT))));
 		
-		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/new')->files();
-		$this->assertEquals(2, count($files));
 		
 		
 		$raw = '18 uid store 100003:100004 +FLAGS (';
 		$raw .= Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED.' ';
 		$raw .= Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.')';
 		$msg = $client->msgHandle($raw);
-		$expect = '* 3 FETCH (FLAGS ('.Storage::FLAG_DRAFT.' '.Storage::FLAG_FLAGGED.' '.Storage::FLAG_ANSWERED;
-		$expect .= ' '.Storage::FLAG_SEEN.' '.Storage::FLAG_DELETED.'))'.Client::MSG_SEPARATOR;
-		$expect .= '* 4 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' '.Storage::FLAG_FLAGGED;
-		$expect .= ' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR;
+		$expect = '* 3 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' ';
+		$expect .= Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR;
+		$expect .= '* 4 FETCH (FLAGS ('.Storage::FLAG_SEEN.' '.Storage::FLAG_ANSWERED.' ';
+		$expect .= Storage::FLAG_FLAGGED.' '.Storage::FLAG_DELETED.' '.Storage::FLAG_DRAFT.'))'.Client::MSG_SEPARATOR;
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,DFRST');
-		$this->assertEquals(2, count($files));
+		$this->assertEquals(2, count($server->getMailIdsByFlags(array(Storage::FLAG_DRAFT))));
+		
 		
 		
 		$msg = $client->msgHandle('18 uid store 100005 +FLAGS.SILENT ('.Storage::FLAG_FLAGGED.')');
 		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,F');
-		$this->assertEquals(1, count($files));
+		$this->assertEquals(3, count($server->getMailIdsByFlags(array(Storage::FLAG_FLAGGED))));
+		
 		
 		
 		$msg = $client->msgHandle('18 uid store 100005 -FLAGS.SILENT ('.Storage::FLAG_FLAGGED.')');
 		$this->assertEquals('18 OK UID STORE completed'.Client::MSG_SEPARATOR, $msg);
 		
-		$finder = new Finder();
-		$files = $finder->in($path1.'/cur')->name('*,F');
-		$this->assertEquals(0, count($files));
+		$this->assertEquals(3, count($server->getMailIdsByFlags(array(Storage::FLAG_FLAGGED))));
 		
 		
 		#$finder = new Finder();
@@ -2093,13 +2106,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#foreach($files as $fileId => $file){
 		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
 		#}
+		
+		
+		$server->shutdown();
 	}
 	
 	public function testMsgHandleCopy(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -2144,44 +2160,44 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$finder = new Finder();
-		$files = $finder->in($path1.'/.test_dir1/new')->files();
+		$files = $finder->in($path1.'/test_dir1')->files();
 		$this->assertEquals(4, count($files));
 		
 		
 		$msg = $client->msgHandle('15 copy 2 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->in($path1.'/.test_dir2/cur')->files();
+		$files = $finder->in($path1.'/test_dir2')->files();
 		$this->assertEquals(1, count($files));
 		
 		$msg = $client->msgHandle('15 copy 3:4 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->in($path1.'/.test_dir2/cur')->files();
+		$files = $finder->in($path1.'/test_dir2')->files();
 		$this->assertEquals(3, count($files));
 		
 		$server->shutdown();
@@ -2191,7 +2207,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
-		$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 		
 		$server = new Server('', 0);
 		$server->setLog($log);
@@ -2236,44 +2252,44 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
-		$server->addMail($message);
+		$server->addMail($message, 'test_dir1', array(), true);
 		
 		$finder = new Finder();
-		$files = $finder->in($path1.'/.test_dir1/new')->files();
+		$files = $finder->in($path1.'/test_dir1')->files();
 		$this->assertEquals(4, count($files));
 		
 		
 		$msg = $client->msgHandle('15 UID copy 100002 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->in($path1.'/.test_dir2/cur')->files();
+		$files = $finder->in($path1.'/test_dir2')->files();
 		$this->assertEquals(1, count($files));
 		
 		$msg = $client->msgHandle('15 UID copy 100003:100004 test_dir2');
 		$this->assertEquals('15 OK COPY completed'.Client::MSG_SEPARATOR, $msg);
 		$finder = new Finder();
-		$files = $finder->in($path1.'/.test_dir2/cur')->files();
+		$files = $finder->in($path1.'/test_dir2')->files();
 		$this->assertEquals(3, count($files));
 		
 		$msg = $client->msgHandle('15 UID copy 1 test_dir2');
@@ -2333,10 +2349,19 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testSelect(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
 		$server = new Server('', 0);
-		$server->setLog(new Logger('test_application'));
+		$server->setLog($log);
 		$server->init();
-		$server->storageAddMaildir('./tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true));
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
 		$server->addFolder('test_dir1');
 		$server->addFolder('test_dir2');
 		
@@ -2347,30 +2372,18 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client2->setServer($server);
 		$client2->setId(2);
 		
-		$storage = $server->getStorageMailbox();
-		
-		$curr = $storage['object']->getCurrentFolder();
-		$this->assertEquals('INBOX', $curr);
 		
 		$client1->select('test_dir1');
-		$curr = $storage['object']->getCurrentFolder();
-		$this->assertEquals('test_dir1', $curr);
+		$this->assertEquals('test_dir1', $client1->getSelectedFolder());
+		$this->assertEquals(null, $client2->getSelectedFolder());
 		
 		$client1->select('test_dir2');
-		$curr = $storage['object']->getCurrentFolder();
-		$this->assertEquals('test_dir2', $curr);
+		$this->assertEquals('test_dir2', $client1->getSelectedFolder());
+		$this->assertEquals(null, $client2->getSelectedFolder());
 		
 		$client2->select('test_dir1');
-		$curr = $storage['object']->getCurrentFolder();
-		$this->assertEquals('test_dir1', $curr);
-		
-		$client1->select();
-		$curr = $storage['object']->getCurrentFolder();
-		$this->assertEquals('test_dir2', $curr);
-		
-		$client2->select();
-		$curr = $storage['object']->getCurrentFolder();
-		$this->assertEquals('test_dir1', $curr);
+		$this->assertEquals('test_dir2', $client1->getSelectedFolder());
+		$this->assertEquals('test_dir1', $client2->getSelectedFolder());
 	}
 	
 }
