@@ -193,12 +193,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		#fwrite(STDOUT, 'find files'."\n");
-		#$finder = new Finder();
-		#$files = $finder->in($path1)->files()->name('*');
-		#foreach($files as $fileId => $file){
-		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
-		#}
+		fwrite(STDOUT, 'find files'."\n");
+		$finder = new Finder();
+		$files = $finder->in($path1)->files()->name('*');
+		foreach($files as $fileId => $file){
+			fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
+		}
 		
 		$seq = $client->createSequenceSet('1', false);
 		$this->assertEquals(array(1), $seq);
