@@ -1501,13 +1501,15 @@ class Client{
 						$section = 'HEADER';
 						$msgStr = '';
 						
+						$headers = $message->getHeaders();
+						#\Doctrine\Common\Util\Debug::dump($headers);
+						
 						$headerStrs = array();
 						foreach($val['header.fields'] as $fieldNum => $field){
-							try{
-								$header = $message->getHeader($field);
-								$msgStr .= $header->toString().Headers::EOL;
-							}
-							catch(InvalidArgumentException $e){
+							$fieldHeader = $headers->get($field);
+							if($fieldHeader !== false){
+								#\Doctrine\Common\Util\Debug::dump($fieldHeader);
+								$msgStr .= $fieldHeader->toString().Headers::EOL;
 							}
 						}
 					}
@@ -1586,6 +1588,8 @@ class Client{
 		foreach($msgSeqNums as $msgSeqNum){
 			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
 			
+			$messageFlags = array_unique($messageFlags);
+			
 			if(!$add && !$rem){
 				$messageFlags = $flags;
 			}
@@ -1594,10 +1598,15 @@ class Client{
 			}
 			elseif($rem){
 				foreach($flags as $flag){
-					unset($messageFlags[$flag]);
+					if(($key = array_search($flag, $messageFlags)) !== false){
+						unset($messageFlags[$key]);
+					}
+					$flags = array_values($flags);
 				}
 			}
 			
+			$messageFlags = array_values($messageFlags);
+			#\Doctrine\Common\Util\Debug::dump($messageFlags);
 			$this->getServer()->setFlagsBySeq($msgSeqNum, $this->selectedFolder, $messageFlags);
 			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
 			

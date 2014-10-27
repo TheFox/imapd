@@ -1712,9 +1712,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		#$msg = $client->msgHandle('17 uid SEARCH HEADER BCC x'); # TODO
-		#$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
-		#$this->assertEquals($expect, $msg);
+		$msg = $client->msgHandle('17 uid SEARCH HEADER TO fox21');
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 ';
+		$expect .= '100013 100014 100015 100016 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH LARGER 40');
 		$expect = '* SEARCH 100011'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
@@ -1730,9 +1732,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		#$msg = $client->msgHandle('17 uid SEARCH ON 1987-02-21');
+		$msg = $client->msgHandle('17 uid SEARCH ON 1987-02-21');
 		$expect = '* SEARCH 100004 100005'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
-		#$this->assertEquals($expect, $msg);
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH OR 5 6');
 		$expect = '* SEARCH 100005 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
@@ -1840,6 +1842,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#$this->assertEquals('x17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
 		
 		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100021');
+		
+		$server->shutdown();
 	}
 	
 	public function testMsgHandleUidFetch1(){
@@ -2046,6 +2050,80 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '* 3 FETCH (UID 100003 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
 		$expect .= '* 4 FETCH (UID 100004 FLAGS ('.Storage::FLAG_RECENT.'))'.Client::MSG_SEPARATOR;
 		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
+	}
+	
+	public function testMsgHandleUidFetch4(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$client->setStatus('hasAuth', true);
+		$client->msgHandle('6 select INBOX');
+		
+		$message1 = new Message();
+		$message1->addFrom('dev1@fox21.at');
+		$message1->addTo('dev2@fox21.at');
+		$message1->setSubject('my_subject 1');
+		$message1->setBody('my_body');
+		$message1Date = new DateTime($message1->getHeaders()->get('Date')->getFieldValue());
+		$server->addMail($message1, null, array(), true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->addMail($message, null, array(), true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->addMail($message, null, array(), true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->addMail($message, null, array(), true);
+		
+		
+		$rawMsg = '';
+		$rawMsg .= '15 UID fetch 100001';
+		$rawMsg .= ' (UID RFC822.SIZE FLAGS BODY.PEEK';
+		$rawMsg .= '[HEADER.FIELDS (';
+		$rawMsg .= 'From To Cc Bcc Subject Date Message-ID Priority X-Priority References';
+		$rawMsg .= ' Newsgroups In-Reply-To Content-Type Reply-To';
+		$rawMsg .= ')])';
+		$msg = $client->msgHandle($rawMsg);
+		
+		$expect = '';
+		$expect .= '* 1 FETCH (UID 100001 RFC822.SIZE 111 FLAGS (\Recent) BODY[HEADER] {104}'.Client::MSG_SEPARATOR;
+		$expect .= 'From: dev1@fox21.at'.Client::MSG_SEPARATOR;
+		$expect .= 'To: dev2@fox21.at'.Client::MSG_SEPARATOR;
+		$expect .= 'Subject: my_subject 1'.Client::MSG_SEPARATOR;
+		$expect .= 'Date: '.$message1Date->format(DateTime::RFC1123).Client::MSG_SEPARATOR;
+		$expect .= ''.Client::MSG_SEPARATOR;
+		$expect .= ')'.Client::MSG_SEPARATOR;
+		$expect .= '15 OK UID FETCH completed'.Client::MSG_SEPARATOR;
+		
 		$this->assertEquals($expect, $msg);
 	}
 	
