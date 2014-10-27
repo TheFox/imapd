@@ -294,11 +294,6 @@ class Server extends Thread{
 		return $rv;
 	}
 	
-	public function getFolder($folder){
-		$storage = $this->getDefaultStorage();
-		$msgs = $storage->getFolder($folder);
-	}
-	
 	public function folderExists($folder){
 		$storage = $this->getDefaultStorage();
 		return $storage->folderExists($folder);

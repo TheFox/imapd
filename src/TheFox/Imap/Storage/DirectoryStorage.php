@@ -59,21 +59,6 @@ class DirectoryStorage extends AbstractStorage{
 		return $folders;
 	}
 	
-	public function getFolder($folder){
-		$path = $this->genFolderPath($folder);
-		
-		$finder = new Finder();
-		$files = $finder->in($path)->files()->depth(0)->name('*.eml');
-		
-		$msgs = array();
-		foreach($files as $fileId => $file){
-			\Doctrine\Common\Util\Debug::dump($file); # TODO
-			#break;
-			#$msgs[] = $this->getMsgIdByPath($file->);
-		}
-		return $msgs;
-	}
-	
 	public function folderExists($folder){
 		$path = $this->genFolderPath($folder);
 		return file_exists($path) && is_dir($path);

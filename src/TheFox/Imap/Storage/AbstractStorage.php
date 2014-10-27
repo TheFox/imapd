@@ -82,8 +82,6 @@ abstract class AbstractStorage{
 	
 	abstract protected function getFolders($baseFolder, $searchFolder, $recursive = false);
 	
-	abstract protected function getFolder($folder);
-	
 	abstract protected function folderExists($folder);
 	
 	abstract protected function getMailsCountByFolder($folder, $flags = null);

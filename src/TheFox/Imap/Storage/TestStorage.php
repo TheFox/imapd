@@ -28,10 +28,6 @@ class TestStorage extends AbstractStorage{
 		return $folders;
 	}
 	
-	public function getFolder($folder){
-		return array();
-	}
-	
 	public function folderExists($folder){
 		return false;
 	}
