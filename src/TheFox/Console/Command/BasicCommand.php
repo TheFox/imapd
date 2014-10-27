@@ -42,33 +42,19 @@ class BasicCommand extends Command{
 			exit();
 		}
 		elseif($input->hasOption('daemon') && $input->getOption('daemon')){
-			#$this->log->info('daemon');
-			
 			if(function_exists('pcntl_fork')){
-				#$this->log->info('fork');
 				$pid = pcntl_fork();
 				if($pid < 0 || $pid){
-					#$this->log->info('fork exit: '.$pid);
 					exit();
 				}
-				#$this->log->info('fork ok: '.$pid);
-				
-				#$this->log->info('setsid');
 				$sid = posix_setsid();
-				#$this->log->info('sid: '.$sid);
-				
-				#$this->log->info('ignore signals');
 				$this->signalHandlerSetup();
 				
 				$pid = pcntl_fork();
 				if($pid < 0 || $pid){
-					#$this->log->info('fork again exit: '.$pid);
 					exit();
 				}
-				#$this->log->info('fork again ok: '.$pid);
-				
 				umask(0);
-				
 				$this->stdStreamsSetup();
 			}
 		}

@@ -36,8 +36,6 @@ class Server extends Thread{
 	private $events = array();
 	
 	public function __construct($ip = '127.0.0.1', $port = 20143){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
-		
 		$this->setIp($ip);
 		$this->setPort($port);
 	}
@@ -103,9 +101,6 @@ class Server extends Thread{
 	}
 	
 	public function run(){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
-		#print __CLASS__.'->'.__FUNCTION__.': client '.count($this->clients)."\n";
-		
 		if(!$this->socket){
 			throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
 		}
@@ -122,14 +117,11 @@ class Server extends Thread{
 			$readHandles[] = $client->getSocket()->getHandle();
 			
 			// Run client.
-			#print __CLASS__.'->'.__FUNCTION__.': client run'."\n";
 			$client->run();
 		}
 		$readHandlesNum = count($readHandles);
 		
 		$handlesChanged = $this->socket->select($readHandles, $writeHandles, $exceptHandles);
-		#$this->log->debug('collect readable sockets: '.(int)$handlesChanged.'/'.$readHandlesNum);
-		
 		if($handlesChanged){
 			foreach($readHandles as $readableHandle){
 				if($this->isListening && $readableHandle == $this->socket->getHandle()){
@@ -138,9 +130,6 @@ class Server extends Thread{
 					if($socket){
 						$client = $this->clientNew($socket);
 						$client->sendHello();
-						#$client->sendPreauth('IMAP4rev1 server logged in as thefox');
-						#$client->sendPreauth('server logged in as thefox');
-						
 						#$this->log->debug('new client: '.$client->getId().', '.$client->getIpPort());
 					}
 				}
@@ -154,57 +143,19 @@ class Server extends Thread{
 						else{
 							#$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
 							$client->dataRecv();
-							
 							if($client->getStatus('hasShutdown')){
 								$this->clientRemove($client);
 							}
 						}
 					}
-					
-					#$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
-					
 				}
 			}
 		}
 	}
 	
 	public function loop(){
-		#$s = time();
-		#$r1 = 0;
-		#$r2 = 0;
-		
 		while(!$this->getExit()){
 			$this->run();
-			/*
-			if(time() - $s >= 10 && !$r1){ # TO_DO
-				$r1 = 1;
-				
-				print __CLASS__.'->'.__FUNCTION__.' add msg A'."\n";
-				
-				$message = new Message();
-				$message->addFrom('dev1@fox21.at');
-				$message->addTo('dev2@fox21.at');
-				$message->setBody('body');
-				
-				$message->setSubject('t1 10s '.date('H:i:s'));
-				
-				$this->mailAdd($message);
-			}
-			
-			if(time() - $s >= 300 && !$r2){ # TO_DO
-				$r2 = 1;
-				
-				print __CLASS__.'->'.__FUNCTION__.' add msg B'."\n";
-				
-				$message = new Message();
-				$message->addFrom('dev1@fox21.at');
-				$message->addTo('dev2@fox21.at');
-				$message->setSubject('test 300s '.date('H:i:s'));
-				$message->setBody('body');
-				
-				$this->mailAdd($message);
-			}
-			*/
 			usleep(static::LOOP_USLEEP);
 		}
 		
@@ -228,15 +179,12 @@ class Server extends Thread{
 	
 	private function clientNew($socket){
 		$this->clientsId++;
-		#print __CLASS__.'->'.__FUNCTION__.' ID: '.$this->clientsId."\n";
 		
 		$client = new Client();
 		$client->setSocket($socket);
 		$client->setId($this->clientsId);
 		$client->setServer($this);
-		
 		$this->clients[$this->clientsId] = $client;
-		#print __CLASS__.'->'.__FUNCTION__.' clients: '.count($this->clients)."\n";
 		
 		return $client;
 	}
@@ -275,8 +223,6 @@ class Server extends Thread{
 	}
 	
 	public function addStorage(AbstractStorage $storage){
-		#fwrite(STDOUT, 'addStorage: '.count($this->storages).', '.(int)($this->defaultStorage === null)."\n");
-		
 		if(!$this->defaultStorage){
 			$this->defaultStorage = $storage;
 			
@@ -316,15 +262,10 @@ class Server extends Thread{
 	}
 	
 	public function addFolder($path){
-		#fwrite(STDOUT, 'add folder A: '.$path."\n");
 		$storage = $this->getDefaultStorage();
 		$successful = $storage->createFolder($path);
 		
-		#\Doctrine\Common\Util\Debug::dump($this->storages);
-		
-		#fwrite(STDOUT, 'add folder storages: '.count($this->storages)."\n");
 		foreach($this->storages as $storageId => $storage){
-			#fwrite(STDOUT, 'add folder B: '.$path."\n");
 			$storage->createFolder($path);
 		}
 		
@@ -347,7 +288,6 @@ class Server extends Thread{
 		$folders = $storage->getFolders($baseFolder, $searchFolder, $recursive);
 		$rv = array();
 		foreach($folders as $folder){
-			#fwrite(STDOUT, ' -> folder: '.$folder."\n");
 			$folder = str_replace('/', '.', $folder);
 			$rv[] = $folder;
 		}
@@ -357,11 +297,9 @@ class Server extends Thread{
 	public function getFolder($folder){
 		$storage = $this->getDefaultStorage();
 		$msgs = $storage->getFolder($folder);
-		#\Doctrine\Common\Util\Debug::dump($msgs);
 	}
 	
 	public function folderExists($folder){
-		#fwrite(STDOUT, ' -> folderExists: '.$folder."\n");
 		$storage = $this->getDefaultStorage();
 		return $storage->folderExists($folder);
 	}
@@ -409,10 +347,7 @@ class Server extends Thread{
 	}
 	
 	public function addMail(Message $mail, $folder = null, $flags = null, $recent = true){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
-		
-		#\Doctrine\Common\Util\Debug::dump($flags);
 		
 		$storage = $this->getDefaultStorage();
 		$mailStr = $mail->toString();
@@ -431,8 +366,6 @@ class Server extends Thread{
 	}
 	
 	public function removeMailById($msgId){
-		#$this->log->debug(__FUNCTION__);
-		
 		$storage = $this->getDefaultStorage();
 		$this->log->debug('remove msgId: /'.$msgId.'/');
 		$storage->removeMail($msgId);
@@ -472,8 +405,6 @@ class Server extends Thread{
 	}
 	
 	public function getMailById($msgId){
-		#$this->log->debug('get msgId: /'.$msgId.'/');
-		
 		$storage = $this->getDefaultStorage();
 		$mailStr = $storage->getPlainMailById($msgId);
 		$mail = Message::fromString($mailStr);
@@ -482,14 +413,6 @@ class Server extends Thread{
 	}
 	
 	public function getMailBySeq($seqNum, $folder){
-		#$this->log->debug('get seq: /'.$seqNum.'/');
-		/*
-		$storage = $this->getDefaultStorage();
-		$mailStr = $storage->getPlainMailById($msgId);
-		$mail = Message::fromString($mailStr);
-		
-		return $mail;*/
-		
 		$msgId = $this->getMsgIdBySeq($seqNum, $folder);
 		if($msgId){
 			return $this->getMailById($msgId);
@@ -499,24 +422,18 @@ class Server extends Thread{
 	}
 	
 	public function getMailIdsByFlags($flags){
-		#$this->log->debug('getMailsByFlags');
 		$storage = $this->getDefaultStorage();
 		$msgsIds = $storage->getMsgsByFlags($flags);
 		return $msgsIds;
 	}
 	
 	public function eventAdd(Event $event){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
-		
 		$this->eventsId++;
 		$this->events[$this->eventsId] = $event;
 	}
 	
 	private function eventExecute($trigger, $args = array()){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
-		
 		foreach($this->events as $eventId => $event){
-			#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.' event: '.$eventId."\n");
 			if($event->getTrigger() == $trigger){
 				$event->execute($args);
 			}

@@ -12,7 +12,6 @@ class Gate{
 	}
 	
 	public function __clone(){
-		#fwrite(STDOUT, 'Gate __clone'."\n");
 		if($this->obj1 && is_object($this->obj1)){
 			$this->obj1 = clone $this->obj1;
 		}

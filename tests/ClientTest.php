@@ -200,135 +200,83 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
 		#}
 		
-		#fwrite(STDOUT, 'seq set: 1'."\n");
 		$seq = $client->createSequenceSet('1', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3'."\n");
 		$seq = $client->createSequenceSet('3', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3,5'."\n");
 		$seq = $client->createSequenceSet('3,5', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 5), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3,5,6,4'."\n");
 		$seq = $client->createSequenceSet('3,5,6,4', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4, 5, 6), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3, 5'."\n");
 		$seq = $client->createSequenceSet('3, 5', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 5), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3:3'."\n");
 		$seq = $client->createSequenceSet('3:3', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3:4'."\n");
 		$seq = $client->createSequenceSet('3:4', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3:5'."\n");
 		$seq = $client->createSequenceSet('3:5', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4, 5), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3:5,2'."\n");
 		$seq = $client->createSequenceSet('3:5,2', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
-		#fwrite(STDOUT, 'seq set: *'."\n");
 		$seq = $client->createSequenceSet('*', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3:*'."\n");
 		$seq = $client->createSequenceSet('3:*', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(3, 4, 5, 6), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 3:*,2'."\n");
 		$seq = $client->createSequenceSet('3:*,2', false);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
 		
 		
-		#fwrite(STDOUT, 'seq set: 100001'."\n");
 		$seq = $client->createSequenceSet('100001', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002'."\n");
 		$seq = $client->createSequenceSet('100002', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002,100004'."\n");
 		$seq = $client->createSequenceSet('100002,100004', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 4), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002, 100004'."\n");
 		$seq = $client->createSequenceSet('100002, 100004', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 4), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002,100005,100004,100003'."\n");
 		$seq = $client->createSequenceSet('100002,100005,100004,100003', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002:100002'."\n");
 		$seq = $client->createSequenceSet('100002:100002', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002:100003'."\n");
 		$seq = $client->createSequenceSet('100002:100003', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002:100004'."\n");
 		$seq = $client->createSequenceSet('100002:100004', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002:100004,100005'."\n");
 		$seq = $client->createSequenceSet('100002:100004,100005', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
-		#fwrite(STDOUT, 'seq set: *'."\n");
 		$seq = $client->createSequenceSet('*', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002:*'."\n");
 		$seq = $client->createSequenceSet('100002:*', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100002:*,100001'."\n");
 		$seq = $client->createSequenceSet('100002:*,100001', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 100007'."\n");
 		$seq = $client->createSequenceSet('100007', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(), $seq);
 		
-		#fwrite(STDOUT, 'seq set: 999999:*'."\n");
 		$seq = $client->createSequenceSet('999999:*', true);
-		#fwrite(STDOUT, '  -> '.join(', ', $seq)."\n");
 		$this->assertEquals(array(6), $seq);
 	}
 	
@@ -1008,11 +956,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('Subject: test2a');
 		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
 		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-		#fwrite(STDOUT, 'msg /'.(string)$msg.'/'."\n");
 		$msg = $client->msgHandle('');
-		#fwrite(STDOUT, 'msg /'.(string)$msg.'/'."\n");
 		$msg = $client->msgHandle('test2');
-		#fwrite(STDOUT, 'msg /'.(string)$msg.'/'."\n");
 		
 		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1022,10 +967,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(1, count($files));
 		
 		$msgIds = $server->getMailIdsByFlags(array(Storage::FLAG_SEEN));
-		#\Doctrine\Common\Util\Debug::dump($msgIds);
 		$this->assertEquals(1, count($msgIds));
-		#$server->shutdown();
-		#return;
+		
 		
 		
 		$msg = $client->msgHandle('19 append "Sent" ('.Storage::FLAG_ANSWERED.') {414}');
@@ -1046,7 +989,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
 		$msg = $client->msgHandle('');
 		$msg = $client->msgHandle('tes');
-		#$msg = $client->msgHandle('');
 		
 		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1105,7 +1047,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
 		$msg = $client->msgHandle('');
 		$msg = $client->msgHandle('test333');
-		#$msg = $client->msgHandle('');
 		
 		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1518,9 +1459,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$posOffset = 0;
 		$rv = $client->parseSearchKeys($testData, $posOffset);
-		
-		#fwrite(STDOUT, 'list: '.$posOffset."\n"); ve($rv);
-		
 		$this->assertEquals($expect, $rv);
 	}
 	
@@ -1887,14 +1825,11 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		
-		
 		$msg = $client->msgHandle('17 uid SEARCH BEFORE 1985');
 		$this->assertEquals('17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH BODY xyz');
 		$this->assertEquals('17 OK UID SEARCH completed'.Client::MSG_SEPARATOR, $msg);
-		
-		
 		
 		#$msg = $client->msgHandle('17 uid SEARCH OR (UNDELETED FROM "thefox") ANSWERED AND FROM "21"');
 		
@@ -2196,7 +2131,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->addMail($message, null, null, false);
 		
 		
-		#\Doctrine\Common\Util\Debug::dump($server->getMailIdsByFlags(array(Storage::FLAG_RECENT)));
+		
 		$this->assertEquals(5, count($server->getMailIdsByFlags(array(Storage::FLAG_RECENT))));
 		
 		$msg = $client->msgHandle('18 uid store 100001 -FLAGS ('.Storage::FLAG_RECENT.')');
@@ -2212,7 +2147,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$expect .= '18 OK UID STORE completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
-		#\Doctrine\Common\Util\Debug::dump($server->getMailIdsByFlags(array(Storage::FLAG_SEEN)));
 		$this->assertEquals(2, count($server->getMailIdsByFlags(array(Storage::FLAG_SEEN))));
 		
 		
@@ -2232,7 +2166,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$this->assertEquals(4, count($server->getMailIdsByFlags(array(Storage::FLAG_SEEN, Storage::FLAG_ANSWERED))));
-		#\Doctrine\Common\Util\Debug::dump($server->getMailIdsByFlags(array(Storage::FLAG_SEEN, Storage::FLAG_ANSWERED)));
 		
 		
 		
@@ -2325,7 +2258,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#foreach($files as $fileId => $file){
 		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
 		#}
-		
 		
 		$server->shutdown();
 	}

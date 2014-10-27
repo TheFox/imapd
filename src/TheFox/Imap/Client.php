@@ -39,8 +39,6 @@ class Client{
 	private $selectedFolder = null;
 	
 	public function __construct(){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
-		
 		$this->status['hasShutdown'] = false;
 		$this->status['hasAuth'] = false;
 		$this->status['authStep'] = 0;
@@ -123,19 +121,13 @@ class Client{
 	}
 	
 	private function getLog(){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
-		
 		if($this->getServer()){
 			return $this->getServer()->getLog();
 		}
-		
 		return null;
 	}
 	
 	private function log($level, $msg){
-		#print __CLASS__.'->'.__FUNCTION__.': '.$level.', '.$msg."\n";
-		#fwrite(STDOUT, "log: $level, $msg\n");
-		
 		if($this->getLog()){
 			if(method_exists($this->getLog(), $level)){
 				$this->getLog()->$level($msg);
@@ -194,9 +186,6 @@ class Client{
 	}
 	
 	public function msgGetParenthesizedlist($msgRaw, $level = 0){
-		#fwrite(STDOUT, str_repeat(' ', $level * 4)."raw '".$msgRaw."'\n");
-		#usleep(100000);
-		
 		$rv = array();
 		$rvc = 0;
 		if($msgRaw){
@@ -222,19 +211,15 @@ class Client{
 					// Find ')'
 					$pos = strlen($msgRaw);
 					while($pos > 0){
-						#fwrite(STDOUT, str_repeat(' ', $level * 4)."    find $pos '".substr($msgRaw, $pos, 1)."'\n");
 						if(substr($msgRaw, $pos, 1) == $pair){
 							break;
 						}
 						$pos--;
-						#usleep(100000);
 					}
 					
-					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c open\n");
 					$rvc++;
 					$rv[$rvc] = $this->msgGetParenthesizedlist(substr($msgRaw, 0, $pos + 1), $level + 1);
 					$msgRaw = substr($msgRaw, $pos + 1);
-					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    left '$msgRaw'\n");
 					$rvc++;
 				}
 				else{
@@ -242,29 +227,21 @@ class Client{
 						$rv[$rvc] = '';
 					}
 					$rv[$rvc] .= $msgRaw[0];
-					
-					##fwrite(STDOUT, str_repeat(' ', $level * 4)."    c '".$msgRaw[0]."' '".$rv[$rvc]."'\n");
-					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    c '".$msgRaw."' '".$rv[$rvc]."'\n");
 					$msgRaw = substr($msgRaw, 1);
 				}
 				
 				$msgRawLen = strlen($msgRaw);
-				#usleep(100000);
 			}
 		}
 		
 		$rv2 = array();
 		foreach($rv as $n => $item){
 			if(is_string($item)){
-				#fwrite(STDOUT, str_repeat(' ', $level * 4)."item $n '$item'\n");
-				
 				foreach($this->msgParseString($item) as $j => $sitem){
-					#fwrite(STDOUT, str_repeat(' ', $level * 4)."    sitem $j '$sitem'\n");
 					$rv2[] = $sitem;
 				}
 			}
 			else{
-				#fwrite(STDOUT, str_repeat(' ', $level * 4)."item $n is array\n");
 				$rv2[] = $item;
 			}
 		}
@@ -275,13 +252,10 @@ class Client{
 	public function createSequenceSet($setStr, $isUid = false){
 		// Collect messages with sequence-sets.
 		$setStr = trim($setStr);
-		#$this->log('debug', 'createSequenceSet: '.$setStr);
-		#fwrite(STDOUT, 'createSequenceSet'."\n");
 		
 		$msgSeqNums = array();
 		foreach(preg_split('/,/', $setStr) as $seqItem){
 			$seqItem = trim($seqItem);
-			#fwrite(STDOUT, 'createSequenceSet: '.$seqItem."\n");
 			
 			$seqMin = 0;
 			$seqMax = 0;
@@ -289,19 +263,11 @@ class Client{
 			$seqAll = false;
 			
 			$items = preg_split('/:/', $seqItem, 2);
-			#$items = array_map(function($item){ return trim($item);}, $items);
 			$items = array_map('trim', $items);
 			
 			$nums = array();
-			#ve($items);
-			
-			#fwrite(STDOUT, 'selected folder: /'.$this->selectedFolder.'/'."\n");
-			
-			#$storage = $this->getServer()->getStorageMailbox();
-			#$count = $storage['object']->countMessages();
 			$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
 			if(!$count){
-				#throw new RuntimeException('No messages in selected mailbox.', 2);
 				return array();
 			}
 			
@@ -313,9 +279,6 @@ class Client{
 						// Search the last msg
 						for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 							$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
-							
-							#$this->log('debug', 'createSequenceSet search: '.$uid.'');
-							#fwrite(STDOUT, 'createSequenceSet search: '.$uid."\n");
 							
 							if($uid > $seqMax){
 								$seqMax = $uid;
@@ -332,13 +295,10 @@ class Client{
 			}
 			else{
 				if($isUid){
-					#ve($items);
 					if($items[0] == '*'){
-						#$this->log('debug', 'createSequenceSet alles');
 						$seqAll = true;
 					}
 					else{
-						#$this->log('debug', 'createSequenceSet nicht alles');
 						$seqMin = $seqMax = (int)$items[0];
 					}
 				}
@@ -360,27 +320,14 @@ class Client{
 			}
 			
 			$seqLen = $seqMax + 1 - $seqMin;
-			#$this->log('debug', 'sequence len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll);
-			#fwrite(STDOUT, 'createSequenceSet len: '.$seqLen.' ('.$seqMin.'/'.$seqMax.') '.(int)$seqAll."\n");
 			
 			if($isUid){
 				if($seqLen >= 1){
-					#$this->log('debug', 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"');
-					#fwrite(STDOUT, 'createSequenceSet seq: U "'.$seqMin.'" - "'.$seqMax.'"'."\n");
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 						$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
-						
-						#$tmp = 'createSequenceSet msg: '.$msgSeqNum.', '.$uid.' ['.$seqMin.'/'.$seqMax.'] => ';
-						#$tmp .= (int)($uid >= $seqMin).' '.(int)($uid <= $seqMax);
-						#$this->log('debug', $tmp);
-						#fwrite(STDOUT, $tmp."\n");
-						
 						if($uid >= $seqMin && $uid <= $seqMax || $seqAll){
-							#$this->log('debug', "\t add");
-							#fwrite(STDOUT, "\t add");
 							$nums[] = (int)$msgSeqNum;
 						}
-						
 						if(count($nums) >= $seqLen && !$seqAll){
 							break;
 						}
@@ -392,24 +339,11 @@ class Client{
 			}
 			else{
 				if($seqLen == 1){
-					#$uid = $this->getServer()->getMsgIdBySeq($seqMin, $this->selectedFolder);
-					#$this->log('debug', 'createSequenceSet msg: '.$seqMin);
-					#fwrite(STDOUT, 'createSequenceSet msg: '.$seqMin.''."\n");
-					#$nums[] =(int)$uid;
 					$nums[] = (int)$seqMin;
 				}
 				elseif($seqLen >= 2){
-					#$this->log('debug', 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"');
-					#fwrite(STDOUT, 'createSequenceSet seq: N "'.$seqMin.'" - "'.$seqMax.'"'."\n");
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-						#$tmp = 'createSequenceSet msg: '.$msgSeqNum.' ['.$seqMin.'/'.$seqMax.'] => ';
-						#$tmp .= (int)($msgSeqNum >= $seqMin).' '.(int)($msgSeqNum <= $seqMax);
-						#$this->log('debug', $tmp);
-						#fwrite(STDOUT, $tmp."\n");
-						
 						if($msgSeqNum >= $seqMin && $msgSeqNum <= $seqMax){
-							#$this->log('debug', "\t add");
-							#fwrite(STDOUT, "\t add");
 							$nums[] = (int)$msgSeqNum;
 						}
 						
@@ -423,7 +357,6 @@ class Client{
 				}
 			}
 			
-			#ve($nums);
 			$msgSeqNums = array_merge($msgSeqNums, $nums);
 		}
 		
@@ -438,20 +371,11 @@ class Client{
 		$rv = '';
 		
 		$args = $this->msgParseString($msgRaw, 3);
-		#ve($args);
-		
-		#$tag = $args['tag'];
 		$tag = array_shift($args);
-		#$command = $args['command'];
 		$command = array_shift($args);
 		$commandcmp = strtolower($command);
-		#$args = $args['args'];
 		$args = array_shift($args);
 		
-		
-		
-		
-		#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'< >"'.join('" "', $args).'"<');
 		#$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
 		
 		if($commandcmp == 'capability'){
@@ -889,6 +813,7 @@ class Client{
 		$rv = '';
 		$nextId = $this->getServer()->getNextMsgId();
 		$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
+		$recent = $this->getServer()->getCountMailsByFolder($this->selectedFolder, array(Storage::FLAG_RECENT));
 		
 		$firstUnseen = 0;
 		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
@@ -904,7 +829,7 @@ class Client{
 		}
 		
 		$rv .= $this->dataSend('* '.$count.' EXISTS');
-		$rv .= $this->dataSend('* '.$this->getServer()->getCountMailsByFolder($this->selectedFolder, array(Storage::FLAG_RECENT)).' RECENT');
+		$rv .= $this->dataSend('* '.$recent.' RECENT');
 		$rv .= $this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
 		#$rv .= $this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
 		if($nextId){
@@ -1061,7 +986,8 @@ class Client{
 				}
 			}
 			else{
-				$this->log('debug', 'client '.$this->id.' append left: '.($this->getStatus('appendLiteral') - $appendMsgLen).' ('.$appendMsgLen.')');
+				$diff = $this->getStatus('appendLiteral') - $appendMsgLen;
+				$this->log('debug', 'client '.$this->id.' append left: '.$diff.' ('.$appendMsgLen.')');
 			}
 		}
 	}
@@ -1095,8 +1021,6 @@ class Client{
 		
 		$msgSeqNums = $this->createSequenceSet('*');
 		
-		#$storage = $this->getServer()->getStorageMailbox(); # TODO
-		
 		foreach($msgSeqNums as $msgSeqNum){
 			$expungeSeqNum = $msgSeqNum - $expungeDiff;
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$expungeDiff.', '.$expungeSeqNum);
@@ -1114,9 +1038,6 @@ class Client{
 	}
 	
 	private function sendExpunge($tag){
-		#$this->select();
-		#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
-		
 		$rv = '';
 		
 		$msgSeqNumsExpunge = $this->sendExpungeRaw();
@@ -1136,9 +1057,6 @@ class Client{
 		$len = count($list);
 		$rv = array();
 		
-		#fwrite(STDOUT, str_repeat("\t", $level)."".'parseSearchKeys: '.$len.', '.$posOffset."\n");
-		#ve($list);
-		
 		if($len <= 1){
 			return $list;
 		}
@@ -1153,14 +1071,10 @@ class Client{
 			$offset = 0;
 			
 			if(is_array($item)){
-				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'pos: '.$pos.' array'."\n");
 				$subPosOffset = 0;
 				$itemWithArgs = array($this->$func($item, $subPosOffset, 0, true, $level + 1));
-				#$offset += $subPosOffset;
-				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'-> subitem counter offset: '.$subPosOffset."\n");
 			}
 			else{
-				#fwrite(STDOUT, str_repeat("\t", $level)."\t".'pos: '.$pos.' /'.$item.'/'."\n");
 				$itemcmp = strtolower($item);
 				if(
 					$itemcmp == 'all'
@@ -1210,14 +1124,9 @@ class Client{
 					$rest = array_slice($list, $pos + 1);
 					$subPosOffset = 0;
 					$sublist = $this->$func($rest, $subPosOffset, 2, false, $level + 1);
-					#ve($sublist);
 					$itemWithArgs = array(array($sublist[0], 'OR', $sublist[1]));
 					
 					$offset += $subPosOffset;
-					
-					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem counter offset: '.$subPosOffset."\n");
-					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem1 array: '.(int)is_array($sublist[0])."\n");
-					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem2 array: '.(int)is_array($sublist[1])."\n");
 				}
 				elseif($itemcmp == 'and'){
 					$and = false;
@@ -1228,8 +1137,6 @@ class Client{
 					$sublist = $this->$func($rest, $subPosOffset, 1, false, $level + 1);
 					$itemWithArgs = array($item, $sublist[0]);
 					$offset += $subPosOffset;
-					
-					#fwrite(STDOUT, str_repeat("\t", $level)."\t\t".'-> subitem counter offset: '.$subPosOffset."\n");
 				}
 				elseif(is_numeric($itemcmp)){
 					$itemWithArgs = $item;
@@ -1239,8 +1146,6 @@ class Client{
 			if($pos <= 0){
 				$and = false;
 			}
-			
-			#fwrite(STDOUT, str_repeat("\t", $level)."\t".'-> end: '.$pos.' (+'.$offset.') '.$itemsC."\n");
 			
 			if($addAnd && $and){
 				$rv[] = 'AND';
@@ -1272,7 +1177,6 @@ class Client{
 		$itemcmp = strtolower($items[0]);
 		
 		$flags = $this->getServer()->getFlagsById($messageUid);
-		#\Doctrine\Common\Util\Debug::dump($flags);
 		
 		$rv = false;
 		switch($itemcmp){
@@ -1285,11 +1189,8 @@ class Client{
 			case 'bcc':
 				$searchStr = strtolower($items[1]);
 				$bccAddressList = $message->getBcc();
-				#$this->log('debug', 'bcc: '.$bcc);
 				if(count($bccAddressList)){
-					#\Doctrine\Common\Util\Debug::dump($bccAddressList->get());
 					foreach($bccAddressList as $bcc){
-						#fwrite(STDOUT, 'bcc: '.$bcc->getEmail()."\n");
 						$rv = strpos(strtolower($bcc->getEmail()), $searchStr) !== false;
 						break;
 					}
@@ -1330,22 +1231,15 @@ class Client{
 				$fieldName = $items[1];
 				$header = $message->getHeaders()->get($fieldName);
 				$val = $header->getFieldValue();
-				#fwrite(STDOUT, 'get header: '.$fieldName.' /'.$searchStr.'/ -> '.$val."\n");
 				$rv = strpos(strtolower($val), $searchStr) !== false;
 				break;
 			case 'keyword':
 				# NOT_IMPLEMENTED
 				break;
 			case 'larger':
-				#fwrite(STDOUT, 'larger: /'.$items[1].'/'."\n");
-				#\Doctrine\Common\Util\Debug::dump( (string) $message->getHeaders()->toString());
-				#\Doctrine\Common\Util\Debug::dump( (string) $message->toString());
-				#$rv = strlen($message->toString()) > (int)$items[1];
 				$rv = strlen($message->getBody()) > (int)$items[1];
 				break;
 			case 'new':
-				#fwrite(STDOUT, 'new'."\n");
-				#\Doctrine\Common\Util\Debug::dump($flags);
 				$rv = in_array(Storage::FLAG_RECENT, $flags) && !in_array(Storage::FLAG_SEEN, $flags);
 				break;
 			case 'old':
@@ -1355,41 +1249,30 @@ class Client{
 				# NOT_IMPLEMENTED
 				break;
 			case 'recent':
-				#fwrite(STDOUT, 'recent'."\n");
-				#\Doctrine\Common\Util\Debug::dump($flags);
 				$rv = in_array(Storage::FLAG_RECENT, $flags);
 				break;
 			case 'seen':
-				#fwrite(STDOUT, 'seen'."\n");
-				#\Doctrine\Common\Util\Debug::dump($flags);
 				$rv = in_array(Storage::FLAG_SEEN, $flags);
 				break;
 			case 'sentbefore':
 				$checkDate = new DateTime($items[1]);
-				#$messageDate = new DateTime($message->date);
 				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-				#$messageDate = new DateTime($messageDate->format('Y-m-d'));
 				$rv = $messageDate < $checkDate;
 				break;
 			case 'senton':
 				$checkDate = new DateTime($items[1]);
-				#$messageDate = new DateTime($message->date);
 				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-				#$messageDate = new DateTime($messageDate->format('Y-m-d'));
 				$rv = $messageDate == $checkDate;
 				break;
 			case 'sentsince':
 				$checkDate = new DateTime($items[1]);
-				#$messageDate = new DateTime($message->date);
 				$messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-				#$messageDate = new DateTime($messageDate->format('Y-m-d'));
 				$rv = $messageDate >= $checkDate;
 				break;
 			case 'since':
 				# NOT_IMPLEMENTED
 				break;
 			case 'smaller':
-				#$rv = $message->getSize() < (int)$items[1];
 				$rv = strlen($message->getBody()) < (int)$items[1];
 				break;
 			case 'subject':
@@ -1402,8 +1285,6 @@ class Client{
 				break;
 			case 'text':
 				$searchStr = strtolower($items[1]);
-				#$text = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
-				#$text = $message->toString();
 				$rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
 				break;
 			case 'to':
@@ -1450,11 +1331,6 @@ class Client{
 	
 	public function parseSearchMessage($message, $messageSeqNum, $messageUid, $isUid, $gate){
 		$func = __FUNCTION__;
-		#fwrite(STDOUT, $func.': '.get_class($message).', '.get_class($gate).''."\n");
-		
-		#ve($message);
-		#ve($gate);
-		
 		
 		$subgates = array();
 		if($gate instanceof Gate){
@@ -1466,43 +1342,30 @@ class Client{
 			}
 		}
 		else{
-			#fwrite(STDOUT, $func.': other '.get_class($gate).''."\n");
-			#fwrite(STDOUT, $func.': other '.$gate->getValue().', '.get_class($gate).''."\n");
 			$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $gate->getValue());
 			$gate->setValue($val);
-			#return $gate->bool();
 		}
 		
 		foreach($subgates as $subgate){
 			if($subgate instanceof AndGate){
-				#fwrite(STDOUT, 'subgate: AndGate'."\n");
 				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
 			}
 			elseif($subgate instanceof OrGate){
-				#fwrite(STDOUT, 'subgate: OrGate'."\n");
 				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
 			}
 			elseif($subgate instanceof NotGate){
-				#fwrite(STDOUT, 'subgate: NotGate'."\n");
 				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
 			}
 			elseif($subgate instanceof Obj){
-				#fwrite(STDOUT, 'subgate: Obj: '.$subgate->getValue()."\n");
 				$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $subgate->getValue());
 				$subgate->setValue($val);
-				#$subgate->setValue($val.'xyz');
-				#fwrite(STDOUT, $func.' subgate: Obj: '.$val."\n");
 			}
 		}
-		
-		#ve($gate);
 		
 		return $gate->bool();
 	}
 	
 	private function sendSearchRaw($criteriaStr, $isUid = false){
-		#fwrite(STDOUT, 'sendSearchRaw: "'.$criteriaStr.'"'."\n");
-		
 		$criteria = array();
 		$criteria = $this->msgGetParenthesizedlist($criteriaStr);
 		$criteria = $this->parseSearchKeys($criteria);
@@ -1514,17 +1377,12 @@ class Client{
 			return '';
 		}
 		
-		#$storage = $this->getServer()->getStorageMailbox(); # TODO
-		#fwrite(STDOUT, 'class: "'.get_class($storage['object']).'"'."\n");
-		
 		$ids = array();
 		$msgSeqNums = $this->createSequenceSet('*');
 		foreach($msgSeqNums as $msgSeqNum){
 			$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 			$this->log('debug', 'client '.$this->id.' check msg: '.$msgSeqNum.', '.$uid);
 			
-			$message = null;
-			#$message = $storage['object']->getMessage($msgSeqNum);
 			$message = $this->getServer()->getMailBySeq($msgSeqNum, $this->selectedFolder);
 			
 			$add = false;
@@ -1557,7 +1415,6 @@ class Client{
 	}
 	
 	private function sendSearch($tag, $criteriaStr){
-		#$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
 		$rv = '';
@@ -1567,7 +1424,6 @@ class Client{
 	}
 	
 	private function sendFetchRaw($tag, $seq, $name, $isUid = false){
-		#ve('fetchRaw');
 		$rv = '';
 		
 		$msgItems = array();
@@ -1576,14 +1432,9 @@ class Client{
 		}
 		if(isset($name)){
 			$wanted = $this->msgGetParenthesizedlist($name);
-			#ve($wanted);
 			foreach($wanted as $n => $item){
-				
 				if(is_string($item)){
 					$itemcmp = strtolower($item);
-					
-					#$this->log('debug', 'client '.$this->id.': "'.$item.'"');
-					
 					if($itemcmp == 'body.peek'){
 						$next = $wanted[$n + 1];
 						$nextr = array();
@@ -1606,7 +1457,6 @@ class Client{
 						$msgItems[$itemcmp] = '';
 					}
 				}
-				
 			}
 		}
 		
@@ -1618,15 +1468,8 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
-		#$storage = $this->getServer()->getStorageMailbox();
-		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
-			#$message = $storage['object']->getMessage($msgSeqNum);
-			#$message = $this->getMailBySeq($msgSeqNum);
-			#$flags = $message->getFlags();
-			#$flags = $this->getServer()->getFlagsBySeq($msgSeqNum);
-			
 			$msgId = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 			if(!$msgId){
 				$this->log('error', 'Can not get ID for seq num '.$msgSeqNum.' from root storage.');
@@ -1636,14 +1479,10 @@ class Client{
 			$message = $this->getServer()->getMailById($msgId);
 			$flags = $this->getServer()->getFlagsById($msgId);
 			
-			#$this->log('debug', 'sendFetchRaw msg: '.$msgSeqNum.' '.sprintf('%10s', $msgId));
-			
 			$output = array();
 			$outputHasFlag = false;
 			$outputBody = '';
 			foreach($msgItems as $item => $val){
-				#$this->log('debug', 'client '.$this->id.' msg item: "'.$item.'"');
-				
 				if($item == 'flags'){
 					$outputHasFlag = true;
 				}
@@ -1651,15 +1490,12 @@ class Client{
 					$peek = $item == 'body.peek';
 					$section = '';
 					
-					#$msgStr = $message->getHeaders()->toString().Headers::EOL.$message->getContent();
 					$msgStr = $message->toString();
 					if(isset($val['header'])){
-						#$this->log('debug', 'client '.$this->id.' fetch header');
 						$section = 'HEADER';
 						$msgStr = $message->getHeaders()->toString();
 					}
 					elseif(isset($val['header.fields'])){
-						#$this->log('debug', 'client '.$this->id.' fetch header.fields');
 						$section = 'HEADER';
 						$msgStr = '';
 						
@@ -1680,7 +1516,6 @@ class Client{
 					$outputBody = 'BODY['.$section.'] {'.$msgStrLen.'}'.Headers::EOL.$msgStr;
 				}
 				elseif($item == 'rfc822.size'){
-					#$size = $message->getSize();
 					$size = strlen($message->toString());
 					$output[] = 'RFC822.SIZE '.$size;
 				}
@@ -1699,7 +1534,6 @@ class Client{
 			$rv .= $this->dataSend('* '.$msgSeqNum.' FETCH ('.join(' ', $output).')');
 			
 			unset($flags[Storage::FLAG_RECENT]);
-			#$storage['object']->setFlags($msgSeqNum, $flags);
 			$this->getServer()->setFlagsById($msgId, $flags);
 		}
 		
@@ -1719,9 +1553,7 @@ class Client{
 		
 		$flags = $this->msgGetParenthesizedlist($flagsStr);
 		unset($flags[Storage::FLAG_RECENT]);
-		#$flags = array_combine($flags, $flags);
 		$flags = array_unique($flags);
-		#ve($flags);
 		
 		$add = false;
 		$rem = false;
@@ -1748,41 +1580,22 @@ class Client{
 			$this->sendBad($e->getMessage(), $tag);
 		}
 		
-		#$storage = $this->getServer()->getStorageMailbox(); # TODO
-		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
-			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
-			
-			#$message = $storage['object']->getMessage($msgSeqNum);
-			#$messageFlags = $message->getFlags();
 			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
-			#\Doctrine\Common\Util\Debug::dump($messageFlags);
-			#if(($key = array_search(Storage::FLAG_RECENT, $messageFlags)) !== false){
-			#	unset($messageFlags[$key]);
-			#}
 			
 			if(!$add && !$rem){
 				$messageFlags = $flags;
-				#$this->log('debug', 'client '.$this->id.'     set flags');
 			}
 			elseif($add){
-				#$this->log('debug', 'client '.$this->id.'     add flags');
-				#ve($messageFlags);
 				$messageFlags = array_merge($messageFlags, $flags);
-				#ve($messageFlags);
 			}
 			elseif($rem){
-				#$this->log('debug', 'client '.$this->id.'     rem flags');
 				foreach($flags as $flag){
 					unset($messageFlags[$flag]);
-					#$this->log('debug', 'client '.$this->id.'     unset flag: '.$flag);
 				}
 			}
 			
-			#\Doctrine\Common\Util\Debug::dump($messageFlags);
-			#ve($messageFlags);
-			#$storage['object']->setFlags($msgSeqNum, $messageFlags);
 			$this->getServer()->setFlagsBySeq($msgSeqNum, $this->selectedFolder, $messageFlags);
 			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
 			
@@ -1811,7 +1624,6 @@ class Client{
 			return $this->sendBad($e->getMessage(), $tag);
 		}
 		
-		#\Doctrine\Common\Util\Debug::dump($msgSeqNums);
 		if($this->getServer()->getCountMailsByFolder($this->selectedFolder) == 0){
 			return $this->sendBad('No messages in selected mailbox.', $tag);
 		}
@@ -1821,7 +1633,6 @@ class Client{
 		}
 		
 		foreach($msgSeqNums as $msgSeqNum){
-			#fwrite(STDOUT, 'msgSeqNum: '.$msgSeqNum."\n");
 			$this->getServer()->copyMailBySequenceNum($msgSeqNum, $this->selectedFolder, $folder);
 		}
 		
@@ -1830,11 +1641,8 @@ class Client{
 	
 	private function sendUid($tag, $args){
 		$this->log('debug', 'client '.$this->id.' sendUid: "'.$args.'"');
-		#ve($args);
 		
 		$args = $this->msgParseString($args, 2);
-		#ve($args);
-		
 		$command = $args[0];
 		$commandcmp = strtolower($command);
 		if(isset($args[1])){
@@ -1856,9 +1664,6 @@ class Client{
 			$rv .= $this->sendCopy($tag, $seq, $folder, true);
 		}
 		elseif($commandcmp == 'fetch'){
-			#$this->select();
-			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
-			
 			$args = $this->msgParseString($args, 2);
 			$seq = $args[0];
 			$name = $args[1];
@@ -1867,9 +1672,6 @@ class Client{
 			$rv .= $this->sendOk('UID FETCH completed', $tag);
 		}
 		elseif($commandcmp == 'store'){
-			#$this->select();
-			#$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
-			
 			$args = $this->msgParseString($args, 3);
 			$seq = $args[0];
 			$name = $args[1];
@@ -1879,9 +1681,6 @@ class Client{
 			$rv .= $this->sendOk('UID STORE completed', $tag);
 		}
 		elseif($commandcmp == 'search'){
-			#$this->select();
-			$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
-			
 			$criteriaStr = $args;
 			$rv .= $this->sendSearchRaw($criteriaStr, true);
 			$rv .= $this->sendOk('UID SEARCH completed', $tag);
@@ -1934,11 +1733,7 @@ class Client{
 	}
 	
 	public function select($folder){
-		#fwrite(STDOUT, 'select: '.$folder."\n");
-		
 		if($this->getServer()->folderExists($folder)){
-			#fwrite(STDOUT, 'select: ok'."\n");
-			
 			$this->log('debug', 'client '.$this->id.' old folder: "'.$this->selectedFolder.'"');
 			$this->selectedFolder = $folder;
 			$this->log('debug', 'client '.$this->id.' new folder: "'.$this->selectedFolder.'"');
@@ -1946,7 +1741,6 @@ class Client{
 			return true;
 		}
 		
-		#fwrite(STDOUT, 'select: failed'."\n");
 		$this->selectedFolder = null;
 		return false;
 	}

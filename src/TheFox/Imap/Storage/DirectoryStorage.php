@@ -7,17 +7,11 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class DirectoryStorage extends AbstractStorage{
 	
-	public function __construct(){
-		#fwrite(STDOUT, 'new DirectoryStorage'."\n");
-	}
-	
 	public function getDirectorySeperator(){
 		return DIRECTORY_SEPARATOR;
 	}
 	
 	public function setPath($path){
-		#fwrite(STDOUT, 'DirectoryStorage->setPath: '.$path."\n");
-		
 		parent::setPath($path);
 		
 		if(!file_exists($this->getPath())){
@@ -27,8 +21,6 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function createFolder($folder){
-		#fwrite(STDOUT, __FUNCTION__.': '.$folder."\n");
-		
 		if(!$this->folderExists($folder)){
 			$path = $this->genFolderPath($folder);
 			if(!file_exists($path)){
@@ -44,11 +36,6 @@ class DirectoryStorage extends AbstractStorage{
 	
 	public function getFolders($baseFolder, $searchFolder, $recursive = false){
 		$path = $this->genFolderPath($baseFolder);
-		
-		#fwrite(STDOUT, 'getFolders path: '.$path."\n");
-		#fwrite(STDOUT, 'getFolders base: '.$baseFolder."\n");
-		#fwrite(STDOUT, 'getFolders search: '.$searchFolder."\n");
-		#fwrite(STDOUT, 'getFolders rec: '.(int)$recursive."\n");
 		
 		$finder = new Finder();
 		$files = array();
@@ -66,8 +53,6 @@ class DirectoryStorage extends AbstractStorage{
 			if($folderPath[0] == '/'){
 				$folderPath = substr($folderPath, 1);
 			}
-			#$folderPath = $file->getFilename();
-			#fwrite(STDOUT, '  folder: '.$folderPath."\n");
 			$folders[] = $folderPath;
 		}
 		
@@ -76,11 +61,9 @@ class DirectoryStorage extends AbstractStorage{
 	
 	public function getFolder($folder){
 		$path = $this->genFolderPath($folder);
-		#\Doctrine\Common\Util\Debug::dump($path);
 		
 		$finder = new Finder();
 		$files = $finder->in($path)->files()->depth(0)->name('*.eml');
-		#\Doctrine\Common\Util\Debug::dump($files);
 		
 		$msgs = array();
 		foreach($files as $fileId => $file){
@@ -93,31 +76,23 @@ class DirectoryStorage extends AbstractStorage{
 	
 	public function folderExists($folder){
 		$path = $this->genFolderPath($folder);
-		#\Doctrine\Common\Util\Debug::dump($path);
-		#fwrite(STDOUT, ' -> path: '.$path."\n");
 		return file_exists($path) && is_dir($path);
 	}
 	
 	public function getMailsCountByFolder($folder, $flags = null){
 		$path = $this->genFolderPath($folder);
-		#fwrite(STDOUT, 'path: '.$path."\n");
 		$finder = new Finder();
 		$files = $finder->in($path)->files()->depth(0)->name('*.eml');
-		#fwrite(STDOUT, 'count: '.(int)count($files)."\n");
 		$rv = 0;
 		if($flags === null){
 			$rv = count($files);
 		}
 		else{
 			if($this->getDb()){
-				#\Doctrine\Common\Util\Debug::dump($files);
 				foreach($files as $fileId => $file){
-					#\Doctrine\Common\Util\Debug::dump($file->getPathname()); # TODO
 					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
 					if($msgId){
-						#\Doctrine\Common\Util\Debug::dump($msgId); # TODO
 						$msgFlags = $this->getDb()->getFlagsById($msgId);
-						#\Doctrine\Common\Util\Debug::dump($msgFlags); # TODO
 						foreach($flags as $flag){
 							if(in_array($flag, $msgFlags)){
 								$rv++;
@@ -149,8 +124,6 @@ class DirectoryStorage extends AbstractStorage{
 	public function removeMail($msgId){
 		if($this->getDb()){
 			$msg = $this->getDb()->removeMsg($msgId);
-			#fwrite(STDOUT, 'path: '.$msg['path']."\n");
-			
 			$filesystem = new Filesystem();
 			$filesystem->remove($msg['path']);
 		}
@@ -160,20 +133,9 @@ class DirectoryStorage extends AbstractStorage{
 		if($this->getDb()){
 			$msg = $this->getDb()->getMsgById($msgId);
 			if(file_exists($msg['path'])){
-				#\Doctrine\Common\Util\Debug::dump($msg);
 				$pathinfo = pathinfo($msg['path']);
-				#\Doctrine\Common\Util\Debug::dump($pathinfo);
-				
-				
 				$dstFolder = $this->genFolderPath($folder);
 				$dstFile = $dstFolder.'/'.$pathinfo['basename'];
-				
-				#fwrite(STDOUT, 'path: '.$dstFolder."\n");
-				#fwrite(STDOUT, 'dstFile: '.$dstFile."\n");
-				
-				#$filesystem = new Filesystem();
-				#$filesystem->copy($msg['path'], $dstFile);
-				
 				$mailStr = file_get_contents($msg['path']);
 				$this->addMail($mailStr, $folder);
 			}
@@ -204,13 +166,11 @@ class DirectoryStorage extends AbstractStorage{
 			$msg = $this->getDb()->getMsgById($msgId);
 			if($msg){
 				$pathinfo = pathinfo($msg['path']);
-				#\Doctrine\Common\Util\Debug::dump($pathinfo);
 				if(isset($pathinfo['dirname']) && isset($pathinfo['basename'])){
 					$seq = 0;
 					$finder = new Finder();
 					$files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml');
 					foreach($files as $file){
-						#\Doctrine\Common\Util\Debug::dump($file);
 						$seq++;
 						if($file->getFilename() == $pathinfo['basename']){
 							break;
@@ -226,8 +186,6 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function getMsgIdBySeq($seqNum, $folder){
-		#fwrite(STDOUT, 'getMsgIdBySeq'."\n");
-		
 		if($this->getDb()){
 			$path = $this->genFolderPath($folder);
 			
@@ -236,10 +194,8 @@ class DirectoryStorage extends AbstractStorage{
 			$files = $finder->in($path)->files()->depth(0)->name('*.eml');
 			foreach($files as $file){
 				$seq++;
-				#fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.', '.$file->getPathname()."\n");
 				if($seq >= $seqNum){
 					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
-					#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 					return $msgId;
 				}
 			}

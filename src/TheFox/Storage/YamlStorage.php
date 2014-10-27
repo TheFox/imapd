@@ -13,14 +13,12 @@ class YamlStorage{
 	private $isLoaded = false;
 	
 	public function __construct($filePath = null){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		if($filePath !== null){
 			$this->setFilePath($filePath);
 		}
 	}
 	
 	public function save(){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.(int)$this->dataChanged.', '.$this->getFilePath()."\n");
 		$rv = false;
 		
 		if($this->dataChanged){
@@ -36,8 +34,6 @@ class YamlStorage{
 	}
 	
 	public function load(){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
-		
 		if($this->getFilePath()){
 			if(file_exists($this->getFilePath())){
 				$this->data = Yaml::parse($this->getFilePath());
@@ -78,7 +74,6 @@ class YamlStorage{
 	
 	public function setDataChanged($changed = true){
 		$this->dataChanged = $changed;
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.': '.(int)$this->dataChanged."\n");
 	}
 	
 	public function getDataChanged(){

@@ -14,7 +14,6 @@ class Event{
 	private $returnValue = null;
 	
 	public function __construct($trigger = null, $object = null, $function = null){
-		#print __CLASS__.'->'.__FUNCTION__.''."\n";
 		$this->trigger = $trigger;
 		$this->object = $object;
 		$this->function = $function;
@@ -29,8 +28,6 @@ class Event{
 	}
 	
 	public function execute($args = array()){
-		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
-		
 		$object = $this->object;
 		$function = $this->function;
 		

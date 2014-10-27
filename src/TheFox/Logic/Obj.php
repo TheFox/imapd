@@ -11,7 +11,6 @@ class Obj{
 	}
 	
 	public function __clone(){
-		#fwrite(STDOUT, 'Obj __clone: '.$this->value."\n");
 		if($this->value && is_object($this->value)){
 			$this->value = clone $this->value;
 		}

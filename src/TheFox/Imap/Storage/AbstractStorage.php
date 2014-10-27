@@ -5,11 +5,8 @@ namespace TheFox\Imap\Storage;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 
-#use TheFox\Storage\YamlStorage\MsgDb;
-
 abstract class AbstractStorage{
 	
-	#private $hasSetup = false;
 	private $path;
 	private $pathLen;
 	private $dbPath;
@@ -23,8 +20,6 @@ abstract class AbstractStorage{
 	abstract protected function getDirectorySeperator();
 	
 	public function setPath($path){
-		#fwrite(STDOUT, 'AbstractStorage->setPath: '.$path."\n");
-		
 		$this->path = $path;
 		$this->pathLen = strlen($this->path);
 	}
@@ -39,9 +34,6 @@ abstract class AbstractStorage{
 	
 	public function setDbPath($dbPath){
 		$this->dbPath = $dbPath;
-		
-		#$this->db = new MsgDb($this->dbPath);
-		#$this->db->load();
 	}
 	
 	public function getDbPath(){
@@ -65,8 +57,6 @@ abstract class AbstractStorage{
 	}
 	
 	public function genFolderPath($path){
-		#fwrite(STDOUT, __FUNCTION__.' A: '.$path."\n");
-		
 		if($path == 'INBOX'){
 			$path = '.';
 		}
@@ -84,8 +74,6 @@ abstract class AbstractStorage{
 		else{
 			$path = $this->path;
 		}
-		
-		#fwrite(STDOUT, __FUNCTION__.' B: '.$path."\n");
 		
 		return $path;
 	}

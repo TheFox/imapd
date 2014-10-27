@@ -1,9 +1,6 @@
 <?php
 
-#use Zend\Mail\Storage\Writable\Maildir;
 use Zend\Mail\Message;
-#use Zend\Mail\Storage;
-#use Zend\Mail\Storage\Message\File;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -895,7 +892,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(null, $event3->getReturnValue());
 		$this->assertEquals(null, $event4->getReturnValue());
 	}
-	
 	
 	public function testShutdownStorages(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
