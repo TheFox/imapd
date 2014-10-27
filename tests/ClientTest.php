@@ -444,7 +444,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('3 OK LOGIN completed'.Client::MSG_SEPARATOR, $msg);
 	}
 	
-	public function testMsgHandleSelect(){
+	public function testMsgHandleSelect1(){
 		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
@@ -475,7 +475,226 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$server->addFolder('test_dir');
 		$msg = $client->msgHandle('6 select test_dir');
-		$this->assertEquals('6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR, $msg);
+		
+		$expect = '';
+		$expect .= '* 0 EXISTS'.Client::MSG_SEPARATOR;
+		$expect .= '* 0 RECENT'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UNSEEN 0] Message 0 is first unseen'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UIDNEXT 100001] Predicted next UID'.Client::MSG_SEPARATOR;
+		$expect .= '* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited'.Client::MSG_SEPARATOR;
+		$expect .= '6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR;
+		
+		$this->assertEquals($expect, $msg);
+	}
+	
+	public function testMsgHandleSelect2(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		$server->addFolder('test_dir');
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		$client->setStatus('hasAuth', true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 1a');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(), true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 1b');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', null, true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 3a');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 3b');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', null, false);
+		
+		
+		$msg = $client->msgHandle('6 select test_dir');
+		
+		$expect = '';
+		$expect .= '* 6 EXISTS'.Client::MSG_SEPARATOR;
+		$expect .= '* 3 RECENT'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UNSEEN 1] Message 1 is first unseen'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UIDNEXT 100007] Predicted next UID'.Client::MSG_SEPARATOR;
+		$expect .= '* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited'.Client::MSG_SEPARATOR;
+		$expect .= '6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR;
+		
+		$this->assertEquals($expect, $msg);
+		
+		$server->shutdown();
+	}
+	
+	public function testMsgHandleSelect3(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		$server->addFolder('test_dir');
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		$client->setStatus('hasAuth', true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(), false);
+		
+		
+		$msg = $client->msgHandle('6 select test_dir');
+		
+		$expect = '';
+		$expect .= '* 4 EXISTS'.Client::MSG_SEPARATOR;
+		$expect .= '* 0 RECENT'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UNSEEN 3] Message 3 is first unseen'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UIDNEXT 100005] Predicted next UID'.Client::MSG_SEPARATOR;
+		$expect .= '* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited'.Client::MSG_SEPARATOR;
+		$expect .= '6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR;
+		
+		$this->assertEquals($expect, $msg);
+		
+		$server->shutdown();
+	}
+	
+	public function testMsgHandleSelect4(){
+		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		$server->addFolder('test_dir');
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		$client->setStatus('hasAuth', true);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 1');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 2');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 3');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(Storage::FLAG_SEEN), false);
+		
+		$message = new Message();
+		$message->addFrom('dev1@fox21.at');
+		$message->addTo('dev2@fox21.at');
+		$message->setSubject('my_subject 4');
+		$message->setBody('my_body');
+		$server->addMail($message, 'test_dir', array(), true);
+		
+		
+		$msg = $client->msgHandle('6 select test_dir');
+		
+		$expect = '';
+		$expect .= '* 4 EXISTS'.Client::MSG_SEPARATOR;
+		$expect .= '* 1 RECENT'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UNSEEN 4] Message 4 is first unseen'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UIDNEXT 100005] Predicted next UID'.Client::MSG_SEPARATOR;
+		$expect .= '* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited'.Client::MSG_SEPARATOR;
+		$expect .= '6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR;
+		
+		$this->assertEquals($expect, $msg);
+		
+		$server->shutdown();
 	}
 	
 	public function testMsgHandleCreate(){

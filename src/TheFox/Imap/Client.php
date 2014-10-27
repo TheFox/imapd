@@ -297,7 +297,7 @@ class Client{
 			
 			#fwrite(STDOUT, 'selected folder: /'.$this->selectedFolder.'/'."\n");
 			
-			#$storage = $this->getServer()->getStorageMailbox(); # TODO
+			#$storage = $this->getServer()->getStorageMailbox();
 			#$count = $storage['object']->countMessages();
 			$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
 			if(!$count){
@@ -886,52 +886,39 @@ class Client{
 	}
 	
 	private function sendSelectedFolderInfos(){
-		$msgs = $this->getServer()->getFolder($this->selectedFolder);
-		#\Doctrine\Common\Util\Debug::dump($msgs);
-		fwrite(STDOUT, 'sendSelectedFolderInfos count: '.count($msgs)."\n");
-		
-		/*
+		$rv = '';
 		$nextId = $this->getServer()->getNextMsgId();
-		$storage = $this->getServer()->getStorageMailbox(); # TODO
-		$count = $storage['object']->countMessages();
+		$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
 		
 		$firstUnseen = 0;
 		for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-			#$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
-			
-			try{
-				$message = $storage['object']->getMessage($msgSeqNum);
-				if(!$message->hasFlag(Storage::FLAG_SEEN) && !$firstUnseen){
-					$firstUnseen = $msgSeqNum;
-					break;
-				}
-			}
-			catch(Exception $e){
-				$this->log('error', $e->getMessage());
+			$flags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
+			if(!in_array(Storage::FLAG_SEEN, $flags) && !$firstUnseen){
+				$firstUnseen = $msgSeqNum;
+				break;
 			}
 		}
 		
 		foreach($this->expunge as $msgSeqNum){
-			$this->dataSend('* '.$msgSeqNum.' EXPUNGE');
+			$rv .= $this->dataSend('* '.$msgSeqNum.' EXPUNGE');
 		}
 		
-		$this->dataSend('* '.$count.' EXISTS');
-		$this->dataSend('* '.$storage['object']->countMessages(Storage::FLAG_RECENT).' RECENT');
-		$this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
-		#$this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
+		$rv .= $this->dataSend('* '.$count.' EXISTS');
+		$rv .= $this->dataSend('* '.$this->getServer()->getCountMailsByFolder($this->selectedFolder, array(Storage::FLAG_RECENT)).' RECENT');
+		$rv .= $this->sendOk('Message '.$firstUnseen.' is first unseen', null, 'UNSEEN '.$firstUnseen);
+		#$rv .= $this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
 		if($nextId){
-			#$this->dataSend('* OK [UIDNEXT '.$nextId.'] Predicted next UID');
-			$this->sendOk('Predicted next UID', null, 'UIDNEXT '.$nextId);
+			$rv .= $this->sendOk('Predicted next UID', null, 'UIDNEXT '.$nextId);
 		}
 		$availableFlags = array(Storage::FLAG_ANSWERED,
 			Storage::FLAG_FLAGGED,
 			Storage::FLAG_DELETED,
 			Storage::FLAG_SEEN,
 			Storage::FLAG_DRAFT);
-		$this->dataSend('* FLAGS ('.join(' ', $availableFlags).')');
-		#$this->dataSend('* OK [PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)] Limited');
-		$this->sendOk('Limited', null, 'PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)');
-		*/
+		$rv .= $this->dataSend('* FLAGS ('.join(' ', $availableFlags).')');
+		$rv .= $this->sendOk('Limited', null, 'PERMANENTFLAGS ('.Storage::FLAG_DELETED.' '.Storage::FLAG_SEEN.' \*)');
+		
+		return $rv;
 	}
 	
 	private function sendSelect($tag, $folder){
@@ -945,8 +932,9 @@ class Client{
 		
 		if($this->select($folder)){
 			#fwrite(STDOUT, 'folder: ok'."\n");
-			$this->sendSelectedFolderInfos();
-			return $this->sendOk('SELECT completed', $tag, 'READ-WRITE');
+			$rv = $this->sendSelectedFolderInfos();
+			$rv .= $this->sendOk('SELECT completed', $tag, 'READ-WRITE');
+			return $rv;
 		}
 		
 		#fwrite(STDOUT, 'folder: failed'."\n");
@@ -954,7 +942,7 @@ class Client{
 	}
 	
 	private function sendCreate($tag, $folder){
-		fwrite(STDOUT, __FUNCTION__.': '.$folder."\n");
+		#fwrite(STDOUT, __FUNCTION__.': '.$folder."\n");
 		
 		if(strpos($folder, '/') !== false){
 			$msg = 'invalid name';
@@ -973,7 +961,7 @@ class Client{
 		if($this->getServer()->folderExists($folder)){
 			# NOT_IMPLEMENTED
 			
-			fwrite(STDOUT, 'subsc: '.$folder."\n");
+			#fwrite(STDOUT, 'subsc: '.$folder."\n");
 			
 			#$folders = $this->getServer()->getFolders($folder);
 			#\Doctrine\Common\Util\Debug::dump($folders);
@@ -1013,12 +1001,12 @@ class Client{
 		}
 		else{
 			if($this->getServer()->folderExists($folder)){
-				fwrite(STDOUT, 'folder: ok'."\n");
+				#fwrite(STDOUT, 'folder: ok'."\n");
 				$rv .= $this->dataSend('* LIST () "." "'.$folder.'"');
 			}
-			else{
-				fwrite(STDOUT, 'folder failed: '.$folder."\n");
-			}
+			#else{
+			#	fwrite(STDOUT, 'folder failed: '.$folder."\n");
+			#}
 		}
 		
 		$rv .= $this->sendOk('LIST completed', $tag);
@@ -1833,7 +1821,7 @@ class Client{
 		}
 		
 		foreach($msgSeqNums as $msgSeqNum){
-			fwrite(STDOUT, 'msgSeqNum: '.$msgSeqNum."\n");
+			#fwrite(STDOUT, 'msgSeqNum: '.$msgSeqNum."\n");
 			$this->getServer()->copyMailBySequenceNum($msgSeqNum, $this->selectedFolder, $folder);
 		}
 		

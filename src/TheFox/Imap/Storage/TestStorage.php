@@ -36,7 +36,7 @@ class TestStorage extends AbstractStorage{
 		return false;
 	}
 	
-	public function getMailsCountByFolder($folder){
+	public function getMailsCountByFolder($folder, $flags = null){
 		return 0;
 	}
 	

@@ -98,13 +98,37 @@ class DirectoryStorage extends AbstractStorage{
 		return file_exists($path) && is_dir($path);
 	}
 	
-	public function getMailsCountByFolder($folder){
+	public function getMailsCountByFolder($folder, $flags = null){
 		$path = $this->genFolderPath($folder);
 		#fwrite(STDOUT, 'path: '.$path."\n");
 		$finder = new Finder();
 		$files = $finder->in($path)->files()->depth(0)->name('*.eml');
 		#fwrite(STDOUT, 'count: '.(int)count($files)."\n");
-		return count($files);
+		$rv = 0;
+		if($flags === null){
+			$rv = count($files);
+		}
+		else{
+			if($this->getDb()){
+				#\Doctrine\Common\Util\Debug::dump($files);
+				foreach($files as $fileId => $file){
+					#\Doctrine\Common\Util\Debug::dump($file->getPathname()); # TODO
+					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
+					if($msgId){
+						#\Doctrine\Common\Util\Debug::dump($msgId); # TODO
+						$msgFlags = $this->getDb()->getFlagsById($msgId);
+						#\Doctrine\Common\Util\Debug::dump($msgFlags); # TODO
+						foreach($flags as $flag){
+							if(in_array($flag, $msgFlags)){
+								$rv++;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return $rv;
 	}
 	
 	public function addMail($mailStr, $folder, $flags = array(), $recent = true){
@@ -125,7 +149,7 @@ class DirectoryStorage extends AbstractStorage{
 	public function removeMail($msgId){
 		if($this->getDb()){
 			$msg = $this->getDb()->removeMsg($msgId);
-			fwrite(STDOUT, 'path: '.$msg['path']."\n");
+			#fwrite(STDOUT, 'path: '.$msg['path']."\n");
 			
 			$filesystem = new Filesystem();
 			$filesystem->remove($msg['path']);
