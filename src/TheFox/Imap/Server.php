@@ -358,7 +358,6 @@ class Server extends Thread{
 		$storage = $this->getDefaultStorage();
 		$msgs = $storage->getFolder($folder);
 		#\Doctrine\Common\Util\Debug::dump($msgs);
-		
 	}
 	
 	public function folderExists($folder){
@@ -389,17 +388,27 @@ class Server extends Thread{
 		return $storage->getFlagsById($msgId);
 	}
 	
+	public function setFlagsById($msgId, $flags){
+		$storage = $this->getDefaultStorage();
+		$storage->setFlagsById($msgId, $flags);
+	}
+	
 	public function getFlagsBySeq($seqNum, $folder){
 		$storage = $this->getDefaultStorage();
 		return $storage->getFlagsBySeq($seqNum, $folder);
 	}
 	
-	public function getCountMailsByFolder($folder){
+	public function setFlagsBySeq($seqNum, $folder, $flags){
 		$storage = $this->getDefaultStorage();
-		return $storage->getMailsCountByFolder($folder);
+		$storage->setFlagsBySeq($seqNum, $folder, $flags);
 	}
 	
-	public function addMail(Message $mail, $folder = null, $flags = array(), $recent = true){
+	public function getCountMailsByFolder($folder, $flags = null){
+		$storage = $this->getDefaultStorage();
+		return $storage->getMailsCountByFolder($folder, $flags);
+	}
+	
+	public function addMail(Message $mail, $folder = null, $flags = null, $recent = true){
 		#fwrite(STDOUT, __CLASS__.'->'.__FUNCTION__.''."\n");
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
 		
@@ -442,28 +451,28 @@ class Server extends Thread{
 		}
 	}
 	
-	public function copyMail($msgId, $folder){
+	public function copyMailById($msgId, $dstFolder){
 		$storage = $this->getDefaultStorage();
 		$this->log->debug('copy msgId: /'.$msgId.'/');
-		$storage->copyMail($msgId, $folder);
+		$storage->copyMailById($msgId, $dstFolder);
 		
 		foreach($this->storages as $storageId => $storage){
-			$storage->copyMail($msgId, $folder);
+			$storage->copyMailById($msgId, $dstFolder);
 		}
 	}
 	
-	public function copyMailBySequenceNum($seqNum, $folder){
+	public function copyMailBySequenceNum($seqNum, $folder, $dstFolder){
 		$storage = $this->getDefaultStorage();
 		$this->log->debug('copy seq: /'.$seqNum.'/');
-		$storage->copyMailBySequenceNum($seqNum, $folder);
+		$storage->copyMailBySequenceNum($seqNum, $folder, $dstFolder);
 		
 		foreach($this->storages as $storageId => $storage){
-			$storage->copyMailBySequenceNum($seqNum, $folder);
+			$storage->copyMailBySequenceNum($seqNum, $folder, $dstFolder);
 		}
 	}
 	
 	public function getMailById($msgId){
-		$this->log->debug('get msgId: /'.$msgId.'/');
+		#$this->log->debug('get msgId: /'.$msgId.'/');
 		
 		$storage = $this->getDefaultStorage();
 		$mailStr = $storage->getPlainMailById($msgId);
@@ -472,7 +481,7 @@ class Server extends Thread{
 		return $mail;
 	}
 	
-	public function getMailBySeq($seqNum){
+	public function getMailBySeq($seqNum, $folder){
 		#$this->log->debug('get seq: /'.$seqNum.'/');
 		/*
 		$storage = $this->getDefaultStorage();
@@ -480,6 +489,13 @@ class Server extends Thread{
 		$mail = Message::fromString($mailStr);
 		
 		return $mail;*/
+		
+		$msgId = $this->getMsgIdBySeq($seqNum, $folder);
+		if($msgId){
+			return $this->getMailById($msgId);
+		}
+		
+		return null;
 	}
 	
 	public function getMailIdsByFlags($flags){
