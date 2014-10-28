@@ -305,14 +305,14 @@ class Server extends Thread{
 	}
 	
 	public function getMsgSeqById($msgId){
-		fwrite(STDOUT, 'getMsgIdBySeq: /'.$msgId.'/'.PHP_EOL);
+		#fwrite(STDOUT, 'getMsgIdBySeq: /'.$msgId.'/'.PHP_EOL);
 		
 		$storage = $this->getDefaultStorage();
 		return $storage->getMsgSeqById($msgId);
 	}
 	
 	public function getMsgIdBySeq($seqNum, $folder){
-		fwrite(STDOUT, 'getMsgIdBySeq: '.$seqNum.' /'.$folder.'/'.PHP_EOL);
+		#fwrite(STDOUT, 'getMsgIdBySeq: '.$seqNum.' /'.$folder.'/'.PHP_EOL);
 		
 		$storage = $this->getDefaultStorage();
 		return $storage->getMsgIdBySeq($seqNum, $folder);

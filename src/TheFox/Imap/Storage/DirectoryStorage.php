@@ -196,11 +196,11 @@ class DirectoryStorage extends AbstractStorage{
 			$files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
 			foreach($files as $file){
 				$seq++;
-				fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.' '.$seqNum.' '.$file->getBasename().PHP_EOL);
+				#fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.' '.$seqNum.' '.$file->getBasename().PHP_EOL);
 				
 				if($seq >= $seqNum){
 					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
-					fwrite(STDOUT, 'getMsgIdBySeq id: /'.$msgId.'/'.PHP_EOL);
+					#fwrite(STDOUT, 'getMsgIdBySeq id: /'.$msgId.'/'.PHP_EOL);
 					return $msgId;
 				}
 			}

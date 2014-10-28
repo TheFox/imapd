@@ -249,7 +249,7 @@ class Client{
 	}
 	
 	public function createSequenceSet($setStr, $isUid = false){
-		fwrite(STDOUT, 'createSequenceSet'.PHP_EOL);
+		#fwrite(STDOUT, 'createSequenceSet'.PHP_EOL);
 		
 		// Collect messages with sequence-sets.
 		$setStr = trim($setStr);
@@ -269,7 +269,7 @@ class Client{
 			
 			$nums = array();
 			$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
-			fwrite(STDOUT, 'count: '.$count.PHP_EOL);
+			#fwrite(STDOUT, 'count: '.$count.PHP_EOL);
 			if(!$count){
 				return array();
 			}
@@ -324,18 +324,19 @@ class Client{
 			
 			$seqLen = $seqMax + 1 - $seqMin;
 			
-			fwrite(STDOUT, 'len: '.$seqLen.PHP_EOL);
-			fwrite(STDOUT, 'max: '.$seqMax.PHP_EOL);
-			fwrite(STDOUT, 'min: '.$seqMin.PHP_EOL);
+			#fwrite(STDOUT, 'len: '.$seqLen.PHP_EOL);
+			#fwrite(STDOUT, 'max: '.$seqMax.PHP_EOL);
+			#fwrite(STDOUT, 'min: '.$seqMin.PHP_EOL);
 			
 			if($isUid){
 				if($seqLen >= 1){
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 						$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
-						fwrite(STDOUT, ' -> seq: '.$msgSeqNum.' /'.($uid === null ? 'no' : $uid).'/ /'.$this->selectedFolder.'/'.PHP_EOL);
+						#$tmp = $uid === null ? 'no' : $uid;
+						#fwrite(STDOUT, ' -> seq: '.$msgSeqNum.' /'.$tmp.'/ /'.$this->selectedFolder.'/'.PHP_EOL);
 						
 						if($uid >= $seqMin && $uid <= $seqMax || $seqAll){
-							fwrite(STDOUT, '   -> add'.PHP_EOL);
+							#fwrite(STDOUT, '   -> add'.PHP_EOL);
 							$nums[] = (int)$msgSeqNum;
 						}
 						if(count($nums) >= $seqLen && !$seqAll){
