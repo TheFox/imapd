@@ -40,10 +40,10 @@ class DirectoryStorage extends AbstractStorage{
 		$finder = new Finder();
 		$files = array();
 		if($recursive){
-			$files = $finder->in($path)->directories()->name($searchFolder);
+			$files = $finder->in($path)->directories()->name($searchFolder)->sortByName();
 		}
 		else{
-			$files = $finder->in($path)->directories()->depth(0)->name($searchFolder);
+			$files = $finder->in($path)->directories()->depth(0)->name($searchFolder)->sortByName();
 		}
 		
 		$folders = array();
@@ -67,7 +67,7 @@ class DirectoryStorage extends AbstractStorage{
 	public function getMailsCountByFolder($folder, $flags = null){
 		$path = $this->genFolderPath($folder);
 		$finder = new Finder();
-		$files = $finder->in($path)->files()->depth(0)->name('*.eml');
+		$files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
 		$rv = 0;
 		if($flags === null){
 			$rv = count($files);
@@ -160,7 +160,7 @@ class DirectoryStorage extends AbstractStorage{
 				if(isset($pathinfo['dirname']) && isset($pathinfo['basename'])){
 					$seq = 0;
 					$finder = new Finder();
-					$files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml');
+					$files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml')->sortByName();
 					foreach($files as $file){
 						$seq++;
 						if($file->getFilename() == $pathinfo['basename']){
@@ -185,7 +185,7 @@ class DirectoryStorage extends AbstractStorage{
 			$files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
 			foreach($files as $file){
 				$seq++;
-				fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.' '.$seqNum.' '.$file->getPathname().PHP_EOL);
+				fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.' '.$seqNum.' '.$file->getBasename().PHP_EOL);
 				
 				if($seq >= $seqNum){
 					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
@@ -226,7 +226,7 @@ class DirectoryStorage extends AbstractStorage{
 			
 			$seq = 0;
 			$finder = new Finder();
-			$files = $finder->in($path)->files()->depth(0)->name('*.eml');
+			$files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
 			foreach($files as $file){
 				$seq++;
 				if($seq >= $seqNum){

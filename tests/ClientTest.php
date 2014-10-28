@@ -195,7 +195,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		fwrite(STDOUT, 'find files'."\n");
 		$finder = new Finder();
-		$files = $finder->in($path1)->files()->name('*');
+		$files = $finder->in($path1)->files()->name('*')->sortByName();
 		foreach($files as $fileId => $file){
 			fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
 		}
@@ -2335,7 +2335,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		#$finder = new Finder();
-		#$files = $finder->in($path1)->files()->name('*');
+		#$files = $finder->in($path1)->files()->name('*')->sortByName();
 		#foreach($files as $fileId => $file){
 		#	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
 		#}
