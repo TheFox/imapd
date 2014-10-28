@@ -278,6 +278,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$seq = $client->createSequenceSet('999999:*', true);
 		$this->assertEquals(array(6), $seq);
+		
+		
+		$server->shutdown();
 	}
 	
 	public function providerMsgHandle(){
