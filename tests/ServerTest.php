@@ -263,6 +263,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
+		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(1, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
@@ -271,6 +272,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
+		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(2, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
@@ -279,6 +281,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
+		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(3, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
@@ -287,6 +290,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
+		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(4, $server->getMsgSeqById($msgId));
 	}
 	

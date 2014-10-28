@@ -305,12 +305,14 @@ class Server extends Thread{
 	}
 	
 	public function getMsgSeqById($msgId){
+		fwrite(STDOUT, 'getMsgIdBySeq: /'.$msgId.'/'.PHP_EOL);
+		
 		$storage = $this->getDefaultStorage();
 		return $storage->getMsgSeqById($msgId);
 	}
 	
 	public function getMsgIdBySeq($seqNum, $folder){
-		#$this->log->debug(__FUNCTION__.': '.$seqNum);
+		fwrite(STDOUT, 'getMsgIdBySeq: '.$seqNum.' /'.$folder.'/'.PHP_EOL);
 		
 		$storage = $this->getDefaultStorage();
 		return $storage->getMsgIdBySeq($seqNum, $folder);
@@ -348,6 +350,7 @@ class Server extends Thread{
 		$mailStr = $mail->toString();
 		
 		$msgId = $storage->addMail($mailStr, $folder, $flags, $recent);
+		#fwrite(STDOUT, 'addMail msgId: '.$msgId.PHP_EOL);
 		
 		foreach($this->storages as $storageId => $storage){
 			$storage->addMail($mailStr, $folder, $flags, $recent);

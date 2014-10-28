@@ -105,6 +105,7 @@ class DirectoryStorage extends AbstractStorage{
 			$filePath = $path.'/'.$fileName;
 			
 			$msgId = $this->getDb()->setPathById($msgId, $filePath);
+			#fwrite(STDOUT, 'storage addMail msgId: '.$msgId.PHP_EOL);
 		}
 		
 		file_put_contents($filePath, $mailStr);
@@ -153,16 +154,26 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function getMsgSeqById($msgId){
+		#fwrite(STDOUT, ' -> getMsgIdBySeq: /'.$msgId.'/'.PHP_EOL);
+		
 		if($this->getDb()){
+			#fwrite(STDOUT, ' -> db ok'.PHP_EOL);
 			$msg = $this->getDb()->getMsgById($msgId);
 			if($msg){
+				#fwrite(STDOUT, ' -> msg ok'.PHP_EOL);
+				
 				$pathinfo = pathinfo($msg['path']);
+				#\Doctrine\Common\Util\Debug::dump($pathinfo);
 				if(isset($pathinfo['dirname']) && isset($pathinfo['basename'])){
+					#fwrite(STDOUT, ' -> name ok'.PHP_EOL);
+					
 					$seq = 0;
 					$finder = new Finder();
 					$files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml')->sortByName();
 					foreach($files as $file){
 						$seq++;
+						
+						#fwrite(STDOUT, ' -> seq: /'.$seq.'/ /'.$file->getBasename().'/'.PHP_EOL);
 						if($file->getFilename() == $pathinfo['basename']){
 							break;
 						}
