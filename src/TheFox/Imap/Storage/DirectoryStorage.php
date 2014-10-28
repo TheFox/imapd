@@ -182,7 +182,7 @@ class DirectoryStorage extends AbstractStorage{
 			
 			$seq = 0;
 			$finder = new Finder();
-			$files = $finder->in($path)->files()->depth(0)->name('*.eml');
+			$files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
 			foreach($files as $file){
 				$seq++;
 				fwrite(STDOUT, 'getMsgIdBySeq: '.$seq.' '.$seqNum.' '.$file->getPathname().PHP_EOL);
