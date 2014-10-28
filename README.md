@@ -83,7 +83,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - [exorus/php-mime-mail-parser](https://packagist.org/packages/exorus/php-mime-mail-parser) (requires ext-mailparse PHP extension)
 
 ## Related Links
-- [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
+- [RFC 3501](https://tools.ietf.org/html/rfc3501)
 - [Email Will Last Forever](http://blog.frontapp.com/email-will-last-forever/)
 - [Email Is Still the Best Thing on the Internet](http://www.theatlantic.com/technology/archive/2014/08/why-email-will-never-die/375973/)
 - [Believe it or not, email is still the killer app](http://www.digitaltrends.com/mobile/believe-it-or-not-email-is-still-the-killer-app/#!bs4oTU)
@@ -96,7 +96,8 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 ## Contribute
 You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapd>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
 
-## Links
+## Project Links
+- [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
 - [Packagist Package](https://packagist.org/packages/thefox/imapd)
 - [Travis CI Repository](https://travis-ci.org/TheFox/imapd)
 - [PHPWeekly - Issue August 7, 2014](http://phpweekly.com/archive/2014-08-07.html)
