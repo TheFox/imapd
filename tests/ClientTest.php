@@ -5,6 +5,7 @@ use Zend\Mail\Storage;
 use Zend\Mail\Headers;
 use Zend\Mail\Header\Date;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\Filesystem;
 
 use TheFox\Logger\Logger;
 use TheFox\Logger\StreamHandler;
@@ -281,6 +282,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function providerMsgHandle(){
@@ -516,6 +519,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleSelect3(){
@@ -581,6 +586,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleSelect4(){
@@ -646,6 +653,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleCreate(){
@@ -1004,6 +1013,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(1, count($msgIds));
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleAppend3(){
@@ -1227,6 +1238,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleExpunge2(){
@@ -1291,6 +1304,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function providerParseSearchKeys(){
@@ -1847,6 +1862,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#$msg = $client->msgHandle('17 uid SEARCH NOT UID 100021');
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleUidFetch1(){
@@ -2341,6 +2358,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		#}
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleCopy(){
@@ -2433,6 +2452,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(3, count($files));
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testMsgHandleUidCopy(){
@@ -2532,6 +2553,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
 	}
 	
 	public function testSendOk(){

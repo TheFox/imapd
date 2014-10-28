@@ -27,14 +27,14 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
 		$server->init();
-		$storage = $server->getDefaultStorage();
+		$storage1 = $server->getDefaultStorage();
 		
-		$this->assertTrue($storage instanceof DirectoryStorage);
+		$this->assertTrue($storage1 instanceof DirectoryStorage);
 		
-		#fwrite(STDOUT, 'dir: '.$storage->getPath()."\n");
+		#fwrite(STDOUT, 'dir: '.$storage1->getPath()."\n");
 		
 		$filesystem = new Filesystem();
-		$filesystem->remove($storage->getPath());
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testAddStorage(){
@@ -94,6 +94,9 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server->addFolder('test_dir4.test_dir5');
 		$this->assertFileExists($path1.'/test_dir4/test_dir5');
 		#$this->assertFileExists($path2.'/test_dir4_test_dir5');
+		
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testGetFolders1(){
@@ -137,6 +140,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(1, count($folders));
 		$this->assertEquals('test_dir2', $folders[0]);
+		
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
+		$filesystem->remove($storage2->getPath());
 	}
 	
 	public function testGetFolders2(){
@@ -194,6 +201,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$folders = $server->getFolders('Trash', '*');
 		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(0, count($folders));
+		
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
+		$filesystem->remove($storage2->getPath());
 	}
 	
 	public function testGetNextMsgId(){
@@ -240,6 +251,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$msgId = $server->addMail($message);
 		
 		$this->assertEquals(100005, $server->getNextMsgId());
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testGetMsgSeqById(){
@@ -292,6 +307,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$msgId = $server->addMail($message);
 		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(4, $server->getMsgSeqById($msgId));
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testGetMsgIdBySeq(){
@@ -364,6 +383,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testAddMail(){
@@ -482,6 +503,8 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testRemoveMail1(){
@@ -561,7 +584,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(4, $server->getMsgSeqById(100005));
 		$this->assertEquals(5, $server->getMsgSeqById(100006));
 		
+		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testRemoveMail2(){
@@ -643,7 +669,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(4, $server->getMsgSeqById(100005));
 		$this->assertEquals(5, $server->getMsgSeqById(100006));
 		
+		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testCopyMail1(){
@@ -723,7 +752,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(1, $server->getMsgSeqById(100007));
 		$this->assertEquals(2, $server->getMsgSeqById(100008));
 		
+		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testCopyMail2(){
@@ -802,7 +834,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(1, $server->getMsgSeqById(100007));
 		$this->assertEquals(2, $server->getMsgSeqById(100008));
 		
+		
 		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testGetMail(){
@@ -834,6 +869,11 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertTrue($message instanceof Message);
 		$this->assertEquals('my_subject 1', $message->getSubject());
 		$this->assertEquals('my_body', $message->getBody());
+		
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function functionForTestEvent(){
@@ -895,6 +935,11 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(18, $event2->getReturnValue());
 		$this->assertEquals(null, $event3->getReturnValue());
 		$this->assertEquals(null, $event4->getReturnValue());
+		
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
 	}
 	
 	public function testShutdownStorages(){
@@ -919,6 +964,12 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$this->assertTrue(file_exists($path1));
 		$this->assertFalse(file_exists($path2));
+		
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($storage1->getPath());
+		$filesystem->remove($storage2->getPath());
 	}
 	
 }
