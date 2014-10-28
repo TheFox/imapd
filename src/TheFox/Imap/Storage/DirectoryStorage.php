@@ -94,11 +94,17 @@ class DirectoryStorage extends AbstractStorage{
 	public function addMail($mailStr, $folder, $flags = array(), $recent = true){
 		$msgId = null;
 		
+		$path = $this->genFolderPath($folder);
 		$fileName = 'mail_'.sprintf('%.32f', microtime(true)).'_'.mt_rand(100000, 999999).'.eml';
-		$filePath = $this->genFolderPath($folder).'/'.$fileName;
+		$filePath = $path.'/'.$fileName;
 		
 		if($this->getDb()){
 			$msgId = $this->getDb()->addMsg($filePath, $flags, $recent);
+			
+			$fileName = 'mail_'.sprintf('%032d', $msgId).'.eml';
+			$filePath = $path.'/'.$fileName;
+			
+			$msgId = $this->getDb()->setPathById($msgId, $filePath);
 		}
 		
 		file_put_contents($filePath, $mailStr);
