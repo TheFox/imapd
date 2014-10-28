@@ -104,7 +104,7 @@ class DirectoryStorage extends AbstractStorage{
 			$fileName = 'mail_'.sprintf('%032d', $msgId).'.eml';
 			$filePath = $path.'/'.$fileName;
 			
-			$msgId = $this->getDb()->setPathById($msgId, $filePath);
+			$this->getDb()->setPathById($msgId, $filePath);
 			#fwrite(STDOUT, 'storage addMail msgId: '.$msgId.PHP_EOL);
 		}
 		
