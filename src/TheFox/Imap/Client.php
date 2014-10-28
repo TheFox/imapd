@@ -10,7 +10,6 @@ use DateTime;
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
 use Zend\Mail\Message;
-use Zend\Mail\Header\Date;
 
 use TheFox\Network\AbstractSocket;
 use TheFox\Logic\CriteriaTree;
