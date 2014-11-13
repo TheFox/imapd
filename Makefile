@@ -32,7 +32,7 @@ test_phpunit: $(PHPUNIT) phpunit.xml
 	$(RM) tests/test_mailbox_*
 
 test_phpunit_cc:
-	$(MAKE) test_phpunit PHPUNIT_COVERAGE_HTML="--coverage-html log/phpunit/report"
+	$(MAKE) test_phpunit PHPUNIT_COVERAGE_HTML="--coverage-html build/report"
 
 release: release.sh
 	./release.sh
