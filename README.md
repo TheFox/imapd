@@ -100,6 +100,7 @@ You're welcome to contribute to this project. Fork this project at <https://gith
 - [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
 - [Packagist Package](https://packagist.org/packages/thefox/imapd)
 - [Travis CI Repository](https://travis-ci.org/TheFox/imapd)
+- [Coveralls Repository](https://coveralls.io/r/TheFox/imapd)
 - [PHPWeekly - Issue August 7, 2014](http://phpweekly.com/archive/2014-08-07.html)
 
 ## License
