@@ -2,6 +2,7 @@ vendor
 composer.lock
 composer.phar
 mailbox
+build
 log
 pid
 *.yml

@@ -4,6 +4,7 @@
 	backupGlobals="true"
 	backupStaticAttributes="false"
 	bootstrap="bootstrap.php"
+	checkForUnintentionallyCoveredCode="true"
 	colors="true"
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
@@ -19,6 +20,9 @@
 	strict="true"
 	verbose="true">
 	
+	<logging>
+		<log type="coverage-clover" target="build/logs/clover.xml"/>
+	</logging>
 	<testsuites>
 		<testsuite name="My Test Suite">
 			<file>tests/AbstractStorageTest.php</file>
@@ -32,4 +36,9 @@
 			<file>tests/ZendMailStorageTest.php</file>
 		</testsuite>
 	</testsuites>
+	<filter>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">src</directory>
+		</whitelist>
+	</filter>
 </phpunit>
