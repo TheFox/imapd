@@ -4,8 +4,6 @@ namespace TheFox\Imap;
 
 class StringParser{
 	
-	const DEBUG = 0;
-	
 	private $str = '';
 	private $len = 0;
 	private $argsMax;
@@ -18,11 +16,6 @@ class StringParser{
 		$this->str = trim($this->str);
 		$this->len = strlen($this->str);
 		$this->argsMax = $argsMax;
-	}
-	
-	private function debug($text){
-		if(static::DEBUG)
-			fwrite(STDOUT, $text."\n");
 	}
 	
 	private function reset(){
@@ -53,18 +46,18 @@ class StringParser{
 			$this->args[$this->argsId] = $char;
 			$this->argsLen = count($this->args);
 		}
-		else{
+		/*else{
 			$this->charAppend($char);
-		}
+		}*/
 	}
 	
 	private function charAppend($char){
-		if($this->argsId == -1){
-			$this->charNew($char);
-		}
-		else{
+		if($this->argsId != -1){
 			$this->args[$this->argsId] .= $char;
 		}
+		/*else{
+			$this->charNew($char);
+		}*/
 	}
 	
 	public function parse(){
@@ -76,10 +69,14 @@ class StringParser{
 		$endChar = '';
 		
 		for($pos = 0; $pos < $this->len; $pos++){
+			
 			$char = $str[$pos];
 			$nextChar = ($pos < $this->len - 1) ? $str[$pos + 1] : '';
 			
+			#fwrite(STDOUT, 'pos: '.$pos.' /'.$char.'/'."\n");
+			
 			if($in){
+				#fwrite(STDOUT, ' -> in'."\n");
 				if($char == $endChar){
 					if($pos == $this->len - 1 || $this->argsMax === null || $this->argsLen < $this->argsMax){
 						if($char == '"'){
@@ -96,6 +93,7 @@ class StringParser{
 				}
 			}
 			else{
+				#fwrite(STDOUT, ' -> not in: '.(int)($this->argsMax === null).' '.$this->argsLen.' '.$this->argsMax."\n");
 				if($this->argsMax === null || $this->argsLen < $this->argsMax){
 					if($char == '"'){
 						$this->charNew($char);
@@ -115,9 +113,10 @@ class StringParser{
 						$in = true;
 					}
 				}
-				else{
+				/*else{
+					fwrite(STDOUT, ' -> char append'."\n");
 					$this->charAppend($char);
-				}
+				}*/
 			}
 			
 			$prevChar = $char;

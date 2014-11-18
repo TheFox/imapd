@@ -47,7 +47,7 @@ class Client{
 		$this->status['appendTag'] = '';
 		$this->status['appendFolder'] = '';
 		$this->status['appendFlags'] = array();
-		$this->status['appendDate'] = '';
+		$this->status['appendDate'] = ''; // NOT_IMPLEMENTED
 		$this->status['appendLiteral'] = 0;
 		$this->status['appendMsg'] = '';
 	}
@@ -79,10 +79,16 @@ class Client{
 		return $this->server;
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function setSocket(AbstractSocket $socket){
 		$this->socket = $socket;
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function getSocket(){
 		return $this->socket;
 	}
@@ -110,7 +116,12 @@ class Client{
 	}
 	
 	public function setIpPort($ip = '', $port = 0){
-		$this->getSocket()->getPeerName($ip, $port);
+		// @codeCoverageIgnoreStart
+		if(!TEST){
+			$this->getSocket()->getPeerName($ip, $port);
+		}
+		// @codeCoverageIgnoreEnd
+		
 		$this->setIp($ip);
 		$this->setPort($port);
 	}
@@ -134,10 +145,16 @@ class Client{
 		}
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function run(){
 		
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function dataRecv(){
 		$data = $this->getSocket()->read();
 		
@@ -324,9 +341,10 @@ class Client{
 			
 			$seqLen = $seqMax + 1 - $seqMin;
 			
-			#fwrite(STDOUT, 'len: '.$seqLen.PHP_EOL);
-			#fwrite(STDOUT, 'max: '.$seqMax.PHP_EOL);
-			#fwrite(STDOUT, 'min: '.$seqMin.PHP_EOL);
+			#fwrite(STDOUT, 'len:   '.$seqLen.PHP_EOL);
+			#fwrite(STDOUT, 'max:   '.$seqMax.PHP_EOL);
+			#fwrite(STDOUT, 'min:   '.$seqMin.PHP_EOL);
+			#fwrite(STDOUT, 'count: '.$count.PHP_EOL);
 			
 			if($isUid){
 				if($seqLen >= 1){
@@ -344,17 +362,23 @@ class Client{
 						}
 					}
 				}
-				else{
+				/*else{
 					throw new RuntimeException('Invalid minimum sequence length: "'.$seqLen.'" ('.$seqMin.'/'.$seqMax.')', 2);
-				}
+				}*/
 			}
 			else{
 				if($seqLen == 1){
-					$nums[] = (int)$seqMin;
+					if($seqMin > 0 && $seqMin <= $count){
+						$nums[] = (int)$seqMin;
+					}
 				}
 				elseif($seqLen >= 2){
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
+						#fwrite(STDOUT, ' -> seq: '.$msgSeqNum.''.PHP_EOL);
+						
 						if($msgSeqNum >= $seqMin && $msgSeqNum <= $seqMax){
+							#fwrite(STDOUT, '   -> add'.PHP_EOL);
+							
 							$nums[] = (int)$msgSeqNum;
 						}
 						
@@ -363,9 +387,9 @@ class Client{
 						}
 					}
 				}
-				else{
+				/*else{
 					throw new RuntimeException('Invalid minimum sequence length: "'.$seqLen.'" ('.$seqMin.'/'.$seqMax.')', 1);
-				}
+				}*/
 			}
 			
 			$msgSeqNums = array_merge($msgSeqNums, $nums);
@@ -661,6 +685,7 @@ class Client{
 				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		// @codeCoverageIgnoreStart
 		elseif($commandcmp == 'search'){
 			$this->log('debug', 'client '.$this->id.' search');
 			
@@ -682,6 +707,8 @@ class Client{
 				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		// @codeCoverageIgnoreEnd
+		// @codeCoverageIgnoreStart
 		elseif($commandcmp == 'store'){
 			$args = $this->msgParseString($args, 3);
 			
@@ -707,6 +734,7 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
+		// @codeCoverageIgnoreEnd
 		elseif($commandcmp == 'copy'){
 			$args = $this->msgParseString($args, 2);
 			
@@ -771,6 +799,8 @@ class Client{
 		$tmp = $msg;
 		$tmp = str_replace("\r", '', $tmp);
 		$tmp = str_replace("\n", '\\n', $tmp);
+		
+		// @codeCoverageIgnoreStart
 		if($this->getSocket()){
 			$this->log('debug', 'client '.$this->id.' data send: "'.$tmp.'"');
 			$this->getSocket()->write($output);
@@ -778,9 +808,14 @@ class Client{
 		else{
 			$this->log('debug', 'client '.$this->id.' DEBUG data send: "'.$tmp.'"');
 		}
+		// @codeCoverageIgnoreEnd
+		
 		return $output;
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function sendHello(){
 		$this->sendOk('IMAP4rev1 Service Ready');
 	}
@@ -792,6 +827,9 @@ class Client{
 		return $rv;
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	private function sendNoop($tag){
 		#$this->select();
 		if($this->selectedFolder !== null){
@@ -805,15 +843,18 @@ class Client{
 	}
 	
 	private function sendAuthenticate(){
+		$rv = '';
 		if($this->getStatus('authStep') == 1){
-			return $this->dataSend('+');
+			$rv .= $this->dataSend('+');
 		}
 		elseif($this->getStatus('authStep') == 2){
 			$this->setStatus('hasAuth', true);
 			$this->setStatus('authStep', 0);
 			
-			return $this->sendOk($this->getStatus('authMechanism').' authentication successful', $this->getStatus('authTag'));
+			$rv .= $this->sendOk($this->getStatus('authMechanism').' authentication successful', $this->getStatus('authTag'));
 		}
+		
+		return $rv;
 	}
 	
 	private function sendLogin($tag){
@@ -895,7 +936,7 @@ class Client{
 	
 	private function sendSubscribe($tag, $folder){
 		if($this->getServer()->folderExists($folder)){
-			# NOT_IMPLEMENTED
+			// NOT_IMPLEMENTED
 			
 			#fwrite(STDOUT, 'subsc: '.$folder."\n");
 			
@@ -911,7 +952,7 @@ class Client{
 	
 	private function sendUnsubscribe($tag, $folder){
 		if($this->getServer()->folderExists($folder)){
-			# NOT_IMPLEMENTED
+			// NOT_IMPLEMENTED
 			
 			#$folders = $this->getServer()->getFolders($folder);
 			#\Doctrine\Common\Util\Debug::dump($folders);
@@ -926,7 +967,7 @@ class Client{
 	private function sendList($tag, $baseFolder, $folder){
 		$this->log('debug', 'client '.$this->id.' list: /'.$baseFolder.'/ /'.$folder.'/');
 		
-		$folder = str_replace('%', '*', $folder); # NOT_IMPLEMENTED
+		$folder = str_replace('%', '*', $folder); // NOT_IMPLEMENTED
 		
 		$folders = $this->getServer()->getFolders($baseFolder, $folder, true);
 		$rv = '';
@@ -1208,15 +1249,24 @@ class Client{
 				}
 				break;
 			case 'before':
-				# NOT_IMPLEMENTED
+				// NOT_IMPLEMENTED
+				// @codeCoverageIgnoreStart
 				break;
+				// @codeCoverageIgnoreEnd
 			case 'body':
 				$searchStr = strtolower($items[1]);
 				$rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
 				break;
 			case 'cc':
 				$searchStr = strtolower($items[1]);
-				$rv = strpos(strtolower($message->cc), $searchStr) !== false;
+				#\Doctrine\Common\Util\Debug::dump($message->getCc());
+				$ccAddressList = $message->getCc();
+				if(count($ccAddressList)){
+					foreach($ccAddressList as $from){
+						$rv = strpos(strtolower($from->getEmail()), $searchStr) !== false;
+						break;
+					}
+				}
 				break;
 			case 'deleted':
 				$rv = in_array(Storage::FLAG_DELETED, $flags);
@@ -1245,8 +1295,10 @@ class Client{
 				$rv = strpos(strtolower($val), $searchStr) !== false;
 				break;
 			case 'keyword':
-				# NOT_IMPLEMENTED
+				// NOT_IMPLEMENTED
+				// @codeCoverageIgnoreStart
 				break;
+				// @codeCoverageIgnoreEnd
 			case 'larger':
 				$rv = strlen($message->getBody()) > (int)$items[1];
 				break;
@@ -1283,8 +1335,10 @@ class Client{
 				$rv = $messageDate >= $checkDate;
 				break;
 			case 'since':
-				# NOT_IMPLEMENTED
+				// NOT_IMPLEMENTED
+				// @codeCoverageIgnoreStart
 				break;
+				// @codeCoverageIgnoreEnd
 			case 'smaller':
 				$rv = strlen($message->getBody()) < (int)$items[1];
 				break;
@@ -1327,8 +1381,10 @@ class Client{
 				$rv = !in_array(Storage::FLAG_FLAGGED, $flags);
 				break;
 			case 'unkeyword':
-				# NOT_IMPLEMENTED
+				// NOT_IMPLEMENTED
+				// @codeCoverageIgnoreStart
 				break;
+				// @codeCoverageIgnoreEnd
 			case 'unseen':
 				$rv = !in_array(Storage::FLAG_SEEN, $flags);
 				break;
@@ -1408,7 +1464,10 @@ class Client{
 					$ids[] = $uid;
 				}
 				else{
+					// NOT_IMPLEMENTED
+					// @codeCoverageIgnoreStart
 					$ids[] = $msgSeqNum;
+					// @codeCoverageIgnoreEnd
 				}
 			}
 		}
@@ -1427,6 +1486,9 @@ class Client{
 		return $rv;
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	private function sendSearch($tag, $criteriaStr){
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
 		
@@ -1473,13 +1535,7 @@ class Client{
 			}
 		}
 		
-		$msgSeqNums = array();
-		try{
-			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
-		}
-		catch(Exception $e){
-			$this->sendBad($e->getMessage(), $tag);
-		}
+		$msgSeqNums = $this->createSequenceSet($seq, $isUid);
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){
@@ -1629,6 +1685,9 @@ class Client{
 		return $rv;
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	private function sendStore($tag, $seq, $name, $flagsStr){
 		#$this->select();
 		$this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
@@ -1638,13 +1697,7 @@ class Client{
 	}
 	
 	private function sendCopy($tag, $seq, $folder, $isUid = false){
-		$msgSeqNums = array();
-		try{
-			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
-		}
-		catch(Exception $e){
-			return $this->sendBad($e->getMessage(), $tag);
-		}
+		$msgSeqNums = $this->createSequenceSet($seq, $isUid);
 		
 		if($this->getServer()->getCountMailsByFolder($this->selectedFolder) == 0){
 			return $this->sendBad('No messages in selected mailbox.', $tag);
@@ -1747,10 +1800,12 @@ class Client{
 		if(!$this->getStatus('hasShutdown')){
 			$this->setStatus('hasShutdown', true);
 			
+			// @codeCoverageIgnoreStart
 			if($this->getSocket()){
 				$this->getSocket()->shutdown();
 				$this->getSocket()->close();
 			}
+			// @codeCoverageIgnoreEnd
 		}
 	}
 	

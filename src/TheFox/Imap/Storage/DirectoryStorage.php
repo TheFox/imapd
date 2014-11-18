@@ -21,17 +21,16 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function createFolder($folder){
+		$rv = false;
 		if(!$this->folderExists($folder)){
 			$path = $this->genFolderPath($folder);
 			if(!file_exists($path)){
 				$filesystem = new Filesystem();
 				$filesystem->mkdir($path, 0755, 0000, true);
-				return file_exists($path);
+				$rv = file_exists($path);
 			}
 		}
-		else{
-			return false;
-		}
+		return $rv;
 	}
 	
 	public function getFolders($baseFolder, $searchFolder, $recursive = false){
@@ -142,20 +141,21 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function getPlainMailById($msgId){
+		$rv = '';
 		if($this->getDb()){
 			$msg = $this->getDb()->getMsgById($msgId);
 			if(file_exists($msg['path'])){
 				$mailStr = file_get_contents($msg['path']);
-				return $mailStr;
+				$rv = $mailStr;
 			}
 		}
 		
-		return '';
+		return $rv;
 	}
 	
 	public function getMsgSeqById($msgId){
 		#fwrite(STDOUT, ' -> getMsgIdBySeq: /'.$msgId.'/'.PHP_EOL);
-		
+		$rv = null;
 		if($this->getDb()){
 			#fwrite(STDOUT, ' -> db ok'.PHP_EOL);
 			$msg = $this->getDb()->getMsgById($msgId);
@@ -179,15 +179,16 @@ class DirectoryStorage extends AbstractStorage{
 						}
 					}
 					
-					return $seq;
+					$rv = $seq;
 				}
 			}
 		}
 		
-		return null;
+		return $rv;
 	}
 	
 	public function getMsgIdBySeq($seqNum, $folder){
+		$rv = null;
 		if($this->getDb()){
 			$path = $this->genFolderPath($folder);
 			
@@ -201,28 +202,32 @@ class DirectoryStorage extends AbstractStorage{
 				if($seq >= $seqNum){
 					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
 					#fwrite(STDOUT, 'getMsgIdBySeq id: /'.$msgId.'/'.PHP_EOL);
-					return $msgId;
+					$rv = $msgId;
+					break;
 				}
 			}
 		}
-		
-		return null;
+		return $rv;
 	}
 	
 	public function getMsgsByFlags($flags){
+		$rv = array();
+		
 		if($this->getDb()){
-			return $this->getDb()->getMsgIdsByFlags($flags);
+			$rv = $this->getDb()->getMsgIdsByFlags($flags);
 		}
 		
-		return array();
+		return $rv;
 	}
 	
 	public function getFlagsById($msgId){
+		$rv = array();
+		
 		if($this->getDb()){
-			return $this->getDb()->getFlagsById($msgId);
+			$rv = $this->getDb()->getFlagsById($msgId);
 		}
 		
-		return array();
+		return $rv;
 	}
 	
 	public function setFlagsById($msgId, $flags){
@@ -232,6 +237,8 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function getFlagsBySeq($seqNum, $folder){
+		$rv = array();
+		
 		if($this->getDb()){
 			$path = $this->genFolderPath($folder);
 			
@@ -242,12 +249,13 @@ class DirectoryStorage extends AbstractStorage{
 				$seq++;
 				if($seq >= $seqNum){
 					$msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
-					return $this->getFlagsById($msgId);
+					$rv = $this->getFlagsById($msgId);
+					break;
 				}
 			}
 		}
 		
-		return array();
+		return $rv;
 	}
 	
 	public function setFlagsBySeq($seqNum, $folder, $flags){
@@ -260,11 +268,11 @@ class DirectoryStorage extends AbstractStorage{
 	}
 	
 	public function getNextMsgId(){
+		$rv = null;
 		if($this->getDb()){
-			return $this->getDb()->getNextId();
+			$rv = $this->getDb()->getNextId();
 		}
-		
-		return null;
+		return $rv;
 	}
 	
 }

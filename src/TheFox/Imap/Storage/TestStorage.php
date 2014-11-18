@@ -4,6 +4,9 @@ namespace TheFox\Imap\Storage;
 
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @codeCoverageIgnore
+ */
 class TestStorage extends AbstractStorage{
 	
 	public function getDirectorySeperator(){

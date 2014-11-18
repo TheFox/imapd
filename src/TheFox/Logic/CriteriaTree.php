@@ -133,7 +133,7 @@ class CriteriaTree{
 	}
 	
 	public function bool(){
-		return $this->rootGate->bool();
+		return $this->getRootGate()->bool();
 	}
 	
 }

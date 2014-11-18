@@ -30,25 +30,28 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
 		$rv[] = array('arg1  arg2  arg3 arg4', $expect, 3);
 		
 		$expect = array('arg1', 'arg2', 'arg3  arg4');
-		$rv[] = array('arg1 arg2 arg3  arg4', $expect, 3); # 5
+		$rv[] = array('arg1 arg2 arg3  arg4', $expect, 3);
 		$rv[] = array('arg1  arg2  arg3  arg4', $expect, 3);
 		
 		$expect = array('arg1', 'arg2', 'arg3', 'arg4');
-		$rv[] = array('arg1 arg2 arg3 "arg4"', $expect, 4); # 7
+		$rv[] = array('arg1 arg2 arg3 "arg4"', $expect, 4);
 		$rv[] = array('arg1 arg2 "arg3" arg4', $expect, 4);
 		$rv[] = array('arg1 arg2  "arg3" arg4', $expect, 4);
-		$rv[] = array('arg1 arg2 "arg3"  arg4', $expect, 4); # 10
+		$rv[] = array('arg1 arg2 "arg3"  arg4', $expect, 4);
 		$rv[] = array('arg1 arg2  "arg3"  arg4', $expect, 4);
 		$rv[] = array('arg1 arg2 arg3 "arg4"', $expect, 4);
-		$rv[] = array('arg1 arg2 arg3 "arg4" ', $expect, 4); # 13
+		$rv[] = array('arg1 arg2 arg3 "arg4" ', $expect, 4);
 		$rv[] = array('arg1 arg2 arg3  "arg4" ', $expect, 4);
 		$rv[] = array('arg1 arg2 "arg3" "arg4"', $expect, 4);
 		
 		$expect = array('arg1', 'arg2', 'arg3  arg4', 'arg5');
-		$rv[] = array('arg1  arg2  "arg3  arg4" arg5', $expect, 5); # 16
+		$rv[] = array('arg1  arg2  "arg3  arg4" arg5', $expect, 5);
+		
+		$expect = array('arg1', 'arg2', 'arg3', 'arg4', 'arg5');
+		$rv[] = array('arg1 arg2 arg3 arg4 arg5', $expect, 10);
 		
 		$expect = array('arg1', 'arg2', 'arg3 arg4');
-		$rv[] = array('arg1 arg2 "arg3 arg4"', $expect, 3); #17
+		$rv[] = array('arg1 arg2 "arg3 arg4"', $expect, 3);
 		$rv[] = array('arg1 arg2 "arg3 arg4" ', $expect, 3);
 		$rv[] = array('arg1 arg2  "arg3 arg4" ', $expect, 3);
 		$rv[] = array('arg1 arg2  "arg3 arg4"', $expect, 3);
@@ -118,14 +121,17 @@ class StringParserTest extends PHPUnit_Framework_TestCase{
      * @dataProvider providerParse
      * @group large
      */
-	public function testParse($msgRaw, $expect, $argsMax = null){
+	public function testParse1($msgRaw, $expect, $argsMax = null){
 		$str = new StringParser($msgRaw, $argsMax);
 		$this->assertEquals($expect, $str->parse());
 	}
 	
-	/*public function testParse2(){
-		ve(preg_split('/ /', '10 LIST "    test_dir1 " test_sub*'));
-		#$this->assertEquals($expect, );
-	}*/
+	public function testParse2(){
+		$str = new StringParser('arg1 arg2 arg3', 10);
+		$args = $str->parse();
+		#\Doctrine\Common\Util\Debug::dump($args);
+		#$this->assertEquals(array('arg1', 'arg2'), $args);
+		$this->assertTrue(true);
+	}
 	
 }

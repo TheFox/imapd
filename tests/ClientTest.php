@@ -15,6 +15,54 @@ use TheFox\Imap\Storage\DirectoryStorage;
 
 class ClientTest extends PHPUnit_Framework_TestCase{
 	
+	public function testGetStatus1(){
+		$client = new Client();
+		$this->assertEquals(0, $client->getStatus('authStep'));
+		
+		$client->setStatus('authStep', 1);
+		$this->assertEquals(1, $client->getStatus('authStep'));
+	}
+	
+	public function testGetStatus2(){
+		$client = new Client();
+		$this->assertEquals(null, $client->getStatus('NOT_EXISTING'));
+	}
+	
+	public function testSetGetIp1(){
+		$client = new Client();
+		$client->setIp('192.168.241.21');
+		$this->assertEquals('192.168.241.21', $client->getIp());
+	}
+	
+	public function testSetGetIp2(){
+		$client = new Client();
+		$this->assertEquals('', $client->getIp());
+	}
+	
+	public function testSetGetPort1(){
+		$client = new Client();
+		$client->setPort(1024);
+		$this->assertEquals(1024, $client->getPort());
+	}
+	
+	public function testSetGetPort2(){
+		$client = new Client();
+		$this->assertEquals(0, $client->getPort());
+	}
+	
+	public function testGetIpPort1(){
+		$client = new Client();
+		$client->setIp('192.168.241.21');
+		$client->setPort(1024);
+		$this->assertEquals('192.168.241.21:1024', $client->getIpPort());
+	}
+	
+	public function testGetIpPort2(){
+		$client = new Client();
+		$client->setIpPort('192.168.241.21', 1024);
+		$this->assertEquals('192.168.241.21:1024', $client->getIpPort());
+	}
+	
 	public function providerMsgGetArgs(){
 		$rv = array();
 		$expect = array('tag' => 'TAG1', 'command' => 'cmd2', 'args' => array());
@@ -123,7 +171,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
 	}
 	
-	public function testCreateSequenceSet(){
+	public function testCreateSequenceSet1(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
@@ -201,6 +249,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 			fwrite(STDOUT, 'file: '.$file->getBasename()."\n");
 		}*/
 		
+		$seq = $client->createSequenceSet('0', false);
+		$this->assertEquals(array(), $seq);
+		
 		$seq = $client->createSequenceSet('1', false);
 		$this->assertEquals(array(1), $seq);
 		
@@ -225,6 +276,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$seq = $client->createSequenceSet('3:5', false);
 		$this->assertEquals(array(3, 4, 5), $seq);
 		
+		$seq = $client->createSequenceSet('5:3', false);
+		$this->assertEquals(array(3, 4, 5), $seq);
+		
 		$seq = $client->createSequenceSet('3:5,2', false);
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
@@ -236,6 +290,12 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$seq = $client->createSequenceSet('3:*,2', false);
 		$this->assertEquals(array(2, 3, 4, 5, 6), $seq);
+		
+		$seq = $client->createSequenceSet('7', false);
+		$this->assertEquals(array(), $seq);
+		
+		$seq = $client->createSequenceSet('8:9', false);
+		$this->assertEquals(array(), $seq);
 		
 		
 		$seq = $client->createSequenceSet('100001', true);
@@ -262,6 +322,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$seq = $client->createSequenceSet('100002:100004', true);
 		$this->assertEquals(array(2, 3, 4), $seq);
 		
+		$seq = $client->createSequenceSet('100004:100002', true);
+		$this->assertEquals(array(2, 3, 4), $seq);
+		
 		$seq = $client->createSequenceSet('100002:100004,100005', true);
 		$this->assertEquals(array(2, 3, 4, 5), $seq);
 		
@@ -275,6 +338,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(array(1, 2, 3, 4, 5, 6), $seq);
 		
 		$seq = $client->createSequenceSet('100007', true);
+		$this->assertEquals(array(), $seq);
+		
+		$seq = $client->createSequenceSet('100007:100009', true);
 		$this->assertEquals(array(), $seq);
 		
 		$seq = $client->createSequenceSet('999999:*', true);
@@ -371,6 +437,9 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
+		
+		$msg = $client->msgHandle('4 authenticate UNSUPPORTED');
+		$this->assertEquals('4 NO UNSUPPORTED Unsupported authentication mechanism'.Client::MSG_SEPARATOR, $msg);
 		
 		$msg = $client->msgHandle('4 authenticate plain');
 		$this->assertEquals('+'.Client::MSG_SEPARATOR, $msg);
@@ -793,8 +862,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setServer($server);
 		$client->setId(1);
 		
-		#$msg = $client->msgHandle('10 LIST');
-		#$this->assertEquals('10 NO list failure'.Client::MSG_SEPARATOR, $msg);
+		$msg = $client->msgHandle('10 LIST');
+		$this->assertEquals('10 NO list failure'.Client::MSG_SEPARATOR, $msg);
 		
 		$client->setStatus('hasAuth', true);
 		
@@ -1005,6 +1074,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(3, $client->getStatus('appendStep'));
 		
+		
+		
 		$finder = new Finder();
 		$files = $finder->in($path1.'/Sent')->files();
 		$this->assertEquals(2, count($files));
@@ -1061,6 +1132,114 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
 		$msg = $client->msgHandle('');
 		$msg = $client->msgHandle('test333');
+		
+		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(3, $client->getStatus('appendStep'));
+		
+		$finder = new Finder();
+		$files = $finder->in($path1.'/Sent')->files();
+		$this->assertEquals(1, count($files));
+	}
+	
+	public function testMsgHandleAppend4(){
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$server->addFolder('Sent');
+		
+		$client->setStatus('hasAuth', true);
+		
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent" 2014-11-18 {417}');
+		
+		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(2, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+		$this->assertEquals(null, $msg);
+		
+		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+		$msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
+		$msg = $client->msgHandle($raw);
+		$msg = $client->msgHandle('MIME-Version: 1.0');
+		$msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+		$msg = $client->msgHandle('Subject: test3');
+		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
+		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		$msg = $client->msgHandle('');
+		$msg = $client->msgHandle('test333');
+		
+		
+		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(3, $client->getStatus('appendStep'));
+		
+		$finder = new Finder();
+		$files = $finder->in($path1.'/Sent')->files();
+		$this->assertEquals(1, count($files));
+	}
+	
+	public function testMsgHandleAppend5(){
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$server->addFolder('Sent');
+		
+		$client->setStatus('hasAuth', true);
+		
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent" 2014-11-18 ('.Storage::FLAG_ANSWERED.') {417}');
+		
+		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(2, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+		$this->assertEquals(null, $msg);
+		
+		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+		$msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
+		$msg = $client->msgHandle($raw);
+		$msg = $client->msgHandle('MIME-Version: 1.0');
+		$msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+		$msg = $client->msgHandle('Subject: test3');
+		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
+		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		$msg = $client->msgHandle('');
+		$msg = $client->msgHandle('test333');
+		
 		
 		$this->assertEquals('19 OK APPEND completed'.Client::MSG_SEPARATOR, $msg);
 		$this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1673,6 +1852,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
+		$message->addCc('dev3@fox21.at');
 		$message->setSubject('my_subject 22');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_FLAGGED), false);
@@ -1680,12 +1860,16 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
+		$message->addCc('dev3@fox21.at');
 		$message->setSubject('my_subject 23');
 		$message->setBody('my_body');
 		$server->addMail($message, null, array(Storage::FLAG_SEEN), false);
 		
 		
 		
+		$msg = $client->msgHandle('17 uid SEARCH');
+		$expect = '17 BAD Arguments invalid.'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH ALL');
 		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 ';
@@ -1708,6 +1892,10 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$msg = $client->msgHandle('17 uid SEARCH BODY world');
 		$expect = '* SEARCH 100006'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH CC dev3');
+		$expect = '* SEARCH 100022 100023'.Client::MSG_SEPARATOR.'17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH DELETED');
@@ -1840,6 +2028,24 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$msg = $client->msgHandle('17 uid SEARCH UNSEEN');
 		$expect = '* SEARCH 100002 100007 100008 100009 100012 100013 100014 100015 100016 100017 100018';
 		$expect .= ' 100019 100020 100021 100022'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH OR CC dev3 TO steve');
+		$expect = '* SEARCH 100017 100022 100023';
+		$expect .= ''.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH OR CC dev3 NOT CC dev2');
+		$expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011';
+		$expect .= ' 100012 100013 100014 100015 100016 100017';
+		$expect .= ' 100018 100019 100020 100021 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH CC dev3 AND TO dev2');
+		$expect = '* SEARCH 100022 100023'.Client::MSG_SEPARATOR;
 		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
@@ -2362,6 +2568,36 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$filesystem->remove($path1);
 	}
 	
+	public function testMsgHandleUidFail(){
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$client->setStatus('hasAuth', true);
+		$client->msgHandle('6 select INBOX');
+		
+		$msg = $client->msgHandle('18 uid FAIL');
+		$this->assertEquals('18 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
+	}
+	
 	public function testMsgHandleCopy(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
@@ -2391,6 +2627,10 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		
 		$server->addFolder('test_dir1');
 		$server->addFolder('test_dir2');
+		
+		$msg = $client->msgHandle('16 copy 1 test_dir2');
+		$this->assertEquals('16 NO No mailbox selected.'.Client::MSG_SEPARATOR, $msg);
+		
 		$client->msgHandle('6 select test_dir1');
 		
 		$msg = $client->msgHandle('16 copy');

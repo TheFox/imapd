@@ -27,9 +27,12 @@
 			<file>tests/CriteriaTreeTest.php</file>
 			<file>tests/DirectoryStorageTest.php</file>
 			<file>tests/LogicGateTest.php</file>
+			<file>tests/MsgDbTest.php</file>
 			<file>tests/ServerTest.php</file>
 			<file>tests/StringParserTest.php</file>
 			<file>tests/TestStorageTest.php</file>
+			<file>tests/ThreadTest.php</file>
+			<file>tests/YamlStorageTest.php</file>
 			<file>tests/ZendMailStorageTest.php</file>
 		</testsuite>
 	</testsuites>

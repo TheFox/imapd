@@ -7,7 +7,7 @@ class Obj{
 	private $value = null;
 	
 	public function __construct($value = null){
-		$this->value = $value;
+		$this->setValue($value);
 	}
 	
 	public function __clone(){

@@ -7,6 +7,6 @@ log
 pid
 *.yml
 !.travis.yml
-tests/test_*
+test_data
 tmp_mailbox_*
 releases

@@ -1,11 +1,39 @@
 <?php
 
 use TheFox\Logic\Obj;
+use TheFox\Logic\Gate;
 use TheFox\Logic\AndGate;
 use TheFox\Logic\OrGate;
 use TheFox\Logic\NotGate;
 
 class LogicGateTest extends PHPUnit_Framework_TestCase{
+	
+	public function testObj(){
+		$gate1 = new Obj('val1');
+		$gate2 = new Obj($gate1);
+		$gate3 = clone $gate2;
+		
+		#\Doctrine\Common\Util\Debug::dump($gate3);
+		$this->assertEquals('val1', $gate1->getValue());
+		$this->assertTrue(is_object($gate3));
+	}
+	
+	public function testGate(){
+		$gate1 = new Obj('val1');
+		$gate2 = new Obj('val2');
+		
+		$gate3 = new Gate();
+		$gate3->setObj1($gate1);
+		$gate3->setObj2($gate2);
+		
+		$this->assertEquals($gate1, $gate3->getObj1());
+		$this->assertEquals($gate2, $gate3->getObj2());
+		$this->assertEquals(null, $gate3->bool());
+		
+		$gate4 = clone $gate3;
+		$this->assertEquals('val1', $gate4->getObj1()->getValue());
+		$this->assertEquals('val2', $gate4->getObj2()->getValue());
+	}
 	
 	public function testAnd1(){
 		$gate = new AndGate();

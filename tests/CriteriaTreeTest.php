@@ -306,6 +306,7 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 		#fwrite(STDOUT, 'gate'."\n"); ve($gate);
 		
 		$this->assertEquals($expect, $gate->bool());
+		$this->assertEquals($expect, $tree->bool());
 	}
 	
 	public function providerCriteriaTree(){
