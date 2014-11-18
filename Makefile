@@ -54,11 +54,10 @@ build:
 	$(MKDIR) build/logs
 	$(CHMOD) 0700 build
 
-clean:
+clean: test_clean
 	$(RM) composer.lock $(COMPOSER)
 	$(RM) vendor/*
 	$(RM) vendor
-	$(RM) tests/test_mailbox_*
 
 clean_release:
 	$(RM) composer.lock $(COMPOSER)
