@@ -1034,7 +1034,7 @@ class Client{
 					return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
 				}
 				catch(Exception $e){
-					return $this->sendNo('Can not get folder: '.$e->getMessage(), $this->getStatus('appendTag'), 'TRYCREATE');
+					return $this->sendNo('Can not get folder: '.$this->getStatus('appendFolder'), $this->getStatus('appendTag'), 'TRYCREATE');
 				}
 			}
 			else{
@@ -1398,8 +1398,10 @@ class Client{
 		return $rv;
 	}
 	
-	public function parseSearchMessage($message, $messageSeqNum, $messageUid, $isUid, $gate){
+	public function parseSearchMessage($message, $messageSeqNum, $messageUid, $isUid, $gate, $level = 1){
 		$func = __FUNCTION__;
+		#fwrite(STDOUT, 'parseSearchMessage: '.$level."\n");
+		#\Doctrine\Common\Util\Debug::dump($gate, 10);
 		
 		$subgates = array();
 		if($gate instanceof Gate){
@@ -1416,18 +1418,27 @@ class Client{
 		}
 		
 		foreach($subgates as $subgate){
+			#fwrite(STDOUT, 'subgate: '.get_class($subgate)."\n");
 			if($subgate instanceof AndGate){
-				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
+				#\Doctrine\Common\Util\Debug::dump($subgate, 5);
+				#print_r($subgate);
+				#fwrite(STDOUT, ' -> AND'."\n");
+				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate, $level + 1);
+				#fwrite(STDOUT, ' -> AND: '.(int)$gate->bool()."\n");
 			}
 			elseif($subgate instanceof OrGate){
-				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
+				#fwrite(STDOUT, ' -> OR'."\n");
+				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate, $level + 1);
 			}
 			elseif($subgate instanceof NotGate){
-				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate);
+				#fwrite(STDOUT, ' -> NOT'."\n");
+				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate, $level + 1);
 			}
 			elseif($subgate instanceof Obj){
+				#fwrite(STDOUT, '   -> Obj: '.$subgate->getValue()."\n");
 				$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $subgate->getValue());
 				$subgate->setValue($val);
+				#fwrite(STDOUT, '     -> '.(int)$val."\n");
 			}
 		}
 		
@@ -1442,9 +1453,13 @@ class Client{
 		$tree = new CriteriaTree($criteria);
 		$tree->build();
 		
+		#\Doctrine\Common\Util\Debug::dump($tree);
+		
+		// @codeCoverageIgnoreStart
 		if(!$tree->getRootGate()){
 			return '';
 		}
+		// @codeCoverageIgnoreEnd
 		
 		$ids = array();
 		$msgSeqNums = $this->createSequenceSet('*');
@@ -1457,6 +1472,8 @@ class Client{
 			$add = false;
 			if($message){
 				$rootGate = clone $tree->getRootGate();
+				#\Doctrine\Common\Util\Debug::dump($rootGate, 5);
+				#print_r($rootGate);
 				$add = $this->parseSearchMessage($message, $msgSeqNum, $uid, $isUid, $rootGate);
 			}
 			if($add){
@@ -1643,13 +1660,7 @@ class Client{
 				break;
 		}
 		
-		$msgSeqNums = array();
-		try{
-			$msgSeqNums = $this->createSequenceSet($seq, $isUid);
-		}
-		catch(Exception $e){
-			$this->sendBad($e->getMessage(), $tag);
-		}
+		$msgSeqNums = $this->createSequenceSet($seq, $isUid);
 		
 		// Process collected msgs.
 		foreach($msgSeqNums as $msgSeqNum){

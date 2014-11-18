@@ -726,6 +726,45 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$filesystem->remove($path1);
 	}
 	
+	public function testMsgHandleSelect5(){
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		$server->addFolder('test_dir');
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		$client->setStatus('hasAuth', true);
+		
+		
+		$msg = $client->msgHandle('6 select Inbox');
+		
+		$expect = '';
+		$expect .= '* 0 EXISTS'.Client::MSG_SEPARATOR;
+		$expect .= '* 0 RECENT'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UNSEEN 0] Message 0 is first unseen'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [UIDNEXT 100001] Predicted next UID'.Client::MSG_SEPARATOR;
+		$expect .= '* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)'.Client::MSG_SEPARATOR;
+		$expect .= '* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Limited'.Client::MSG_SEPARATOR;
+		$expect .= '6 OK [READ-WRITE] SELECT completed'.Client::MSG_SEPARATOR;
+		
+		$this->assertEquals($expect, $msg);
+		
+		$server->shutdown();
+		$filesystem = new Filesystem();
+		$filesystem->remove($path1);
+	}
+	
 	public function testMsgHandleCreate(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
@@ -1247,6 +1286,54 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$finder = new Finder();
 		$files = $finder->in($path1.'/Sent')->files();
 		$this->assertEquals(1, count($files));
+	}
+	
+	public function testMsgHandleAppend6(){
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		
+		$log = new Logger('test_application');
+		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+		
+		$server = new Server('', 0);
+		$server->setLog($log);
+		$server->init();
+		
+		$storage1 = new DirectoryStorage();
+		$storage1->setPath($path1);
+		$server->addStorage($storage1);
+		
+		
+		$client = new Client();
+		$client->setServer($server);
+		$client->setId(1);
+		
+		$client->setStatus('hasAuth', true);
+		
+		$this->assertEquals(0, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('19 append "Sent" 2014-11-18 ('.Storage::FLAG_ANSWERED.') {417}');
+		
+		$this->assertEquals('+ Ready for literal data'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(2, $client->getStatus('appendStep'));
+		
+		$msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+		$this->assertEquals(null, $msg);
+		
+		$msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+		$msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+		$raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
+		$msg = $client->msgHandle($raw);
+		$msg = $client->msgHandle('MIME-Version: 1.0');
+		$msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+		$msg = $client->msgHandle('Subject: test3');
+		$msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
+		$msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
+		$msg = $client->msgHandle('');
+		$msg = $client->msgHandle('test333');
+		
+		
+		$this->assertEquals('19 NO [TRYCREATE] Can not get folder: Sent'.Client::MSG_SEPARATOR, $msg);
+		$this->assertEquals(3, $client->getStatus('appendStep'));
 	}
 	
 	public function testMsgHandleCheck(){
@@ -2045,10 +2132,21 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals($expect, $msg);
 		
 		$msg = $client->msgHandle('17 uid SEARCH CC dev3 AND TO dev2');
-		$expect = '* SEARCH 100022 100023'.Client::MSG_SEPARATOR;
+		$expect = '';
+		$expect .= '* SEARCH 100022 100023'.Client::MSG_SEPARATOR;
 		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
 		$this->assertEquals($expect, $msg);
 		
+		$msg = $client->msgHandle('17 uid SEARCH CC dev3 AND OR FROM dev1 TO dev2');
+		$expect = '';
+		$expect .= '* SEARCH 100022 100023'.Client::MSG_SEPARATOR;
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
+		
+		$msg = $client->msgHandle('17 uid SEARCH CC dev3 AND AND FROM dev1 NOT TO dev2');
+		$expect = '';
+		$expect .= '17 OK UID SEARCH completed'.Client::MSG_SEPARATOR;
+		$this->assertEquals($expect, $msg);
 		
 		
 		$msg = $client->msgHandle('17 uid SEARCH BEFORE 1985');
@@ -2590,7 +2688,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$client->setStatus('hasAuth', true);
 		$client->msgHandle('6 select INBOX');
 		
-		$msg = $client->msgHandle('18 uid FAIL');
+		$msg = $client->msgHandle('18 uid FAIL1 FAIL2');
 		$this->assertEquals('18 BAD Arguments invalid.'.Client::MSG_SEPARATOR, $msg);
 		
 		$server->shutdown();

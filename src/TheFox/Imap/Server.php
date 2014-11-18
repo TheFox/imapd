@@ -64,11 +64,18 @@ class Server extends Thread{
 				$this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
 			}
 		}
-		$this->log->info('start');
-		$this->log->info('ip = "'.$this->ip.'"');
-		$this->log->info('port = "'.$this->port.'"');
+		// @codeCoverageIgnoreStart
+		if(!TEST){
+			$this->log->info('start');
+			$this->log->info('ip = "'.$this->ip.'"');
+			$this->log->info('port = "'.$this->port.'"');
+		}
+		// @codeCoverageIgnoreEnd
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function listen(){
 		if($this->ip && $this->port){
 			#$this->log->notice('listen on '.$this->ip.':'.$this->port);
@@ -100,6 +107,9 @@ class Server extends Thread{
 		}
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function run(){
 		if(!$this->socket){
 			throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
@@ -153,6 +163,9 @@ class Server extends Thread{
 		}
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function loop(){
 		while(!$this->getExit()){
 			$this->run();
@@ -162,6 +175,9 @@ class Server extends Thread{
 		$this->shutdown();
 	}
 	
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function shutdown(){
 		#$this->log->debug('shutdown');
 		
@@ -177,7 +193,7 @@ class Server extends Thread{
 		#$this->log->debug('shutdown done');
 	}
 	
-	private function clientNew($socket){
+	public function clientNew($socket){
 		$this->clientsId++;
 		
 		$client = new Client();
@@ -189,27 +205,26 @@ class Server extends Thread{
 		return $client;
 	}
 	
-	private function clientGetByHandle($handle){
+	public function clientGetByHandle($handle){
+		$rv = null;
+		
 		foreach($this->clients as $clientId => $client){
 			if($client->getSocket()->getHandle() == $handle){
-				return $client;
+				$rv = $client;
+				break;
 			}
 		}
 		
-		return null;
+		return $rv;
 	}
 	
-	private function clientRemove(Client $client){
+	public function clientRemove(Client $client){
 		$this->log->debug('client remove: '.$client->getId());
 		
 		$client->shutdown();
 		
 		$clientsId = $client->getId();
 		unset($this->clients[$clientsId]);
-	}
-	
-	public function setDefaultStoragePath($path){
-		$this->defaultStoragePath = $path;
 	}
 	
 	public function getDefaultStorage(){
@@ -223,6 +238,8 @@ class Server extends Thread{
 	}
 	
 	public function addStorage(AbstractStorage $storage){
+		#fwrite(STDOUT, 'add: '.$storage->getType().' '.get_class($storage)."\n");
+		
 		if(!$this->defaultStorage){
 			$this->defaultStorage = $storage;
 			
@@ -230,6 +247,7 @@ class Server extends Thread{
 			if(substr($dbPath, -1) == '/'){
 				$dbPath = substr($dbPath, 0, -1);
 			}
+			
 			$dbPath .= '.yml';
 			$storage->setDbPath($dbPath);
 			
@@ -240,6 +258,9 @@ class Server extends Thread{
 		else{
 			$this->storages[] = $storage;
 		}
+		
+		#\Doctrine\Common\Util\Debug::dump($this->defaultStorage);
+		#\Doctrine\Common\Util\Debug::dump($this->storages);
 	}
 	
 	public function shutdownStorages(){
@@ -248,10 +269,13 @@ class Server extends Thread{
 		$this->getDefaultStorage()->save();
 		
 		foreach($this->storages as $storageId => $storage){
+			#fwrite(STDOUT, 'stor: '.$storageId.' '.$storage->getType().' '.get_class($storage)."\n");
 			if($storage->getType() == 'temp'){
 				$filesystem->remove($storage->getPath());
 				
+				#fwrite(STDOUT, ' -> db /'.$storage->getDbPath().'/'."\n");
 				if($storage->getDbPath()){
+					#fwrite(STDOUT, '    -> db '.$storage->getDbPath()."\n");
 					$filesystem->remove($storage->getDbPath());
 				}
 			}
@@ -276,9 +300,11 @@ class Server extends Thread{
 		$func = __FUNCTION__;
 		$this->log->debug($func.$level.': /'.$baseFolder.'/ /'.$searchFolder.'/ '.(int)$recursive.', '.$level);
 		
+		// @codeCoverageIgnoreStart
 		if($level >= 100){
 			return array();
 		}
+		// @codeCoverageIgnoreEnd
 		
 		if($baseFolder == '' && $searchFolder == 'INBOX'){
 			return $this->$func('INBOX', '*', true, $level + 1);
@@ -411,12 +437,14 @@ class Server extends Thread{
 	}
 	
 	public function getMailBySeq($seqNum, $folder){
+		$rv = null;
+		
 		$msgId = $this->getMsgIdBySeq($seqNum, $folder);
 		if($msgId){
-			return $this->getMailById($msgId);
+			$rv = $this->getMailById($msgId);
 		}
 		
-		return null;
+		return $rv;
 	}
 	
 	public function getMailIdsByFlags($flags){

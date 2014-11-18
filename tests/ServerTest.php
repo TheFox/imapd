@@ -7,10 +7,12 @@ use Symfony\Component\Filesystem\Filesystem;
 use TheFox\Logger\Logger;
 use TheFox\Logger\StreamHandler;
 use TheFox\Imap\Server;
+use TheFox\Imap\Client;
 use TheFox\Imap\MsgDb;
 use TheFox\Imap\Event;
 use TheFox\Imap\Storage\DirectoryStorage;
 use TheFox\Imap\Storage\TestStorage;
+use TheFox\Network\Socket;
 
 class ServerTest extends PHPUnit_Framework_TestCase{
 	
@@ -21,6 +23,61 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
 		$this->assertTrue($server->getLog() !== null);
+	}
+	
+	public function testInit(){
+		$server = new Server('', 0);
+		$server->init();
+		$log = $server->getLog();
+		
+		$this->assertTrue($log instanceof Logger);
+	}
+	
+	public function testClientNew(){
+		$socket = new Socket();
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		
+		$client = $server->clientNew($socket);
+		$this->assertTrue($client instanceof Client);
+	}
+	
+	public function testClientGetByHandle(){
+		$socket = new Socket();
+		$socket->bind('127.0.0.1', 22143);
+		$socket->listen();
+		$handle1 = $socket->getHandle();
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		
+		$client1 = $server->clientNew($socket);
+		$client2 = $server->clientGetByHandle($handle1);
+		#\Doctrine\Common\Util\Debug::dump($handle2);
+		$this->assertEquals($client1, $client2);
+		
+		$server->shutdown();
+	}
+	
+	public function testClientRemove(){
+		$socket = new Socket();
+		$socket->bind('127.0.0.1', 22143);
+		$socket->listen();
+		
+		$server = new Server('', 0);
+		$server->setLog(new Logger('test_application'));
+		$server->init();
+		
+		$client = $server->clientNew($socket);
+		$server->clientRemove($client);
+		
+		#\Doctrine\Common\Util\Debug::dump($server);
+		$this->assertTrue($client->getStatus('hasShutdown'));
+		
+		$server->shutdown();
 	}
 	
 	public function testGetDefaultStorage(){
@@ -38,7 +95,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testAddStorage(){
-		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true).'/';
 		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
@@ -58,6 +115,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$this->assertEquals($storage1, $server->getDefaultStorage());
 		
+		$server->shutdown();
 		$filesystem = new Filesystem();
 		$filesystem->remove($storage1->getPath());
 		$filesystem->remove($storage2->getPath());
@@ -389,6 +447,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testAddMail(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -400,6 +459,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
+		
+		$storage2 = new TestStorage();
+		$storage2->setPath($path2);
+		$server->addStorage($storage2);
 		
 		
 		$message = new Message();
@@ -509,6 +572,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testRemoveMail1(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -520,6 +584,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
+		
+		$storage2 = new TestStorage();
+		$storage2->setPath($path2);
+		$server->addStorage($storage2);
 		
 		
 		$message = new Message();
@@ -592,6 +660,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testRemoveMail2(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -603,6 +672,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
+		
+		$storage2 = new TestStorage();
+		$storage2->setPath($path2);
+		$server->addStorage($storage2);
 		
 		
 		$message = new Message();
@@ -677,6 +750,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testCopyMail1(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -688,6 +762,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
+		
+		$storage2 = new TestStorage();
+		$storage2->setPath($path2);
+		$server->addStorage($storage2);
 		
 		
 		$message = new Message();
@@ -760,6 +838,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	
 	public function testCopyMail2(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -771,6 +850,10 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = new DirectoryStorage();
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
+		
+		$storage2 = new TestStorage();
+		$storage2->setPath($path2);
+		$server->addStorage($storage2);
 		
 		
 		$message = new Message();
@@ -945,6 +1028,7 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	public function testShutdownStorages(){
 		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path3 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
@@ -954,22 +1038,36 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
 		
+		$storage2db = new MsgDb();
 		$storage2 = new TestStorage();
 		$storage2->setPath($path2);
 		$storage2->setType('temp');
+		$storage2->setDb($storage2db);
+		$storage2->setDbPath($path2.'/msgdb.yml');
 		$server->addStorage($storage2);
 		
+		$storage3 = new TestStorage();
+		$storage3->setPath($path3);
+		$server->addStorage($storage3);
+		
+		$this->assertEquals('normal', $storage1->getType());
+		$this->assertEquals('temp', $storage2->getType());
+		$this->assertEquals('normal', $storage3->getType());
+		
+		$this->assertTrue($server->getDefaultStorage() instanceof DirectoryStorage);
+		
 		$server->addFolder('test_dir1');
-		$server->shutdownStorages();
+		#$server->shutdownStorages();
+		$server->shutdown();
 		
 		$this->assertTrue(file_exists($path1));
 		$this->assertFalse(file_exists($path2));
+		$this->assertTrue(file_exists($path3));
 		
-		
-		$server->shutdown();
 		$filesystem = new Filesystem();
 		$filesystem->remove($storage1->getPath());
 		$filesystem->remove($storage2->getPath());
+		$filesystem->remove($storage3->getPath());
 	}
 	
 }
