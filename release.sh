@@ -29,7 +29,7 @@ make clean_release
 cd ..
 #exit
 
-find $DST -name .DS_Store -delete
+find $DST -name .DS_Store -exec rm -vf {} \;
 tar -cpzf $DST.tar.gz $DST
 chmod -R 777 $DST
 $RM $DST
