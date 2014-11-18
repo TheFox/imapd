@@ -124,7 +124,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testCreateSequenceSet(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -399,7 +399,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleSelect1(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -443,7 +443,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleSelect2(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -524,7 +524,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleSelect3(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -591,7 +591,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleSelect4(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -658,7 +658,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleCreate(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -702,7 +702,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleSubscribe(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -740,7 +740,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUnsubscribe(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -775,7 +775,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleList(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -842,7 +842,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleLsub(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -888,7 +888,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleAppend1(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -928,7 +928,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleAppend2(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1018,7 +1018,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleAppend3(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1071,7 +1071,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleCheck(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1105,7 +1105,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleClose(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1139,7 +1139,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleExpunge1(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1243,7 +1243,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleExpunge2(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1484,7 +1484,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	 * @group medium
 	 */
 	public function testMsgHandleUidSearch(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1867,7 +1867,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidFetch1(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1953,7 +1953,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidFetch2(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -2014,7 +2014,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidFetch3(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -2074,7 +2074,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidFetch4(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -2148,7 +2148,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidStore(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -2363,7 +2363,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleCopy(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -2457,7 +2457,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testMsgHandleUidCopy(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -2604,7 +2604,7 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testSelect(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$log = new Logger('test_application');
 		#$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));

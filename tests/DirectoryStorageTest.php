@@ -14,7 +14,7 @@ class DirectoryStorageTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testSetPath(){
-		$path = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$storage = new DirectoryStorage();
 		$storage->setPath($path);

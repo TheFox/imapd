@@ -14,8 +14,8 @@ class AbstractStorageTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testSetPath(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$storage = new DirectoryStorage();
 		
@@ -27,8 +27,8 @@ class AbstractStorageTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testSetDbPath(){
-		$path1 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
-		$path2 = './tests/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path1 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+		$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 		
 		$storage = new DirectoryStorage();
 		
