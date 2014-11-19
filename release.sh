@@ -5,11 +5,11 @@ MKDIR="mkdir -p"
 MV="mv -i"
 CP="cp -rp"
 COMPOSER_PREFER_SOURCE=--prefer-source
-#COMPOSER_PREFER_SOURCE=
+COMPOSER_PREFER_SOURCE=
 
 SCRIPT_BASEDIR=$(dirname $0)
-RELEASE_NAME=$(./application.php info --name_lc)
-RELEASE_VERSION=$(./application.php info --version_number)
+RELEASE_NAME=$($SCRIPT_BASEDIR/application.php info --name_lc)
+RELEASE_VERSION=$($SCRIPT_BASEDIR/application.php info --version_number)
 DST="$RELEASE_NAME-$RELEASE_VERSION"
 
 
