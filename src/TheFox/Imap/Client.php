@@ -1034,7 +1034,8 @@ class Client{
 					return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
 				}
 				catch(Exception $e){
-					return $this->sendNo('Can not get folder: '.$this->getStatus('appendFolder'), $this->getStatus('appendTag'), 'TRYCREATE');
+					$noMsg = 'Can not get folder: '.$this->getStatus('appendFolder');
+					return $this->sendNo($noMsg, $this->getStatus('appendTag'), 'TRYCREATE');
 				}
 			}
 			else{
