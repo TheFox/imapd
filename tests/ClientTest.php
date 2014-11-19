@@ -28,24 +28,24 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(null, $client->getStatus('NOT_EXISTING'));
 	}
 	
-	public function testSetGetIp1(){
+	public function testSetIp(){
 		$client = new Client();
 		$client->setIp('192.168.241.21');
 		$this->assertEquals('192.168.241.21', $client->getIp());
 	}
 	
-	public function testSetGetIp2(){
+	public function testGetIp(){
 		$client = new Client();
 		$this->assertEquals('', $client->getIp());
 	}
 	
-	public function testSetGetPort1(){
+	public function testSetPort(){
 		$client = new Client();
 		$client->setPort(1024);
 		$this->assertEquals(1024, $client->getPort());
 	}
 	
-	public function testSetGetPort2(){
+	public function testGetPort(){
 		$client = new Client();
 		$this->assertEquals(0, $client->getPort());
 	}
