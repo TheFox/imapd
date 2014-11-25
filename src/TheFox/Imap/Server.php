@@ -6,8 +6,7 @@ use Exception;
 use RuntimeException;
 use InvalidArgumentException;
 
-use Zend\Mail\Storage\Writable\Maildir;
-use Zend\Mail\Message;
+use Zend\Mail\Message as ZendMailMessage;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -369,7 +368,7 @@ class Server extends Thread{
 		return $storage->getMailsCountByFolder($folder, $flags);
 	}
 	
-	public function addMail(Message $mail, $folder = null, $flags = null, $recent = true){
+	public function addMail(ZendMailMessage $mail, $folder = null, $flags = null, $recent = true){
 		$this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
 		
 		$storage = $this->getDefaultStorage();
@@ -431,7 +430,7 @@ class Server extends Thread{
 	public function getMailById($msgId){
 		$storage = $this->getDefaultStorage();
 		$mailStr = $storage->getPlainMailById($msgId);
-		$mail = Message::fromString($mailStr);
+		$mail = ZendMailMessage::fromString($mailStr);
 		
 		return $mail;
 	}
