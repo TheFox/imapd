@@ -2,6 +2,7 @@
 RM = rm -rf
 CHMOD = chmod
 MKDIR = mkdir -p
+VENDOR = vendor
 PHPCS = vendor/bin/phpcs
 PHPCS_STANDARD = vendor/thefox/phpcsrs/Standards/TheFox
 PHPCS_REPORT = --report=full --report-width=160
@@ -14,8 +15,7 @@ COMPOSER_DEV ?= --dev
 
 all: install test
 
-install: $(COMPOSER)
-	$(COMPOSER) install $(COMPOSER_PREFER_SOURCE) --no-interaction $(COMPOSER_DEV)
+install: $(VENDOR)
 
 install_release: $(COMPOSER)
 	$(MAKE) install COMPOSER_DEV=--no-dev
@@ -23,12 +23,6 @@ install_release: $(COMPOSER)
 update: $(COMPOSER)
 	$(COMPOSER) selfupdate
 	$(COMPOSER) update
-
-$(COMPOSER):
-	curl -sS https://getcomposer.org/installer | php
-	$(CHMOD) 755 $(COMPOSER)
-
-$(PHPCS): $(COMPOSER)
 
 test: test_phpcs test_phpunit
 
@@ -45,16 +39,8 @@ test_phpunit_cc: build
 test_clean:
 	$(RM) test_data
 
-test_data:
-	$(MKDIR) test_data
-
 release: release.sh
 	./release.sh
-
-build:
-	$(MKDIR) build
-	$(MKDIR) build/logs
-	$(CHMOD) 0700 build
 
 clean: test_clean
 	$(RM) composer.lock $(COMPOSER)
@@ -64,3 +50,22 @@ clean: test_clean
 clean_release:
 	$(RM) composer.lock $(COMPOSER)
 	$(RM) log pid
+
+$(VENDOR): $(COMPOSER)
+	$(COMPOSER) install $(COMPOSER_PREFER_SOURCE) --no-interaction $(COMPOSER_DEV)
+
+$(COMPOSER):
+	curl -sS https://getcomposer.org/installer | php
+	$(CHMOD) 755 $(COMPOSER)
+
+$(PHPCS): $(VENDOR)
+
+$(PHPUNIT): $(VENDOR)
+
+test_data:
+	$(MKDIR) test_data
+
+build:
+	$(MKDIR) build
+	$(MKDIR) build/logs
+	$(CHMOD) 0700 build
