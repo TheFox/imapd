@@ -112,8 +112,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerMsgGetArgs
-     */
+	 * @dataProvider providerMsgGetArgs
+	 */
 	public function testMsgGetArgs($msgRaw, $expect){
 		$client = new Client();
 		$this->assertEquals($expect, $client->msgGetArgs($msgRaw));
@@ -164,8 +164,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerMsgRawParenthesizedlist
-     */
+	 * @dataProvider providerMsgRawParenthesizedlist
+	 */
 	public function testMsgGetParenthesizedlist($msgRaw, $expect){
 		$client = new Client();
 		$this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
@@ -366,8 +366,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerMsgHandle
-     */
+	 * @dataProvider providerMsgHandle
+	 */
 	public function testMsgHandleBasic($msgRaw, $expect){
 		$server = new Server('', 0);
 		$server->setLog(new Logger('test_application'));
@@ -1735,8 +1735,8 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerParseSearchKeys
-     */
+	 * @dataProvider providerParseSearchKeys
+	 */
 	public function testParseSearchKeys($testData, $expect){
 		$client = new Client();
 		$client->setId(1);

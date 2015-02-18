@@ -177,8 +177,7 @@ class Client{
 				
 				#print __CLASS__.'->'.__FUNCTION__.': rest data "'.$data.'"'."\n";
 			}
-		}
-		while($data);
+		}while($data);
 	}
 	
 	public function msgParseString($msgRaw, $argsMax = null){

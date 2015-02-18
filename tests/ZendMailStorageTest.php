@@ -16,8 +16,8 @@ class ZendMailStorageTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerFlags
-     */
+	 * @dataProvider providerFlags
+	 */
 	public function testFlags($flag, $expect){
 		$this->assertEquals($expect, $flag);
 	}

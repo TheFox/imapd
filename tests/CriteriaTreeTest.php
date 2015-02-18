@@ -297,8 +297,8 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerCriteriaBool
-     */
+	 * @dataProvider providerCriteriaBool
+	 */
 	public function testCriteriaBool($testData, $expect){
 		$tree = new CriteriaTree($testData);
 		$gate = $tree->build();
@@ -371,8 +371,8 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	/**
-     * @dataProvider providerCriteriaTree
-     */
+	 * @dataProvider providerCriteriaTree
+	 */
 	public function testCriteriaTree($testData, $expect){
 		$tree = new CriteriaTree($testData);
 		$gate = $tree->build();
