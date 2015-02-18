@@ -31,7 +31,7 @@ cd ..
 
 find $DST -name .DS_Store -exec rm -vf {} \;
 tar -cpzf $DST.tar.gz $DST
-chmod -R 777 $DST
+chmod -R a+rwx $DST
 $RM $DST
 
 echo "release '$DST' done"

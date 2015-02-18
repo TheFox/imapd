@@ -56,7 +56,7 @@ $(VENDOR): $(COMPOSER)
 
 $(COMPOSER):
 	curl -sS https://getcomposer.org/installer | php
-	$(CHMOD) 755 $(COMPOSER)
+	$(CHMOD) a+rx-w,u+w $(COMPOSER)
 
 $(PHPCS): $(VENDOR)
 
@@ -68,4 +68,4 @@ test_data:
 build:
 	$(MKDIR) build
 	$(MKDIR) build/logs
-	$(CHMOD) 0700 build
+	$(CHMOD) a-rwx,u+rwx build
