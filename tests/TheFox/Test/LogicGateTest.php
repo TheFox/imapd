@@ -1,5 +1,9 @@
 <?php
 
+namespace TheFox\Test;
+
+use PHPUnit_Framework_TestCase;
+
 use TheFox\Logic\Obj;
 use TheFox\Logic\Gate;
 use TheFox\Logic\AndGate;

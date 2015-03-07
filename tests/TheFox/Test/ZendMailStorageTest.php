@@ -1,5 +1,8 @@
 <?php
 
+namespace TheFox\Test;
+
+use PHPUnit_Framework_TestCase;
 use Zend\Mail\Storage;
 
 class ZendMailStorageTest extends PHPUnit_Framework_TestCase{

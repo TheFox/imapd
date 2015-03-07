@@ -1,5 +1,9 @@
 <?php
 
+namespace TheFox\Test;
+
+use PHPUnit_Framework_TestCase;
+
 use TheFox\Imap\StringParser;
 
 class StringParserTest extends PHPUnit_Framework_TestCase{

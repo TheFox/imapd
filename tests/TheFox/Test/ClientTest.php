@@ -1,5 +1,9 @@
 <?php
 
+namespace TheFox\Test;
+
+use DateTime;
+use PHPUnit_Framework_TestCase;
 use Zend\Mail\Message;
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
