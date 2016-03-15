@@ -1,5 +1,6 @@
 # IMAPd
-IMAP server (library) written in PHP.
+
+IMAP server (library) written in pure PHP.
 
 ## Why this project?
 Believe it or not, **email is still the killer feature of the Internet**. There are tons of projects for accessing and fetching emails from an IMAP/POP3 server. But there are not so many providing a programmatically interface to serve emails to an email client.

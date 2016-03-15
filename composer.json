@@ -1,6 +1,6 @@
 {
 	"name": "thefox/imapd",
-	"description": "IMAP server (library) written in PHP.",
+	"description": "IMAP server (library) written in pure PHP.",
 	"license": "GPL-3.0",
 	"type": "library",
 	"keywords": [ "imap", "email", "mail", "server", "daemon" ],
