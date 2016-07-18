@@ -3,6 +3,7 @@
 IMAP server (library) written in pure PHP.
 
 ## Why this project?
+
 Believe it or not, **email is still the killer feature of the Internet**. There are tons of projects for accessing and fetching emails from an IMAP/POP3 server. But there are not so many providing a programmatically interface to serve emails to an email client.
 
 With this interface you can do something like this for your app users:
@@ -12,11 +13,13 @@ With this interface you can do something like this for your app users:
 This is useful when you have a messaging application written in PHP but no graphical user interface for it. So your graphical user interface can be any [email client](http://en.wikipedia.org/wiki/Email_client). [Thunderbird](https://www.mozilla.org/en-US/thunderbird/) for instance.
 
 ## Installation
+
 The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapd) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
 
 	composer.phar require "thefox/imapd=~0.1"
 
 ## Stand-alone server
+
 1. Clone project from GitHub.
 
 		git clone https://github.com/TheFox/imapd.git
@@ -38,7 +41,9 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 		./application.php server -a 0.0.0.0 -p 143
 
 ## RFC 3501 Implementation
+
 ### Complete implementation
+
 - 6.1.2 NOOP Command
 - 6.1.3 LOGOUT Command
 - 6.4.1 CHECK Command
@@ -50,6 +55,7 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 7.4.1 EXPUNGE Response
 
 ### Incomplete implemention
+
 - 2.3.1.1 Unique Identifier (UID) Message Attribute
 - 2.3.1.2 Message Sequence Number Message Attribute
 - 2.3.2 Flags Message Attribute
@@ -77,13 +83,16 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - 7.4.2 FETCH Response
 
 ## TODO
+
 - Some tasks are commented with `NOT_IMPLEMENTED`.
 - `TODO` are to be complete the PHP Code Sniffer tests before releasing a new version.
 
 ## Alternatives for `Zend\Mail`
+
 - [exorus/php-mime-mail-parser](https://packagist.org/packages/exorus/php-mime-mail-parser) (requires ext-mailparse PHP extension)
 
 ## Related Links
+
 - [RFC 3501](https://tools.ietf.org/html/rfc3501)
 - [Email Will Last Forever](http://blog.frontapp.com/email-will-last-forever/)
 - [Email Is Still the Best Thing on the Internet](http://www.theatlantic.com/technology/archive/2014/08/why-email-will-never-die/375973/)
@@ -92,19 +101,22 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 - [Set up your own email server in 5 steps](https://forum.bytemark.co.uk/t/set-up-your-own-email-server-in-5-steps/1864)
 
 ## Related Projects
+
 - [SMTPd](https://github.com/TheFox/smtpd)
 
 ## Contribute
+
 You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapd>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
 
 ## Project Links
+
 - [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
 - [Packagist Package](https://packagist.org/packages/thefox/imapd)
 - [Travis CI Repository](https://travis-ci.org/TheFox/imapd)
-- [Coveralls Repository](https://coveralls.io/r/TheFox/imapd)
 - [PHPWeekly - Issue August 7, 2014](http://phpweekly.com/archive/2014-08-07.html)
 
 ## License
+
 Copyright (C) 2014 Christian Mayer <http://fox21.at>
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
