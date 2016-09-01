@@ -13,14 +13,11 @@ COMPOSER_INTERACTION ?= --no-interaction
 COMPOSER_PREFER_SOURCE ?= 
 
 
-.PHONY: all install update test test_phpcs test_phpunit test_phpunit_cc test_clean release clean clean_release
+.PHONY: all install update test test_phpcs test_phpunit test_phpunit_cc test_clean clean
 
 all: install test
 
 install: $(VENDOR)
-
-install_release: $(COMPOSER)
-	$(MAKE) install COMPOSER_DEV=--no-dev
 
 update: $(COMPOSER)
 	$(COMPOSER) selfupdate
@@ -48,10 +45,6 @@ clean: test_clean
 	$(RM) composer.lock $(COMPOSER)
 	$(RM) vendor/*
 	$(RM) vendor
-
-clean_release:
-	$(RM) composer.lock $(COMPOSER)
-	$(RM) log pid
 
 $(VENDOR): $(COMPOSER)
 	$(COMPOSER) install $(COMPOSER_PREFER_SOURCE) $(COMPOSER_INTERACTION) $(COMPOSER_DEV)
