@@ -1,5 +1,5 @@
 
-RM = rm -rfd
+RM = rm -rf
 CHMOD = chmod
 MKDIR = mkdir -p
 VENDOR = vendor

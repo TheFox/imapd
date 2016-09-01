@@ -16,7 +16,7 @@ This is useful when you have a messaging application written in PHP but no graph
 
 The preferred method of installation is via [Packagist](https://packagist.org/packages/thefox/imapd) and [Composer](https://getcomposer.org/). Run the following command to install the package and add it as a requirement to composer.json:
 
-	composer.phar require "thefox/imapd=~0.1"
+	composer.phar require "thefox/imapd=~0.2"
 
 ## Stand-alone server
 
@@ -117,7 +117,7 @@ You're welcome to contribute to this project. Fork this project at <https://gith
 
 ## License
 
-Copyright (C) 2014 Christian Mayer <http://fox21.at>
+Copyright (C) 2014 Christian Mayer <https://fox21.at>
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
