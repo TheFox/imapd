@@ -1,16 +1,14 @@
 
-RM = rm -rf
+RM = rm -rfd
 CHMOD = chmod
 MKDIR = mkdir -p
 VENDOR = vendor
 PHPCS = vendor/bin/phpcs
 PHPCS_STANDARD = vendor/thefox/phpcsrs/Standards/TheFox
-PHPCS_REPORT = --report=full --report-width=160
+PHPCS_OPTIONS = --report=full --report-width=160
 PHPUNIT = vendor/bin/phpunit
 COMPOSER = ./composer.phar
-COMPOSER_DEV ?= 
-COMPOSER_INTERACTION ?= --no-interaction
-COMPOSER_PREFER_SOURCE ?= 
+COMPOSER_OPTIONS ?= --no-interaction
 
 
 .PHONY: all install update test test_phpcs test_phpunit test_phpunit_cc test_clean clean
@@ -26,28 +24,23 @@ update: $(COMPOSER)
 test: test_phpcs test_phpunit
 
 test_phpcs: $(PHPCS) vendor/thefox/phpcsrs/Standards/TheFox
-	$(PHPCS) -v -s $(PHPCS_REPORT) --standard=$(PHPCS_STANDARD) src tests
+	$(PHPCS) -v -s $(PHPCS_OPTIONS) --standard=$(PHPCS_STANDARD) src tests
 
 test_phpunit: $(PHPUNIT) phpunit.xml test_data
-	TEST=true $(PHPUNIT) $(PHPUNIT_COVERAGE_HTML) $(PHPUNIT_COVERAGE_CLOVER)
+	$(PHPUNIT) $(PHPUNIT_OPTIONS)
 	$(MAKE) test_clean
 
 test_phpunit_cc: build
-	$(MAKE) test_phpunit PHPUNIT_COVERAGE_HTML="--coverage-html build/report"
+	$(MAKE) test_phpunit PHPUNIT_OPTIONS="--coverage-html build/report"
 
 test_clean:
 	$(RM) test_data
 
-release: release.sh
-	./release.sh
-
 clean: test_clean
-	$(RM) composer.lock $(COMPOSER)
-	$(RM) vendor/*
-	$(RM) vendor
+	$(RM) composer.lock $(COMPOSER) $(VENDOR)
 
 $(VENDOR): $(COMPOSER)
-	$(COMPOSER) install $(COMPOSER_PREFER_SOURCE) $(COMPOSER_INTERACTION) $(COMPOSER_DEV)
+	$(COMPOSER) install $(COMPOSER_OPTIONS)
 
 $(COMPOSER):
 	curl -sS https://getcomposer.org/installer | php

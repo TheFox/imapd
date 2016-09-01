@@ -8,9 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use TheFox\Imap\Imapd;
 
-/**
- * @codeCoverageIgnore
- */
 class InfoCommand extends BasicCommand{
 	
 	public function getLogfilePath(){

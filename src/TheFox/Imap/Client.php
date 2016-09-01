@@ -684,7 +684,6 @@ class Client{
 				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
-		// @codeCoverageIgnoreStart
 		elseif($commandcmp == 'search'){
 			$this->log('debug', 'client '.$this->id.' search');
 			
@@ -706,8 +705,6 @@ class Client{
 				return $this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
-		// @codeCoverageIgnoreEnd
-		// @codeCoverageIgnoreStart
 		elseif($commandcmp == 'store'){
 			$args = $this->msgParseString($args, 3);
 			
@@ -733,7 +730,6 @@ class Client{
 				$this->sendNo($commandcmp.' failure', $tag);
 			}
 		}
-		// @codeCoverageIgnoreEnd
 		elseif($commandcmp == 'copy'){
 			$args = $this->msgParseString($args, 2);
 			
@@ -799,7 +795,6 @@ class Client{
 		$tmp = str_replace("\r", '', $tmp);
 		$tmp = str_replace("\n", '\\n', $tmp);
 		
-		// @codeCoverageIgnoreStart
 		if($this->getSocket()){
 			$this->log('debug', 'client '.$this->id.' data send: "'.$tmp.'"');
 			$this->getSocket()->write($output);
@@ -807,7 +802,6 @@ class Client{
 		else{
 			$this->log('debug', 'client '.$this->id.' DEBUG data send: "'.$tmp.'"');
 		}
-		// @codeCoverageIgnoreEnd
 		
 		return $output;
 	}
@@ -1250,9 +1244,7 @@ class Client{
 				break;
 			case 'before':
 				// NOT_IMPLEMENTED
-				// @codeCoverageIgnoreStart
 				break;
-				// @codeCoverageIgnoreEnd
 			case 'body':
 				$searchStr = strtolower($items[1]);
 				$rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
@@ -1296,9 +1288,7 @@ class Client{
 				break;
 			case 'keyword':
 				// NOT_IMPLEMENTED
-				// @codeCoverageIgnoreStart
 				break;
-				// @codeCoverageIgnoreEnd
 			case 'larger':
 				$rv = strlen($message->getBody()) > (int)$items[1];
 				break;
@@ -1336,9 +1326,7 @@ class Client{
 				break;
 			case 'since':
 				// NOT_IMPLEMENTED
-				// @codeCoverageIgnoreStart
 				break;
-				// @codeCoverageIgnoreEnd
 			case 'smaller':
 				$rv = strlen($message->getBody()) < (int)$items[1];
 				break;
@@ -1382,9 +1370,7 @@ class Client{
 				break;
 			case 'unkeyword':
 				// NOT_IMPLEMENTED
-				// @codeCoverageIgnoreStart
 				break;
-				// @codeCoverageIgnoreEnd
 			case 'unseen':
 				$rv = !in_array(Storage::FLAG_SEEN, $flags);
 				break;
@@ -1455,11 +1441,9 @@ class Client{
 		
 		#\Doctrine\Common\Util\Debug::dump($tree);
 		
-		// @codeCoverageIgnoreStart
 		if(!$tree->getRootGate()){
 			return '';
 		}
-		// @codeCoverageIgnoreEnd
 		
 		$ids = array();
 		$msgSeqNums = $this->createSequenceSet('*');
@@ -1482,9 +1466,7 @@ class Client{
 				}
 				else{
 					// NOT_IMPLEMENTED
-					// @codeCoverageIgnoreStart
 					$ids[] = $msgSeqNum;
-					// @codeCoverageIgnoreEnd
 				}
 			}
 		}
@@ -1811,12 +1793,10 @@ class Client{
 		if(!$this->getStatus('hasShutdown')){
 			$this->setStatus('hasShutdown', true);
 			
-			// @codeCoverageIgnoreStart
 			if($this->getSocket()){
 				$this->getSocket()->shutdown();
 				$this->getSocket()->close();
 			}
-			// @codeCoverageIgnoreEnd
 		}
 	}
 	

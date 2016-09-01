@@ -72,9 +72,6 @@ class Server extends Thread{
 		// @codeCoverageIgnoreEnd
 	}
 	
-	/**
-	 * @codeCoverageIgnore
-	 */
 	public function listen(){
 		if($this->ip && $this->port){
 			#$this->log->notice('listen on '.$this->ip.':'.$this->port);
@@ -106,9 +103,6 @@ class Server extends Thread{
 		}
 	}
 	
-	/**
-	 * @codeCoverageIgnore
-	 */
 	public function run(){
 		if(!$this->socket){
 			throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
@@ -162,9 +156,6 @@ class Server extends Thread{
 		}
 	}
 	
-	/**
-	 * @codeCoverageIgnore
-	 */
 	public function loop(){
 		while(!$this->getExit()){
 			$this->run();
@@ -174,9 +165,6 @@ class Server extends Thread{
 		$this->shutdown();
 	}
 	
-	/**
-	 * @codeCoverageIgnore
-	 */
 	public function shutdown(){
 		#$this->log->debug('shutdown');
 		

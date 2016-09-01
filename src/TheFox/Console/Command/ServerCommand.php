@@ -11,9 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use TheFox\Imap\Server;
 use TheFox\Imap\Storage\DirectoryStorage;
 
-/**
- * @codeCoverageIgnore
- */
 class ServerCommand extends BasicCommand{
 	
 	private $server;
