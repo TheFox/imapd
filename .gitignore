@@ -9,4 +9,3 @@ pid
 !.travis.yml
 test_data
 tmp_mailbox_*
-releases
