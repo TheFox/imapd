@@ -3,8 +3,6 @@ composer.lock
 composer.phar
 mailbox
 build
-log
-pid
 *.yml
 !.travis.yml
 test_data

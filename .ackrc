@@ -1,11 +1,15 @@
 
 --type=php
 --type=yaml
+--type=xml
+--type=json
 --type=shell
 
 --type-set=phar:ext:phar
 --type=nophar
 
---ignore-dir=cache
---ignore-dir=log
+--ignore-dir=build
+--ignore-dir=mailbox
+--ignore-dir=maildata
+--ignore-dir=test_data
 --ignore-dir=vendor

@@ -3,7 +3,7 @@
 		{
 			"path": ".",
 			"name": "IMAPd",
-			"folder_exclude_patterns": [ ],
+			"folder_exclude_patterns": [ "build", "vendor" ],
 			"file_exclude_patterns": [ ]
 		}
 	]
