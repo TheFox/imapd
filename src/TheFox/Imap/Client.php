@@ -1108,7 +1108,7 @@ class Client{
 		}
 		
 		$itemsC = 0;
-		// $pos = 0;
+		$pos = 0;
 		for($pos = 0; $pos < $len; $pos++){
 			$orgpos = $pos;
 			$item = $list[$pos];
@@ -1215,7 +1215,6 @@ class Client{
 		}
 		
 		$posOffset = $pos + 1;
-		// $posOffset = (isset($pos) ? $pos : 0) + 1;
 		
 		return $rv;
 	}
