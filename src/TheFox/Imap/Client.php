@@ -354,7 +354,7 @@ class Client{
 						
 						if($uid >= $seqMin && $uid <= $seqMax || $seqAll){
 							#fwrite(STDOUT, '   -> add'.PHP_EOL);
-							$nums[] = (int)$msgSeqNum;
+							$nums[] = $msgSeqNum;
 						}
 						if(count($nums) >= $seqLen && !$seqAll){
 							break;
@@ -378,7 +378,7 @@ class Client{
 						if($msgSeqNum >= $seqMin && $msgSeqNum <= $seqMax){
 							#fwrite(STDOUT, '   -> add'.PHP_EOL);
 							
-							$nums[] = (int)$msgSeqNum;
+							$nums[] = $msgSeqNum;
 						}
 						
 						if(count($nums) >= $seqLen){
