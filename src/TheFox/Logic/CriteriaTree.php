@@ -39,11 +39,12 @@ class CriteriaTree{
 				$subobj = $tree->$func($level + 1);
 				
 				if($gate){
+					// @TODO fix PHPStan here.
+					// PHPStan reports 'Cannot call method setObj2() on null'. That's wrong.
 					$gate->setObj2($subobj);
 				}
 				else{
 					if($obj1 === null){
-						#$obj1 = $subobj;
 						$rootGate = $obj1 = $subobj;
 					}
 				}

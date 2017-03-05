@@ -1108,6 +1108,7 @@ class Client{
 		}
 		
 		$itemsC = 0;
+		// $pos = 0;
 		for($pos = 0; $pos < $len; $pos++){
 			$orgpos = $pos;
 			$item = $list[$pos];
@@ -1214,6 +1215,7 @@ class Client{
 		}
 		
 		$posOffset = $pos + 1;
+		// $posOffset = (isset($pos) ? $pos : 0) + 1;
 		
 		return $rv;
 	}
@@ -1471,12 +1473,12 @@ class Client{
 			}
 		}
 		
+		
+		
 		sort($ids);
 		
 		$rv = '';
 		while($ids){
-			$this->log('debug', 'client '.$this->id.' msg: '.$msgSeqNum);
-			
 			$sendIds = array_slice($ids, 0, 30);
 			$ids = array_slice($ids, 30);
 			

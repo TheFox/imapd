@@ -7,10 +7,6 @@ class Gate{
 	private $obj1;
 	private $obj2;
 	
-	public function __construct(){
-		
-	}
-	
 	public function __clone(){
 		if($this->obj1 && is_object($this->obj1)){
 			$this->obj1 = clone $this->obj1;

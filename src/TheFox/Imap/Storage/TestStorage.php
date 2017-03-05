@@ -15,7 +15,7 @@ class TestStorage extends AbstractStorage{
 		
 		if(!file_exists($this->getPath())){
 			$filesystem = new Filesystem();
-			$filesystem->mkdir($this->getPath(), 0755, 0000, true);
+			$filesystem->mkdir($this->getPath(), 0755);
 		}
 	}
 	
