@@ -47,7 +47,7 @@ class Client{
 		$this->status['appendTag'] = '';
 		$this->status['appendFolder'] = '';
 		$this->status['appendFlags'] = array();
-		$this->status['appendDate'] = ''; // NOT_IMPLEMENTED
+		$this->status['appendDate'] = ''; // @NOTICE NOT_IMPLEMENTED
 		$this->status['appendLiteral'] = 0;
 		$this->status['appendMsg'] = '';
 	}
@@ -929,7 +929,7 @@ class Client{
 	
 	private function sendSubscribe($tag, $folder){
 		if($this->getServer()->folderExists($folder)){
-			// NOT_IMPLEMENTED
+			// @NOTICE NOT_IMPLEMENTED
 			
 			#fwrite(STDOUT, 'subsc: '.$folder."\n");
 			
@@ -945,7 +945,7 @@ class Client{
 	
 	private function sendUnsubscribe($tag, $folder){
 		if($this->getServer()->folderExists($folder)){
-			// NOT_IMPLEMENTED
+			// @NOTICE NOT_IMPLEMENTED
 			
 			#$folders = $this->getServer()->getFolders($folder);
 			#\Doctrine\Common\Util\Debug::dump($folders);
@@ -960,7 +960,7 @@ class Client{
 	private function sendList($tag, $baseFolder, $folder){
 		$this->log('debug', 'client '.$this->id.' list: /'.$baseFolder.'/ /'.$folder.'/');
 		
-		$folder = str_replace('%', '*', $folder); // NOT_IMPLEMENTED
+		$folder = str_replace('%', '*', $folder); // @NOTICE NOT_IMPLEMENTED
 		
 		$folders = $this->getServer()->getFolders($baseFolder, $folder, true);
 		$rv = '';
@@ -1244,7 +1244,7 @@ class Client{
 				}
 				break;
 			case 'before':
-				// NOT_IMPLEMENTED
+				// @NOTICE NOT_IMPLEMENTED
 				break;
 			case 'body':
 				$searchStr = strtolower($items[1]);
@@ -1288,7 +1288,7 @@ class Client{
 				$rv = strpos(strtolower($val), $searchStr) !== false;
 				break;
 			case 'keyword':
-				// NOT_IMPLEMENTED
+				// @NOTICE NOT_IMPLEMENTED
 				break;
 			case 'larger':
 				$rv = strlen($message->getBody()) > (int)$items[1];
@@ -1326,7 +1326,7 @@ class Client{
 				$rv = $messageDate >= $checkDate;
 				break;
 			case 'since':
-				// NOT_IMPLEMENTED
+				// @NOTICE NOT_IMPLEMENTED
 				break;
 			case 'smaller':
 				$rv = strlen($message->getBody()) < (int)$items[1];
@@ -1370,7 +1370,7 @@ class Client{
 				$rv = !in_array(Storage::FLAG_FLAGGED, $flags);
 				break;
 			case 'unkeyword':
-				// NOT_IMPLEMENTED
+				// @NOTICE NOT_IMPLEMENTED
 				break;
 			case 'unseen':
 				$rv = !in_array(Storage::FLAG_SEEN, $flags);
@@ -1466,7 +1466,7 @@ class Client{
 					$ids[] = $uid;
 				}
 				else{
-					// NOT_IMPLEMENTED
+					// @NOTICE NOT_IMPLEMENTED
 					$ids[] = $msgSeqNum;
 				}
 			}

@@ -62,8 +62,8 @@ The preferred method of installation is via [Packagist](https://packagist.org/pa
 
 ## TODO
 
-- Some tasks are commented with `NOT_IMPLEMENTED`.
-- `TODO` are to be complete the PHP Code Sniffer tests before releasing a new version.
+- Some tasks are commented with `NOT_IMPLEMENTED`. Implement these.
+- `@TODO` are to be complete the PHP Code Sniffer tests before releasing a new version.
 
 ## Alternatives for `Zend\Mail`
 
