@@ -158,7 +158,6 @@ class Client{
 	public function dataRecv(){
 		$data = $this->getSocket()->read();
 		
-		#print __CLASS__.'->'.__FUNCTION__.': "'.$data.'"'."\n";
 		do{
 			$separatorPos = strpos($data, static::MSG_SEPARATOR);
 			if($separatorPos === false){
@@ -174,8 +173,6 @@ class Client{
 				$this->msgHandle($msg);
 				
 				$data = substr($data, $separatorPos + strlen(static::MSG_SEPARATOR));
-				
-				#print __CLASS__.'->'.__FUNCTION__.': rest data "'.$data.'"'."\n";
 			}
 		}while($data);
 	}
@@ -187,8 +184,6 @@ class Client{
 	
 	public function msgGetArgs($msgRaw, $argsMax = null){
 		$args = $this->msgParseString($msgRaw, $argsMax);
-		
-		#ve($args);
 		
 		$tag = array_shift($args);
 		$command = array_shift($args);
@@ -265,8 +260,6 @@ class Client{
 	}
 	
 	public function createSequenceSet($setStr, $isUid = false){
-		#fwrite(STDOUT, 'createSequenceSet'.PHP_EOL);
-		
 		// Collect messages with sequence-sets.
 		$setStr = trim($setStr);
 		
@@ -281,11 +274,9 @@ class Client{
 			
 			$items = preg_split('/:/', $seqItem, 2);
 			$items = array_map('trim', $items);
-			#\Doctrine\Common\Util\Debug::dump($items);
 			
 			$nums = array();
 			$count = $this->getServer()->getCountMailsByFolder($this->selectedFolder);
-			#fwrite(STDOUT, 'count: '.$count.PHP_EOL);
 			if(!$count){
 				return array();
 			}
@@ -340,20 +331,12 @@ class Client{
 			
 			$seqLen = $seqMax + 1 - $seqMin;
 			
-			#fwrite(STDOUT, 'len:   '.$seqLen.PHP_EOL);
-			#fwrite(STDOUT, 'max:   '.$seqMax.PHP_EOL);
-			#fwrite(STDOUT, 'min:   '.$seqMin.PHP_EOL);
-			#fwrite(STDOUT, 'count: '.$count.PHP_EOL);
-			
 			if($isUid){
 				if($seqLen >= 1){
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
 						$uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
-						#$tmp = $uid === null ? 'no' : $uid;
-						#fwrite(STDOUT, ' -> seq: '.$msgSeqNum.' /'.$tmp.'/ /'.$this->selectedFolder.'/'.PHP_EOL);
 						
 						if($uid >= $seqMin && $uid <= $seqMax || $seqAll){
-							#fwrite(STDOUT, '   -> add'.PHP_EOL);
 							$nums[] = $msgSeqNum;
 						}
 						if(count($nums) >= $seqLen && !$seqAll){
@@ -373,11 +356,7 @@ class Client{
 				}
 				elseif($seqLen >= 2){
 					for($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++){
-						#fwrite(STDOUT, ' -> seq: '.$msgSeqNum.''.PHP_EOL);
-						
 						if($msgSeqNum >= $seqMin && $msgSeqNum <= $seqMax){
-							#fwrite(STDOUT, '   -> add'.PHP_EOL);
-							
 							$nums[] = $msgSeqNum;
 						}
 						
@@ -427,7 +406,6 @@ class Client{
 		}
 		elseif($commandcmp == 'authenticate'){
 			$args = $this->msgParseString($args, 1);
-			#ve($args);
 			
 			#$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
 			
@@ -444,7 +422,6 @@ class Client{
 		}
 		elseif($commandcmp == 'login'){
 			$args = $this->msgParseString($args, 2);
-			#ve($args);
 			
 			#$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
 			
@@ -457,10 +434,8 @@ class Client{
 		}
 		elseif($commandcmp == 'select'){
 			$args = $this->msgParseString($args, 1);
-			#ve($args);
 			
 			#$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
-			#fwrite(STDOUT, 'client '.$this->id.' select: "'.$args[0].'"'."\n");
 			
 			if($this->getStatus('hasAuth')){
 				if(isset($args[0]) && $args[0]){
@@ -478,7 +453,6 @@ class Client{
 		}
 		elseif($commandcmp == 'create'){
 			$args = $this->msgParseString($args, 1);
-			#ve($args);
 			
 			#$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
 			
@@ -530,7 +504,6 @@ class Client{
 		}
 		elseif($commandcmp == 'list'){
 			$args = $this->msgParseString($args, 2);
-			#ve($args);
 			
 			#$this->log('debug', 'client '.$this->id.' list');
 			
@@ -567,8 +540,6 @@ class Client{
 		}
 		elseif($commandcmp == 'append'){
 			$args = $this->msgParseString($args, 4);
-			
-			#ve($args);
 			
 			$this->log('debug', 'client '.$this->id.' append');
 			
@@ -615,17 +586,10 @@ class Client{
 					}
 					$this->setStatus('appendFlags', $flags);
 					
-					#fwrite(STDOUT, 'flags'."\n");
-					#ve($flags);
-					
-					#fwrite(STDOUT, 'literal: /'.$literal.'/'."\n");
-					
 					if($literal[0] == '{' && substr($literal, -1) == '}'){
-						#fwrite(STDOUT, 'literal ok'."\n");
 						$literal = (int)substr(substr($literal, 1), 0, -1);
 					}
 					else{
-						#fwrite(STDOUT, 'literal failed'."\n");
 						return $this->sendBad('Arguments invalid.', $tag);
 					}
 					$this->setStatus('appendLiteral', $literal);
@@ -755,8 +719,6 @@ class Client{
 			}
 		}
 		elseif($commandcmp == 'uid'){
-			#ve('uid');
-			
 			if($this->getStatus('hasAuth')){
 				if($this->selectedFolder !== null){
 					return $this->sendUid($tag, $args);
@@ -898,22 +860,16 @@ class Client{
 			$folder = 'INBOX';
 		}
 		
-		#fwrite(STDOUT, 'folder: '.$folder."\n");
-		
 		if($this->select($folder)){
-			#fwrite(STDOUT, 'folder: ok'."\n");
 			$rv = $this->sendSelectedFolderInfos();
 			$rv .= $this->sendOk('SELECT completed', $tag, 'READ-WRITE');
 			return $rv;
 		}
 		
-		#fwrite(STDOUT, 'folder: failed'."\n");
 		return $this->sendNo('"'.$folder.'" no such mailbox', $tag);
 	}
 	
 	private function sendCreate($tag, $folder){
-		#fwrite(STDOUT, __FUNCTION__.': '.$folder."\n");
-		
 		if(strpos($folder, '/') !== false){
 			$msg = 'invalid name';
 			$msg .= ' - no directory separator allowed in folder name';
@@ -934,7 +890,6 @@ class Client{
 			#fwrite(STDOUT, 'subsc: '.$folder."\n");
 			
 			#$folders = $this->getServer()->getFolders($folder);
-			#\Doctrine\Common\Util\Debug::dump($folders);
 			$this->subscriptions[] = $folder;
 			
 			return $this->sendOk('SUBSCRIBE completed', $tag);
@@ -948,7 +903,6 @@ class Client{
 			// @NOTICE NOT_IMPLEMENTED
 			
 			#$folders = $this->getServer()->getFolders($folder);
-			#\Doctrine\Common\Util\Debug::dump($folders);
 			#unset($this->subscriptions[$folder]);
 			
 			return $this->sendOk('UNSUBSCRIBE completed', $tag);
@@ -971,12 +925,8 @@ class Client{
 		}
 		else{
 			if($this->getServer()->folderExists($folder)){
-				#fwrite(STDOUT, 'folder: ok'."\n");
 				$rv .= $this->dataSend('* LIST () "." "'.$folder.'"');
 			}
-			#else{
-			#	fwrite(STDOUT, 'folder failed: '.$folder."\n");
-			#}
 		}
 		
 		$rv .= $this->sendOk('LIST completed', $tag);
@@ -986,7 +936,6 @@ class Client{
 	
 	private function sendLsub($tag){
 		#$this->log('debug', 'client '.$this->id.' sendLsub');
-		#ve($this->subscriptions);
 		
 		$rv = '';
 		foreach($this->subscriptions as $subscription){
@@ -1252,7 +1201,6 @@ class Client{
 				break;
 			case 'cc':
 				$searchStr = strtolower($items[1]);
-				#\Doctrine\Common\Util\Debug::dump($message->getCc());
 				$ccAddressList = $message->getCc();
 				if(count($ccAddressList)){
 					foreach($ccAddressList as $from){
@@ -1387,8 +1335,6 @@ class Client{
 	
 	public function parseSearchMessage($message, $messageSeqNum, $messageUid, $isUid, $gate, $level = 1){
 		$func = __FUNCTION__;
-		#fwrite(STDOUT, 'parseSearchMessage: '.$level."\n");
-		#\Doctrine\Common\Util\Debug::dump($gate, 10);
 		
 		$subgates = array();
 		if($gate instanceof Gate){
@@ -1405,27 +1351,18 @@ class Client{
 		}
 		
 		foreach($subgates as $subgate){
-			#fwrite(STDOUT, 'subgate: '.get_class($subgate)."\n");
 			if($subgate instanceof AndGate){
-				#\Doctrine\Common\Util\Debug::dump($subgate, 5);
-				#print_r($subgate);
-				#fwrite(STDOUT, ' -> AND'."\n");
 				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate, $level + 1);
-				#fwrite(STDOUT, ' -> AND: '.(int)$gate->bool()."\n");
 			}
 			elseif($subgate instanceof OrGate){
-				#fwrite(STDOUT, ' -> OR'."\n");
 				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate, $level + 1);
 			}
 			elseif($subgate instanceof NotGate){
-				#fwrite(STDOUT, ' -> NOT'."\n");
 				$this->$func($message, $messageSeqNum, $messageUid, $isUid, $subgate, $level + 1);
 			}
 			elseif($subgate instanceof Obj){
-				#fwrite(STDOUT, '   -> Obj: '.$subgate->getValue()."\n");
 				$val = $this->searchMessageCondition($message, $messageSeqNum, $messageUid, $subgate->getValue());
 				$subgate->setValue($val);
-				#fwrite(STDOUT, '     -> '.(int)$val."\n");
 			}
 		}
 		
@@ -1439,8 +1376,6 @@ class Client{
 		
 		$tree = new CriteriaTree($criteria);
 		$tree->build();
-		
-		#\Doctrine\Common\Util\Debug::dump($tree);
 		
 		if(!$tree->getRootGate()){
 			return '';
@@ -1457,8 +1392,6 @@ class Client{
 			$add = false;
 			if($message){
 				$rootGate = clone $tree->getRootGate();
-				#\Doctrine\Common\Util\Debug::dump($rootGate, 5);
-				#print_r($rootGate);
 				$add = $this->parseSearchMessage($message, $msgSeqNum, $uid, $isUid, $rootGate);
 			}
 			if($add){
@@ -1471,8 +1404,6 @@ class Client{
 				}
 			}
 		}
-		
-		
 		
 		sort($ids);
 		
@@ -1569,13 +1500,11 @@ class Client{
 						$msgStr = '';
 						
 						$headers = $message->getHeaders();
-						#\Doctrine\Common\Util\Debug::dump($headers);
 						
 						$headerStrs = array();
 						foreach($val['header.fields'] as $fieldNum => $field){
 							$fieldHeader = $headers->get($field);
 							if($fieldHeader !== false){
-								#\Doctrine\Common\Util\Debug::dump($fieldHeader);
 								$msgStr .= $fieldHeader->toString().Headers::EOL;
 							}
 						}
@@ -1667,7 +1596,6 @@ class Client{
 			}
 			
 			$messageFlags = array_values($messageFlags);
-			#\Doctrine\Common\Util\Debug::dump($messageFlags);
 			$this->getServer()->setFlagsBySeq($msgSeqNum, $this->selectedFolder, $messageFlags);
 			$messageFlags = $this->getServer()->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
 			

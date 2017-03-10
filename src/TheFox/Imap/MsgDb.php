@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Message Database
+ */
+
 namespace TheFox\Imap;
 
 use Zend\Mail\Storage;

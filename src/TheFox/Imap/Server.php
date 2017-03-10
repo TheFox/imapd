@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Main Server
+ * Handles Sockets and Clients.
+ */
+
 namespace TheFox\Imap;
 
 use Exception;
@@ -156,6 +161,9 @@ class Server extends Thread{
 		}
 	}
 	
+	/**
+	 * Main Thread Loop
+	 */
 	public function loop(){
 		while(!$this->getExit()){
 			$this->run();
@@ -193,16 +201,11 @@ class Server extends Thread{
 	}
 	
 	public function clientGetByHandle($handle){
-		$rv = null;
-		
 		foreach($this->clients as $clientId => $client){
 			if($client->getSocket()->getHandle() == $handle){
-				$rv = $client;
-				break;
+				return $client;
 			}
 		}
-		
-		return $rv;
 	}
 	
 	public function clientRemove(Client $client){
@@ -225,8 +228,6 @@ class Server extends Thread{
 	}
 	
 	public function addStorage(AbstractStorage $storage){
-		#fwrite(STDOUT, 'add: '.$storage->getType().' '.get_class($storage)."\n");
-		
 		if(!$this->defaultStorage){
 			$this->defaultStorage = $storage;
 			
@@ -245,9 +246,6 @@ class Server extends Thread{
 		else{
 			$this->storages[] = $storage;
 		}
-		
-		#\Doctrine\Common\Util\Debug::dump($this->defaultStorage);
-		#\Doctrine\Common\Util\Debug::dump($this->storages);
 	}
 	
 	public function shutdownStorages(){
@@ -256,13 +254,10 @@ class Server extends Thread{
 		$this->getDefaultStorage()->save();
 		
 		foreach($this->storages as $storageId => $storage){
-			#fwrite(STDOUT, 'stor: '.$storageId.' '.$storage->getType().' '.get_class($storage)."\n");
 			if($storage->getType() == 'temp'){
 				$filesystem->remove($storage->getPath());
 				
-				#fwrite(STDOUT, ' -> db /'.$storage->getDbPath().'/'."\n");
 				if($storage->getDbPath()){
-					#fwrite(STDOUT, '    -> db '.$storage->getDbPath()."\n");
 					$filesystem->remove($storage->getDbPath());
 				}
 			}
@@ -318,15 +313,11 @@ class Server extends Thread{
 	}
 	
 	public function getMsgSeqById($msgId){
-		#fwrite(STDOUT, 'getMsgIdBySeq: /'.$msgId.'/'.PHP_EOL);
-		
 		$storage = $this->getDefaultStorage();
 		return $storage->getMsgSeqById($msgId);
 	}
 	
 	public function getMsgIdBySeq($seqNum, $folder){
-		#fwrite(STDOUT, 'getMsgIdBySeq: '.$seqNum.' /'.$folder.'/'.PHP_EOL);
-		
 		$storage = $this->getDefaultStorage();
 		return $storage->getMsgIdBySeq($seqNum, $folder);
 	}
@@ -363,7 +354,6 @@ class Server extends Thread{
 		$mailStr = $mail->toString();
 		
 		$msgId = $storage->addMail($mailStr, $folder, $flags, $recent);
-		#fwrite(STDOUT, 'addMail msgId: '.$msgId.PHP_EOL);
 		
 		foreach($this->storages as $storageId => $storage){
 			$storage->addMail($mailStr, $folder, $flags, $recent);

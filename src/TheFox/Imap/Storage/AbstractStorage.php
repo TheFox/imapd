@@ -13,10 +13,6 @@ abstract class AbstractStorage{
 	private $db;
 	private $type = 'normal';
 	
-	public function __construct(){
-		
-	}
-	
 	abstract protected function getDirectorySeperator();
 	
 	public function setPath($path){

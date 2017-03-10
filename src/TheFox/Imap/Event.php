@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Execute callback function for certain triggers.
+ */
+
 namespace TheFox\Imap;
 
 class Event{

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Pseudo Thread
+ */
+
 namespace TheFox\Imap;
 
 class Thread{

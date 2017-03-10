@@ -189,8 +189,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$storage1->setPath($path1);
 		$server->addStorage($storage1);
 		
-		#fwrite(STDOUT, 'maildir: '.$path1.' '.(int)file_exists($path1)."\n");
-		
 		$client = new Client();
 		$client->setServer($server);
 		$client->setId(1);
@@ -198,7 +196,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$server->addFolder('test_dir1');
 		$client->msgHandle('6 select test_dir1');
 		
-		#fwrite(STDOUT, 'add mail1'."\n");
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
@@ -206,7 +203,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		#fwrite(STDOUT, 'add mail2'."\n");
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
@@ -214,7 +210,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		#fwrite(STDOUT, 'add mail3'."\n");
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
@@ -222,7 +217,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		#fwrite(STDOUT, 'add mail4'."\n");
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
@@ -230,7 +224,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		#fwrite(STDOUT, 'add mail5'."\n");
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
@@ -238,7 +231,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		#fwrite(STDOUT, 'add mail6'."\n");
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
 		$message->addTo('dev2@fox21.at');
@@ -246,12 +238,6 @@ class ClientTest extends PHPUnit_Framework_TestCase{
 		$message->setBody('my_body');
 		$server->addMail($message, 'test_dir1');
 		
-		/*fwrite(STDOUT, 'find files'."\n");
-		$finder = new Finder();
-		$files = $finder->in($path1)->files()->name('*')->sortByName();
-		foreach($files as $fileId => $file){
-			fwrite(STDOUT, 'file: '.$file->getBasename()."\n");
-		}*/
 		
 		$seq = $client->createSequenceSet('0', false);
 		$this->assertEquals(array(), $seq);

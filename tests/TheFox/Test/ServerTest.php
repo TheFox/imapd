@@ -59,7 +59,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		$client1 = $server->clientNew($socket);
 		$client2 = $server->clientGetByHandle($handle1);
-		#\Doctrine\Common\Util\Debug::dump($handle2);
 		$this->assertEquals($client1, $client2);
 		
 		$server->shutdown();
@@ -77,7 +76,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$client = $server->clientNew($socket);
 		$server->clientRemove($client);
 		
-		#\Doctrine\Common\Util\Debug::dump($server);
 		$this->assertTrue($client->getStatus('hasShutdown'));
 		
 		$server->shutdown();
@@ -90,8 +88,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$storage1 = $server->getDefaultStorage();
 		
 		$this->assertTrue($storage1 instanceof DirectoryStorage);
-		
-		#fwrite(STDOUT, 'dir: '.$storage1->getPath()."\n");
 		
 		$filesystem = new Filesystem();
 		$filesystem->remove($storage1->getPath());
@@ -186,19 +182,16 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$folders = $server->getFolders('', 'INBOX');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(3, count($folders));
 		$this->assertEquals('test_dir1', $folders[0]);
 		$this->assertEquals('test_dir2', $folders[1]);
 		$this->assertEquals('test_dir2.test_dir3', $folders[2]);
 		
 		$folders = $server->getFolders('', 'test_dir1');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(1, count($folders));
 		$this->assertEquals('test_dir1', $folders[0]);
 		
 		$folders = $server->getFolders('', 'test_dir2');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(1, count($folders));
 		$this->assertEquals('test_dir2', $folders[0]);
 		
@@ -232,35 +225,29 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		
 		
 		$folders = $server->getFolders('', '*');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(2, count($folders));
 		$this->assertEquals('Drafts', $folders[0]);
 		$this->assertEquals('Trash', $folders[1]);
 		
 		$folders = $server->getFolders('', 'INBOX');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(2, count($folders));
 		$this->assertEquals('Drafts', $folders[0]);
 		$this->assertEquals('Trash', $folders[1]);
 		
 		$folders = $server->getFolders('INBOX', '*');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(2, count($folders));
 		$this->assertEquals('Drafts', $folders[0]);
 		$this->assertEquals('Trash', $folders[1]);
 		
 		$folders = $server->getFolders('', 'Drafts');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(1, count($folders));
 		$this->assertEquals('Drafts', $folders[0]);
 		
 		$folders = $server->getFolders('', 'Trash');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(1, count($folders));
 		$this->assertEquals('Trash', $folders[0]);
 		
 		$folders = $server->getFolders('Trash', '*');
-		#\Doctrine\Common\Util\Debug::dump($folders);
 		$this->assertEquals(0, count($folders));
 		
 		$filesystem = new Filesystem();
@@ -339,7 +326,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(1, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
@@ -348,7 +334,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(2, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
@@ -357,7 +342,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(3, $server->getMsgSeqById($msgId));
 		
 		$message = new Message();
@@ -366,7 +350,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msg: '.$msgId.PHP_EOL);
 		$this->assertEquals(4, $server->getMsgSeqById($msgId));
 		
 		$server->shutdown();
@@ -430,7 +413,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 9');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
-		#fwrite(STDOUT, 'test_dir1: 1, '.$msgId."\n");
 		$this->assertEquals($msgId, $server->getMsgIdBySeq(1, 'test_dir1'));
 		
 		$message = new Message();
@@ -439,7 +421,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 10');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message, 'test_dir1');
-		#fwrite(STDOUT, 'test_dir1: 2, '.$msgId."\n");
 		$this->assertEquals($msgId, $server->getMsgIdBySeq(2, 'test_dir1'));
 		
 		
@@ -599,7 +580,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -607,7 +587,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -615,7 +594,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -623,7 +601,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -631,7 +608,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -639,7 +615,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$msgId = $server->addMail($message);
-		#fwrite(STDOUT, 'msgId: '.$msgId."\n");
 		
 		
 		$finder = new Finder();
@@ -687,7 +662,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -695,7 +669,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		$msgId = $tmpId;
 		
 		$message = new Message();
@@ -704,7 +677,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -712,7 +684,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -720,7 +691,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -728,7 +698,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		
 		$finder = new Finder();
@@ -777,7 +746,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -785,7 +753,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -793,7 +760,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -801,7 +767,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -809,7 +774,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -817,7 +781,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		
 		$finder = new Finder();
@@ -865,7 +828,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 1');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -873,7 +835,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 2');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -881,7 +842,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 3');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -889,7 +849,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 4');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -897,7 +856,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 5');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		$message = new Message();
 		$message->addFrom('dev1@fox21.at');
@@ -905,7 +863,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$message->setSubject('my_subject 6');
 		$message->setBody('my_body');
 		$tmpId = $server->addMail($message);
-		#fwrite(STDOUT, 'tmpId: '.$tmpId."\n");
 		
 		
 		$finder = new Finder();
@@ -951,7 +908,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$this->assertEquals(100001, $msgId);
 		
 		$message = $server->getMailById($msgId);
-		#\Doctrine\Common\Util\Debug::dump($message);
 		$this->assertTrue($message instanceof Message);
 		$this->assertEquals('my_subject 1', $message->getSubject());
 		$this->assertEquals('my_body', $message->getBody());
@@ -963,7 +919,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function functionForTestEvent(){
-		#fwrite(STDOUT, "forTestEvent\n");
 		return 18;
 	}
 	
@@ -985,7 +940,6 @@ class ServerTest extends PHPUnit_Framework_TestCase{
 		$testData = 21;
 		$phpunit = $this;
 		$event1 = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event) use($phpunit, &$testData) {
-			#fwrite(STDOUT, 'my function: '.$event->getTrigger().', '.$testData."\n");
 			$phpunit->assertEquals(21, $testData);
 			
 			$testData = 24;

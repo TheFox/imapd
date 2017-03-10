@@ -13,6 +13,10 @@ class BsdSocket extends AbstractSocket{
 		}
 	}
 	
+	/**
+	 * Creates a new socket resource.
+	 * https://secure.php.net/manual/en/function.socket-create.php
+	 */
 	public function create(){
 		$socket = null;
 		
