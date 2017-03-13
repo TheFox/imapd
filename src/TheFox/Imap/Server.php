@@ -60,6 +60,10 @@ class Server extends Thread{
 		$this->port = $port;
 	}
 	
+	/**
+	 * Initialization
+	 * Setup log.
+	 */
 	public function init(){
 		if(!$this->log){
 			$this->log = new Logger('server');
@@ -69,7 +73,7 @@ class Server extends Thread{
 			}
 		}
 		// @codeCoverageIgnoreStart
-		if(!TEST){
+		if(!defined('TEST')){
 			$this->log->info('start');
 			$this->log->info('ip = "'.$this->ip.'"');
 			$this->log->info('port = "'.$this->port.'"');
@@ -77,37 +81,39 @@ class Server extends Thread{
 		// @codeCoverageIgnoreEnd
 	}
 	
+	/**
+	 * @return boolean
+	 */
 	public function listen(){
 		if($this->ip && $this->port){
-			#$this->log->notice('listen on '.$this->ip.':'.$this->port);
+			$this->log->notice('listen on '.$this->ip.':'.$this->port);
 			
+			// Create a new Socket object.
 			$this->socket = new Socket();
 			
 			$bind = false;
 			try{
 				$bind = $this->socket->bind($this->ip, $this->port);
+				
+				if($this->socket->listen()){
+					$this->log->notice('listen ok');
+					$this->isListening = true;
+					
+					return true;
+				}
 			}
 			catch(Exception $e){
 				$this->log->error($e->getMessage());
 			}
 			
-			if($bind){
-				try{
-					if($this->socket->listen()){
-						$this->log->notice('listen ok');
-						$this->isListening = true;
-						
-						return true;
-					}
-				}
-				catch(Exception $e){
-					$this->log->error($e->getMessage());
-				}
-			}
-			
+			return false;
 		}
 	}
 	
+	/**
+	 * Main Function
+	 * Handles everything, keeps everything up-to-date.
+	 */
 	public function run(){
 		if(!$this->socket){
 			throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
@@ -162,7 +168,7 @@ class Server extends Thread{
 	}
 	
 	/**
-	 * Main Thread Loop
+	 * Main Loop
 	 */
 	public function loop(){
 		while(!$this->getExit()){
@@ -173,9 +179,11 @@ class Server extends Thread{
 		$this->shutdown();
 	}
 	
+	/**
+	 * Shutdown the server.
+	 * Should be executed before your application exits.
+	 */
 	public function shutdown(){
-		#$this->log->debug('shutdown');
-		
 		// Notify all clients.
 		foreach($this->clients as $clientId => $client){
 			$client->sendBye('Server shutdown');
@@ -184,10 +192,11 @@ class Server extends Thread{
 		
 		// Remove all temp files and save dbs.
 		$this->shutdownStorages();
-		
-		#$this->log->debug('shutdown done');
 	}
 	
+	/**
+	 * @FIXME rename this function to newClient
+	 */
 	public function clientNew($socket){
 		$this->clientsId++;
 		
@@ -200,6 +209,9 @@ class Server extends Thread{
 		return $client;
 	}
 	
+	/**
+	 * @FIXME rename this function to getClientByHandle
+	 */
 	public function clientGetByHandle($handle){
 		foreach($this->clients as $clientId => $client){
 			if($client->getSocket()->getHandle() == $handle){
@@ -208,6 +220,9 @@ class Server extends Thread{
 		}
 	}
 	
+	/**
+	 * @FIXME rename this function to removeClient
+	 */
 	public function clientRemove(Client $client){
 		$this->log->debug('client remove: '.$client->getId());
 		
@@ -227,6 +242,9 @@ class Server extends Thread{
 		return $this->defaultStorage;
 	}
 	
+	/**
+	 * @param AbstractStorage $storage
+	 */
 	public function addStorage(AbstractStorage $storage){
 		if(!$this->defaultStorage){
 			$this->defaultStorage = $storage;
@@ -430,11 +448,17 @@ class Server extends Thread{
 		return $msgsIds;
 	}
 	
+	/**
+	 * @FIXME rename this function to addEvent
+	 */
 	public function eventAdd(Event $event){
 		$this->eventsId++;
 		$this->events[$this->eventsId] = $event;
 	}
 	
+	/**
+	 * @FIXME rename this function to executeEvent
+	 */
 	private function eventExecute($trigger, $args = array()){
 		foreach($this->events as $eventId => $event){
 			if($event->getTrigger() == $trigger){

@@ -17,20 +17,35 @@ class Event{
 	private $function = null;
 	private $returnValue = null;
 	
+	/**
+	 * @param integer|null $trigger
+	 * @param object|null $object
+	 * @param callable|null $function
+	 */
 	public function __construct($trigger = null, $object = null, $function = null){
 		$this->trigger = $trigger;
 		$this->object = $object;
 		$this->function = $function;
 	}
 	
+	/**
+	 * @return integer|null
+	 */
 	public function getTrigger(){
 		return $this->trigger;
 	}
 	
+	/**
+	 * @return mixed
+	 */
 	public function getReturnValue(){
 		return $this->returnValue;
 	}
 	
+	/**
+	 * @param array $args
+	 * @return mixed
+	 */
 	public function execute($args = array()){
 		$object = $this->object;
 		$function = $this->function;

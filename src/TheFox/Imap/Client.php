@@ -28,8 +28,17 @@ class Client{
 	
 	private $server = null;
 	private $socket = null;
+	
+	/**
+	 * @var string
+	 */
 	private $ip = '';
+	
+	/**
+	 * @var integer
+	 */
 	private $port = 0;
+	
 	private $recvBufferTmp = '';
 	private $expunge = array();
 	private $subscriptions = array();
@@ -117,7 +126,7 @@ class Client{
 	
 	public function setIpPort($ip = '', $port = 0){
 		// @codeCoverageIgnoreStart
-		if(!TEST){
+		if(!defined('TEST')){
 			$this->getSocket()->getPeerName($ip, $port);
 		}
 		// @codeCoverageIgnoreEnd

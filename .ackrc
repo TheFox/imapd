@@ -8,6 +8,9 @@
 --type-set=phar:ext:phar
 --type=nophar
 
+--type-set=markdown:ext:md
+--type=markdown
+
 --ignore-dir=build
 --ignore-dir=mailbox
 --ignore-dir=maildata

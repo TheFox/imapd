@@ -7,6 +7,6 @@ namespace TheFox\Imap;
 class Imapd{
 	
 	const NAME = 'IMAPd';
-	const VERSION = '0.3.1-dev.1';
+	const VERSION = '0.3.1-dev.2';
 	
 }
