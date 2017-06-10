@@ -8,14 +8,42 @@ namespace TheFox\Imap;
 
 class StringParser
 {
+    /**
+     * @var string
+     */
     private $str = '';
+
+    /**
+     * @var int
+     */
     private $len = 0;
+
+    /**
+     * @var int
+     */
     private $argsMax;
+
+    /**
+     * @var int
+     */
     private $argsId = -1;
+
+    /**
+     * @var array
+     */
     private $args = [];
+
+    /**
+     * @var int
+     */
     private $argsLen = 0;
 
-    public function __construct($str, $argsMax = null)
+    /**
+     * StringParser constructor.
+     * @param string $str
+     * @param null|int $argsMax
+     */
+    public function __construct(string $str, $argsMax = null)
     {
         $this->str = $str;
         $this->str = trim($this->str);
@@ -46,7 +74,10 @@ class StringParser
         }
     }
 
-    private function charNew($char = '')
+    /**
+     * @param string $char
+     */
+    private function charNew(string $char = '')
     {
         if ($this->argsMax === null || $this->argsLen < $this->argsMax) {
             $this->fixPrev();
@@ -54,28 +85,28 @@ class StringParser
             $this->args[$this->argsId] = $char;
             $this->argsLen = count($this->args);
         }
-        /*else{
-            $this->charAppend($char);
-        }*/
     }
 
-    private function charAppend($char)
+    /**
+     * @param string $char
+     */
+    private function charAppend(string $char)
     {
         if ($this->argsId != -1) {
             $this->args[$this->argsId] .= $char;
         }
-        /*else{
-            $this->charNew($char);
-        }*/
     }
 
-    public function parse()
+    /**
+     * @return array
+     */
+    public function parse(): array
     {
         $this->reset();
 
         $str = $this->str;
         $in = false;
-        $prevChar = ' ';
+        //$prevChar = ' ';
         $endChar = '';
 
         for ($pos = 0; $pos < $this->len; $pos++) {
@@ -114,13 +145,9 @@ class StringParser
                         $in = true;
                     }
                 }
-                /*else{
-                    fwrite(STDOUT, ' -> char append'."\n");
-                    $this->charAppend($char);
-                }*/
             }
 
-            $prevChar = $char;
+            //$prevChar = $char;
         }
 
         $this->fixPrev();

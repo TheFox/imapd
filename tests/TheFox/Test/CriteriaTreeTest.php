@@ -3,7 +3,6 @@
 namespace TheFox\Test;
 
 use PHPUnit_Framework_TestCase;
-
 use TheFox\Logic\CriteriaTree;
 use TheFox\Logic\Obj;
 use TheFox\Logic\Gate;
@@ -13,7 +12,10 @@ use TheFox\Logic\NotGate;
 
 class CriteriaTreeTest extends PHPUnit_Framework_TestCase
 {
-    public function providerCriteriaBool()
+    /**
+     * @return array
+     */
+    public function providerCriteriaBool(): array
     {
         $rv = [];
 
@@ -300,19 +302,22 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerCriteriaBool
+     * @param array $testData
+     * @param bool $expect
      */
-    public function testCriteriaBool($testData, $expect)
+    public function testCriteriaBool(array $testData, bool $expect)
     {
         $tree = new CriteriaTree($testData);
         $gate = $tree->build();
 
-        #fwrite(STDOUT, 'gate'."\n"); ve($gate);
-
-        $this->assertEquals($expect, $gate->bool());
-        $this->assertEquals($expect, $tree->bool());
+        $this->assertEquals($expect, $gate->getBool());
+        $this->assertEquals($expect, $tree->getBool());
     }
 
-    public function providerCriteriaTree()
+    /**
+     * @return array
+     */
+    public function providerCriteriaTree(): array
     {
         $rv = [];
 
@@ -376,13 +381,13 @@ class CriteriaTreeTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerCriteriaTree
+     * @param array $testData
+     * @param Gate $expect
      */
-    public function testCriteriaTree($testData, $expect)
+    public function testCriteriaTree(array $testData, Gate $expect)
     {
         $tree = new CriteriaTree($testData);
         $gate = $tree->build();
-
-        #fwrite(STDOUT, 'gate'."\n"); ve($gate);
 
         $this->assertEquals($expect, $gate);
     }

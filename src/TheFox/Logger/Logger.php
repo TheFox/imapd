@@ -15,6 +15,9 @@ class Logger
     const ALERT = 550;
     const EMERGENCY = 600;
 
+    /**
+     * @var array
+     */
     protected static $levels = [
         100 => 'DEBUG',
         200 => 'INFO',
@@ -26,33 +29,59 @@ class Logger
         600 => 'EMERGENCY',
     ];
 
+    /**
+     * @var string
+     */
     private $name;
+
+    /**
+     * @var array
+     */
     private $handlers;
 
-    public function __construct($name = '')
+    /**
+     * Logger constructor.
+     * @param string $name
+     */
+    public function __construct(string $name = '')
     {
-        if (@date_default_timezone_get() == 'UTC') date_default_timezone_set('UTC');
+        if (@date_default_timezone_get() == 'UTC') {
+            date_default_timezone_set('UTC');
+        }
 
         $this->setName($name);
         $this->handlers = [];
     }
 
-    public function setName($name)
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
     {
         $this->name = $name;
     }
 
-    public function getName()
+    /**
+     * @return string
+     */
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function pushHandler($handler)
+    /**
+     * @param StreamHandler $handler
+     */
+    public function pushHandler(StreamHandler $handler)
     {
         $this->handlers[] = $handler;
     }
 
-    public function addRecord($level, $message)
+    /**
+     * @param int $level
+     * @param string $message
+     */
+    public function addRecord(int $level, string $message)
     {
         $dt = new DateTime();
 
@@ -65,47 +94,75 @@ class Logger
         }
     }
 
-    public function debug($message)
+    /**
+     * @param string $message
+     */
+    public function debug(string $message)
     {
         $this->addRecord(static::DEBUG, $message);
     }
 
-    public function info($message)
+    /**
+     * @param string $message
+     */
+    public function info(string $message)
     {
         $this->addRecord(static::INFO, $message);
     }
 
-    public function notice($message)
+    /**
+     * @param string $message
+     */
+    public function notice(string $message)
     {
         $this->addRecord(static::NOTICE, $message);
     }
 
-    public function warning($message)
+    /**
+     * @param string $message
+     */
+    public function warning(string $message)
     {
         $this->addRecord(static::WARNING, $message);
     }
 
-    public function error($message)
+    /**
+     * @param string $message
+     */
+    public function error(string $message)
     {
         $this->addRecord(static::ERROR, $message);
     }
 
-    public function critical($message)
+    /**
+     * @param string $message
+     */
+    public function critical(string $message)
     {
         $this->addRecord(static::CRITICAL, $message);
     }
 
-    public function alert($message)
+    /**
+     * @param string $message
+     */
+    public function alert(string $message)
     {
         $this->addRecord(static::ALERT, $message);
     }
 
-    public function emergency($message)
+    /**
+     * @param string $message
+     */
+    public function emergency(string $message)
     {
         $this->addRecord(static::EMERGENCY, $message);
     }
 
-    public static function getLevelNameByNumber($number)
+    /**
+     * @param int $number
+     * @return string
+     */
+    public static function getLevelNameByNumber(int $number): string
     {
         return static::$levels[$number];
     }

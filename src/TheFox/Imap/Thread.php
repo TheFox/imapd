@@ -8,15 +8,24 @@ namespace TheFox\Imap;
 
 class Thread
 {
+    /**
+     * @var int
+     */
     private $exit = 0;
 
-    public function setExit($exit = 1)
+    /**
+     * @param int $exit
+     */
+    public function setExit(int $exit = 1)
     {
         $this->exit = $exit;
     }
 
-    public function getExit()
+    /**
+     * @return int
+     */
+    public function getExit(): int
     {
-        return (int)$this->exit;
+        return $this->exit;
     }
 }

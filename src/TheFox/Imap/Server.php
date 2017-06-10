@@ -9,32 +9,78 @@ namespace TheFox\Imap;
 
 use Exception;
 use RuntimeException;
-use InvalidArgumentException;
+use TheFox\Network\StreamSocket;
 use Zend\Mail\Message as ZendMailMessage;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Filesystem\Filesystem;
-use TheFox\Imap\Exception\NotImplementedException;
 use TheFox\Imap\Storage\AbstractStorage;
 use TheFox\Imap\Storage\DirectoryStorage;
 use TheFox\Logger\Logger;
 use TheFox\Logger\StreamHandler;
 use TheFox\Network\Socket;
+use Zend\Mail\Message;
 
 class Server extends Thread
 {
     const LOOP_USLEEP = 10000;
 
+    /**
+     * @var Logger
+     */
     private $log;
+
+    /**
+     * @var Socket
+     */
     private $socket;
+
+    /**
+     * @var bool
+     */
     private $isListening = false;
+
+    /**
+     * @var string
+     */
     private $ip;
+
+    /**
+     * @var int
+     */
     private $port;
+
+    /**
+     * @var int
+     */
     private $clientsId = 0;
+
+    /**
+     * @var Client[]
+     */
     private $clients = [];
+
+    /**
+     * @var string
+     */
     private $defaultStoragePath = 'maildata';
+
+    /**
+     * @var AbstractStorage|DirectoryStorage
+     */
     private $defaultStorage;
+
+    /**
+     * @var array
+     */
     private $storages = [];
+
+    /**
+     * @var int
+     */
     private $eventsId = 0;
+
+    /**
+     * @var array
+     */
     private $events = [];
 
     public function __construct($ip = '127.0.0.1', $port = 20143)
@@ -76,19 +122,18 @@ class Server extends Thread
                 $this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
             }
         }
-        // @codeCoverageIgnoreStart
+
         if (!defined('TEST')) {
             $this->log->info('start');
             $this->log->info('ip = "' . $this->ip . '"');
             $this->log->info('port = "' . $this->port . '"');
         }
-        // @codeCoverageIgnoreEnd
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
-    public function listen()
+    public function listen(): bool
     {
         if ($this->ip && $this->port) {
             $this->log->notice('listen on ' . $this->ip . ':' . $this->port);
@@ -109,9 +154,9 @@ class Server extends Thread
             } catch (Exception $e) {
                 $this->log->error($e->getMessage());
             }
-
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -124,21 +169,24 @@ class Server extends Thread
             throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
         }
 
+        // @TODO type
         $readHandles = [];
-        $writeHandles = null;
-        $exceptHandles = null;
+        $writeHandles = [];
+        $exceptHandles = [];
 
         if ($this->isListening) {
             $readHandles[] = $this->socket->getHandle();
         }
         foreach ($this->clients as $clientId => $client) {
+            $socket = $client->getSocket();
+
             // Collect client handles.
-            $readHandles[] = $client->getSocket()->getHandle();
+            $readHandles[] = $socket->getHandle();
 
             // Run client.
             $client->run();
         }
-        $readHandlesNum = count($readHandles);
+        //$readHandlesNum = count($readHandles);
 
         $handlesChanged = $this->socket->select($readHandles, $writeHandles, $exceptHandles);
         if ($handlesChanged) {
@@ -149,16 +197,16 @@ class Server extends Thread
                     if ($socket) {
                         $client = $this->clientNew($socket);
                         $client->sendHello();
-                        #$this->log->debug('new client: '.$client->getId().', '.$client->getIpPort());
                     }
                 } else {
                     // Client
                     $client = $this->clientGetByHandle($readableHandle);
                     if ($client) {
+                        $socket = $client->getSocket();
+
                         if (feof($client->getSocket()->getHandle())) {
                             $this->clientRemove($client);
                         } else {
-                            #$this->log->debug('old client: '.$client->getId().', '.$client->getIpPort());
                             $client->dataRecv();
                             if ($client->getStatus('hasShutdown')) {
                                 $this->clientRemove($client);
@@ -200,9 +248,11 @@ class Server extends Thread
     }
 
     /**
-     * @FIXME rename this function to newClient
+     * @TODO rename this function to newClient
+     * @param StreamSocket $socket
+     * @return Client
      */
-    public function clientNew($socket)
+    public function clientNew(StreamSocket $socket): Client
     {
         $this->clientsId++;
 
@@ -210,6 +260,7 @@ class Server extends Thread
         $client->setSocket($socket);
         $client->setId($this->clientsId);
         $client->setServer($this);
+
         $this->clients[$this->clientsId] = $client;
 
         return $client;
@@ -240,6 +291,9 @@ class Server extends Thread
         unset($this->clients[$clientsId]);
     }
 
+    /**
+     * @return AbstractStorage|DirectoryStorage
+     */
     public function getDefaultStorage()
     {
         if (!$this->defaultStorage) {
@@ -269,6 +323,7 @@ class Server extends Thread
 
             $db = new MsgDb($dbPath);
             $db->load();
+
             $storage->setDb($db);
         } else {
             $this->storages[] = $storage;
@@ -294,7 +349,11 @@ class Server extends Thread
         }
     }
 
-    public function addFolder($path)
+    /**
+     * @param string $path
+     * @return bool
+     */
+    public function addFolder(string $path): bool
     {
         $storage = $this->getDefaultStorage();
         $successful = $storage->createFolder($path);
@@ -306,19 +365,16 @@ class Server extends Thread
         return $successful;
     }
 
-    public function getFolders($baseFolder, $searchFolder, $recursive = false, $level = 0)
+    public function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false, int $level = 0): array
     {
-        $func = __FUNCTION__;
-        $this->log->debug($func . $level . ': /' . $baseFolder . '/ /' . $searchFolder . '/ ' . (int)$recursive . ', ' . $level);
+        $this->log->debug('getFolders' . $level . ': /' . $baseFolder . '/ /' . $searchFolder . '/ ' . (int)$recursive . ', ' . $level);
 
-        // @codeCoverageIgnoreStart
         if ($level >= 100) {
-            return [];
+            return []; // @todo throw exception instead
         }
-        // @codeCoverageIgnoreEnd
 
         if ($baseFolder == '' && $searchFolder == 'INBOX') {
-            return $this->$func('INBOX', '*', true, $level + 1);
+            return $this->getFolders('INBOX', '*', true, $level + 1);
         }
 
         $storage = $this->getDefaultStorage();
@@ -331,61 +387,107 @@ class Server extends Thread
         return $rv;
     }
 
-    public function folderExists($folder)
+    /**
+     * @param string $folder
+     * @return bool
+     */
+    public function folderExists(string $folder): bool
     {
         $storage = $this->getDefaultStorage();
         return $storage->folderExists($folder);
     }
 
-    public function getNextMsgId()
+    /**
+     * @return int
+     */
+    public function getNextMsgId(): int
     {
         $storage = $this->getDefaultStorage();
         return $storage->getNextMsgId();
     }
 
-    public function getMsgSeqById($msgId)
+    /**
+     * @param int $msgId
+     * @return int
+     */
+    public function getMsgSeqById(int $msgId): int
     {
         $storage = $this->getDefaultStorage();
         return $storage->getMsgSeqById($msgId);
     }
 
-    public function getMsgIdBySeq($seqNum, $folder)
+    /**
+     * @param int $seqNum
+     * @param string $folder
+     * @return int
+     */
+    public function getMsgIdBySeq(int $seqNum, string $folder): int
     {
         $storage = $this->getDefaultStorage();
         return $storage->getMsgIdBySeq($seqNum, $folder);
     }
 
-    public function getFlagsById($msgId)
+    /**
+     * @param int $msgId
+     * @return array
+     */
+    public function getFlagsById(int $msgId): array
     {
         $storage = $this->getDefaultStorage();
         return $storage->getFlagsById($msgId);
     }
 
-    public function setFlagsById($msgId, $flags)
+    /**
+     * @param int $msgId
+     * @param array $flags
+     */
+    public function setFlagsById(int $msgId, array $flags)
     {
         $storage = $this->getDefaultStorage();
         $storage->setFlagsById($msgId, $flags);
     }
 
-    public function getFlagsBySeq($seqNum, $folder)
+    /**
+     * @param int $seqNum
+     * @param string $folder
+     * @return array
+     */
+    public function getFlagsBySeq(int $seqNum, string $folder): array
     {
         $storage = $this->getDefaultStorage();
         return $storage->getFlagsBySeq($seqNum, $folder);
     }
 
-    public function setFlagsBySeq($seqNum, $folder, $flags)
+    /**
+     * @param string $seqNum
+     * @param string $folder
+     * @param array $flags
+     */
+    public function setFlagsBySeq(string $seqNum, string $folder, array $flags)
     {
         $storage = $this->getDefaultStorage();
         $storage->setFlagsBySeq($seqNum, $folder, $flags);
     }
 
-    public function getCountMailsByFolder($folder, $flags = null)
+    /**
+     * @param string $folder
+     * @param array|null $flags
+     * @return int
+     */
+    public function getCountMailsByFolder(string $folder, array $flags = null): int
     {
         $storage = $this->getDefaultStorage();
         return $storage->getMailsCountByFolder($folder, $flags);
     }
 
-    public function addMail(ZendMailMessage $mail, $folder = null, $flags = null, $recent = true)
+    /**
+     * @param ZendMailMessage $mail
+     * @param string|null $folder
+     * @param array|null $flags
+     * @param bool $recent
+     * @return int
+     */
+    public function addMail(ZendMailMessage $mail, string $folder = '', array $flags = [], bool $recent = true): int
     {
         $this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
 
@@ -405,7 +507,10 @@ class Server extends Thread
         return $msgId;
     }
 
-    public function removeMailById($msgId)
+    /**
+     * @param int $msgId
+     */
+    public function removeMailById(int $msgId)
     {
         $storage = $this->getDefaultStorage();
         $this->log->debug('remove msgId: /' . $msgId . '/');
@@ -416,7 +521,11 @@ class Server extends Thread
         }
     }
 
-    public function removeMailBySeq($seqNum, $folder)
+    /**
+     * @param int $seqNum
+     * @param string $folder
+     */
+    public function removeMailBySeq(int $seqNum, string $folder)
     {
         $this->log->debug('remove seq: /' . $seqNum . '/');
 
@@ -426,7 +535,11 @@ class Server extends Thread
         }
     }
 
-    public function copyMailById($msgId, $dstFolder)
+    /**
+     * @param int $msgId
+     * @param string $dstFolder
+     */
+    public function copyMailById(int $msgId, string $dstFolder)
     {
         $storage = $this->getDefaultStorage();
         $this->log->debug('copy msgId: /' . $msgId . '/');
@@ -437,7 +550,12 @@ class Server extends Thread
         }
     }
 
-    public function copyMailBySequenceNum($seqNum, $folder, $dstFolder)
+    /**
+     * @param int $seqNum
+     * @param string $folder
+     * @param string $dstFolder
+     */
+    public function copyMailBySequenceNum(int $seqNum, string $folder, string $dstFolder)
     {
         $storage = $this->getDefaultStorage();
         $this->log->debug('copy seq: /' . $seqNum . '/');
@@ -448,7 +566,11 @@ class Server extends Thread
         }
     }
 
-    public function getMailById($msgId)
+    /**
+     * @param int $msgId
+     * @return ZendMailMessage
+     */
+    public function getMailById(int $msgId): ZendMailMessage
     {
         $storage = $this->getDefaultStorage();
         $mailStr = $storage->getPlainMailById($msgId);
@@ -457,27 +579,37 @@ class Server extends Thread
         return $mail;
     }
 
-    public function getMailBySeq($seqNum, $folder)
+    /**
+     * @param int $seqNum
+     * @param string $folder
+     * @return null|Message
+     */
+    public function getMailBySeq(int $seqNum, string $folder)
     {
-        $rv = null;
-
         $msgId = $this->getMsgIdBySeq($seqNum, $folder);
         if ($msgId) {
-            $rv = $this->getMailById($msgId);
+            return $this->getMailById($msgId);
         }
 
-        return $rv;
+        return null;
     }
 
-    public function getMailIdsByFlags($flags)
+    /**
+     * @param array $flags
+     * @return array
+     */
+    public function getMailIdsByFlags(array $flags): array
     {
         $storage = $this->getDefaultStorage();
+
         $msgsIds = $storage->getMsgsByFlags($flags);
+
         return $msgsIds;
     }
 
     /**
      * @FIXME rename this function to addEvent
+     * @param Event $event
      */
     public function eventAdd(Event $event)
     {
@@ -487,13 +619,17 @@ class Server extends Thread
 
     /**
      * @FIXME rename this function to executeEvent
+     * @param int $trigger
+     * @param array $args
      */
-    private function eventExecute($trigger, $args = [])
+    private function eventExecute(int $trigger, array $args = [])
     {
         foreach ($this->events as $eventId => $event) {
-            if ($event->getTrigger() == $trigger) {
-                $event->execute($args);
+            if ($event->getTrigger() != $trigger) {
+                continue;
             }
+
+            $event->execute($args);
         }
     }
 }

@@ -4,24 +4,34 @@ namespace TheFox\Logic;
 
 class NotGate extends Gate
 {
-    public function __construct($obj = null)
+    /**
+     * NotGate constructor.
+     * @param Obj|null $obj
+     */
+    public function __construct(Obj $obj = null)
     {
         if ($obj) {
             $this->setObj($obj);
         }
     }
 
-    public function setObj($obj)
+    /**
+     * @param Obj $obj
+     */
+    public function setObj(Obj $obj)
     {
         $this->setObj1($obj);
     }
 
-    public function bool()
+    /**
+     * @return bool
+     */
+    public function getBool(): bool
     {
         $bool = false;
         if ($this->getObj1()) {
-            $bool = $this->getObj1()->bool();
+            $bool = $this->getObj1()->getBool();
         }
-        return (!$bool);
+        return !$bool;
     }
 }

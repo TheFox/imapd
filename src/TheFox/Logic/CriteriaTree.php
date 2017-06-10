@@ -4,31 +4,53 @@ namespace TheFox\Logic;
 
 class CriteriaTree
 {
+    /**
+     * @var array
+     */
     private $criteria = [];
-    private $rootGate = null;
 
-    public function __construct($criteria = null)
+    /**
+     * @var null|Gate
+     */
+    private $rootGate;
+
+    /**
+     * CriteriaTree constructor.
+     * @param array $criteria
+     */
+    public function __construct(array $criteria = [])
     {
         if ($criteria) {
             $this->setCriteria($criteria);
         }
     }
 
-    public function setCriteria($criteria)
+    /**
+     * @param array $criteria
+     */
+    public function setCriteria(array $criteria)
     {
         $this->criteria = $criteria;
     }
 
+    /**
+     * @return null|Gate
+     */
     public function getRootGate()
     {
         return $this->rootGate;
     }
 
+    /**
+     * @param int $level
+     * @return Gate|Obj
+     */
     public function build($level = 0)
     {
-        $func = __FUNCTION__;
-        $rep = '-';
+        //$func = __FUNCTION__;
+        //$rep = '-';
 
+        /** @var null|Gate $rootGate */
         $rootGate = null;
 
         /** @var $gate null|Gate */
@@ -43,7 +65,7 @@ class CriteriaTree
 
             if (is_array($criterium)) {
                 $tree = new CriteriaTree($criterium);
-                $subobj = $tree->$func($level + 1);
+                $subobj = $tree->build($level + 1);
 
                 if ($gate) {
                     $gate->setObj2($subobj);
@@ -121,11 +143,21 @@ class CriteriaTree
         }
 
         $this->rootGate = $rootGate;
+        
         return $rootGate;
     }
 
-    public function bool()
+
+    /**
+     * @todo unit test
+     * @return bool
+     */
+    public function getBool(): bool
     {
-        return $this->getRootGate()->bool();
+        $gate = $this->getRootGate();
+        if ($gate) {
+            return $gate->getBool();
+        }
+        return false;
     }
 }

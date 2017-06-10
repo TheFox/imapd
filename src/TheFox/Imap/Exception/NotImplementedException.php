@@ -6,5 +6,8 @@ use Exception;
 
 class NotImplementedException extends Exception
 {
+    /**
+     * @var string
+     */
     protected $message = 'Not implemented yet.';
 }

@@ -6,15 +6,22 @@
 
 namespace TheFox\Imap;
 
+use Zend\Mail\Message;
 use Zend\Mail\Storage;
-use Symfony\Component\Yaml\Yaml;
 use TheFox\Storage\YamlStorage;
 
 class MsgDb extends YamlStorage
 {
+    /**
+     * @var array
+     */
     private $msgsByPath = [];
 
-    public function __construct($filePath = null)
+    /**
+     * MsgDb constructor.
+     * @param string|null $filePath
+     */
+    public function __construct(string $filePath = null)
     {
         parent::__construct($filePath);
 
@@ -38,7 +45,10 @@ class MsgDb extends YamlStorage
         return $rv;
     }*/
 
-    public function load()
+    /**
+     * @return bool
+     */
+    public function load(): bool
     {
         if (parent::load()) {
 
@@ -54,7 +64,13 @@ class MsgDb extends YamlStorage
         return false;
     }
 
-    public function addMsg($path = '', $flags = null, $recent = true)
+    /**
+     * @param string $path
+     * @param array $flags
+     * @param bool $recent
+     * @return int
+     */
+    public function addMsg(string $path = '', array $flags = [], bool $recent = true): int
     {
         if ($flags === null) {
             $flags = [Storage::FLAG_SEEN];
@@ -75,7 +91,11 @@ class MsgDb extends YamlStorage
         return $this->data['msgsId'];
     }
 
-    public function removeMsg($msgId)
+    /**
+     * @param int $msgId
+     * @return mixed
+     */
+    public function removeMsg(int $msgId) // @todo return type?
     {
         $msg = $this->data['msgs'][$msgId];
         unset($this->data['msgs'][$msgId]);
@@ -86,16 +106,24 @@ class MsgDb extends YamlStorage
         return $msg;
     }
 
-    public function getMsgIdByPath($path)
+    /**
+     * @param string $path
+     * @return int
+     */
+    public function getMsgIdByPath(string $path): int
     {
         if (isset($this->msgsByPath[$path])) {
             return $this->msgsByPath[$path]['id'];
         }
 
-        return null;
+        return 0;
     }
 
-    public function getMsgById($msgId)
+    /**
+     * @param int $msgId
+     * @return null|Message
+     */
+    public function getMsgById(int $msgId)
     {
         if (isset($this->data['msgs'][$msgId])) {
             return $this->data['msgs'][$msgId];
@@ -104,28 +132,55 @@ class MsgDb extends YamlStorage
         return null;
     }
 
-    public function getMsgIdsByFlags($flags)
+    /**
+     * @param array $flags
+     * @return array
+     */
+    public function getMsgIdsByFlags(array $flags): array
     {
         $rv = [];
+
+        /**
+         * @var int $msgId
+         * @var array $msg
+         */
         foreach ($this->data['msgs'] as $msgId => $msg) {
+            /** @var bool $recent */
+            $recent = $msg['recent'];
+
+            /** @var array $msgFlags */
+            $msgFlags = $msg['flags'];
+
             foreach ($flags as $flag) {
-                if (in_array($flag, $msg['flags'])
-                    || $flag == Storage::FLAG_RECENT && $msg['recent']
+                if (in_array($flag, $msgFlags)
+                    || $flag == Storage::FLAG_RECENT && $recent
                 ) {
-                    $rv[] = $msg['id'];
+                    $rv[] = (int)$msg['id'];
                     break;
                 }
             }
         }
+
         return $rv;
     }
 
-    public function getFlagsById($msgId)
+    /**
+     * @param int $msgId
+     * @return array
+     */
+    public function getFlagsById(int $msgId): array
     {
         if (isset($this->data['msgs'][$msgId])) {
+            /** @var array $msg */
             $msg = $this->data['msgs'][$msgId];
+
+            /** @var array $flags */
             $flags = $msg['flags'];
-            if ($msg['recent']) {
+
+            /** @var bool $recent */
+            $recent = $msg['recent'];
+
+            if ($recent) {
                 $flags[] = Storage::FLAG_RECENT;
             }
             return $flags;
@@ -134,7 +189,11 @@ class MsgDb extends YamlStorage
         return [];
     }
 
-    public function setFlagsById($msgId, $flags)
+    /**
+     * @param int $msgId
+     * @param array $flags
+     */
+    public function setFlagsById(int $msgId, array $flags)
     {
         $flags = array_unique($flags);
         if (($key = array_search(Storage::FLAG_RECENT, $flags)) !== false) {
@@ -150,7 +209,11 @@ class MsgDb extends YamlStorage
         }
     }
 
-    public function setPathById($msgId, $path)
+    /**
+     * @param int $msgId
+     * @param string $path
+     */
+    public function setPathById(int $msgId, string $path)
     {
         if (isset($this->data['msgs'][$msgId])) {
             unset($this->msgsByPath[$this->data['msgs'][$msgId]['path']]);
@@ -160,7 +223,10 @@ class MsgDb extends YamlStorage
         }
     }
 
-    public function getNextId()
+    /**
+     * @return int
+     */
+    public function getNextId(): int
     {
         return $this->data['msgsId'] + 1;
     }

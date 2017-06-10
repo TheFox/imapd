@@ -100,8 +100,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testAddStorage()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true) . '/';
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true) . '/';
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $server = new Server('', 0);
         $server->setLog(new Logger('test_application'));
@@ -128,8 +128,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testAddFolder()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        #$path2 = './test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        #$path2 = './tmp/test_data/test_mailbox_'.date('Ymd_His').'_'.uniqid('', true);
 
         $server = new Server('', 0);
         $server->setLog(new Logger('test_application'));
@@ -165,8 +165,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testGetFolders1()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -210,8 +210,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testGetFolders2()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -266,7 +266,7 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testGetNextMsgId()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -317,7 +317,7 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testGetMsgSeqById()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -370,7 +370,7 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testGetMsgIdBySeq()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -443,8 +443,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testAddMail()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -522,7 +522,7 @@ class ServerTest extends PHPUnit_Framework_TestCase
         $message->addTo('dev2@fox21.at');
         $message->setSubject('my_subject 7');
         $message->setBody('my_body');
-        $msgId = $server->addMail($message, null, null, false);
+        $msgId = $server->addMail($message, '', [], false);
         $this->assertEquals(100007, $msgId);
         $this->assertEquals(7, $server->getMsgSeqById($msgId));
 
@@ -531,7 +531,7 @@ class ServerTest extends PHPUnit_Framework_TestCase
         $message->addTo('dev2@fox21.at');
         $message->setSubject('my_subject 8');
         $message->setBody('my_body');
-        $msgId = $server->addMail($message, null, null, false);
+        $msgId = $server->addMail($message, '', [], false);
         $this->assertEquals(100008, $msgId);
         $this->assertEquals(8, $server->getMsgSeqById($msgId));
 
@@ -568,8 +568,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testRemoveMail1()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -651,8 +651,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testRemoveMail2()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -736,8 +736,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testCopyMail1()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -819,8 +819,8 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testCopyMail2()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -901,7 +901,7 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testGetMail()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -935,14 +935,17 @@ class ServerTest extends PHPUnit_Framework_TestCase
         $filesystem->remove($storage1->getPath());
     }
 
-    public function functionForTestEvent()
+    /**
+     * @return int
+     */
+    public function functionForTestEvent(): int
     {
         return 18;
     }
 
     public function testEvent()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $log = new Logger('test_application');
         #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -1003,9 +1006,9 @@ class ServerTest extends PHPUnit_Framework_TestCase
 
     public function testShutdownStorages()
     {
-        $path1 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path2 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        $path3 = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path2 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path3 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $server = new Server('', 0);
         $server->setLog(new Logger('test_application'));

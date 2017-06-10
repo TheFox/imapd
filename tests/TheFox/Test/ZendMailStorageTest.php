@@ -7,7 +7,10 @@ use Zend\Mail\Storage;
 
 class ZendMailStorageTest extends PHPUnit_Framework_TestCase
 {
-    public function providerFlags()
+    /**
+     * @return array
+     */
+    public function providerFlags(): array
     {
         $rv = [];
         $rv[] = [Storage::FLAG_SEEN, '\Seen'];
@@ -21,8 +24,10 @@ class ZendMailStorageTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider providerFlags
+     * @param string $flag
+     * @param string $expect
      */
-    public function testFlags($flag, $expect)
+    public function testFlags(string $flag, string $expect)
     {
         $this->assertEquals($expect, $flag);
     }

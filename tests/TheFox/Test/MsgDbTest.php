@@ -17,50 +17,47 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
 
     public function testSaveLoad()
     {
-        $db1 = new MsgDb('test_data/msgdb1.yml');
+        $db1 = new MsgDb('./tmp/test_data/msgdb1.yml');
 
-        $db1->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN], true);
-        $db1->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN], true);
+        $db1->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN], true);
+        $db1->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], true);
         $db1->save();
 
         $finder = new Finder();
-        $files = $finder->in('test_data')->name('msgdb1.yml');
+        $files = $finder->in('./tmp/test_data')->name('msgdb1.yml');
         $this->assertEquals(1, count($files));
 
-        $db2 = new MsgDb('test_data/msgdb1.yml');
+        $db2 = new MsgDb('./tmp/test_data/msgdb1.yml');
         $this->assertTrue($db2->load());
 
         $msg = $db2->getMsgById(100002);
         $this->assertEquals(100002, $msg['id']);
-        $this->assertEquals('test_data/email2.eml', $msg['path']);
+        $this->assertEquals('./tmp/test_data/email2.eml', $msg['path']);
         $this->assertEquals([Storage::FLAG_SEEN], $msg['flags']);
         $this->assertEquals(true, $msg['recent']);
 
-        $db3 = new MsgDb('test_data/msgdb2.yml');
+        $db3 = new MsgDb('./tmp/test_data/msgdb2.yml');
         $this->assertFalse($db3->load());
-
-        #\Doctrine\Common\Util\Debug::dump($db3);
     }
 
     public function testAddMsg1()
     {
         $db = new MsgDb();
 
-        $msgId = $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN], true);
-        $msgId = $db->addMsg('test_data/email2.eml');
-        #\Doctrine\Common\Util\Debug::dump($msgId);
+        $msgId = $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN], true);
+        $msgId = $db->addMsg('./tmp/test_data/email2.eml');
         $this->assertEquals(100002, $msgId);
     }
 
     public function testAddMsg3()
     {
-        $db = new MsgDb('test_data/msgdb3.yml');
+        $db = new MsgDb('./tmp/test_data/msgdb3.yml');
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN], true);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN], true);
         $db->save();
 
         $finder = new Finder();
-        $files = $finder->in('test_data')->name('msgdb3.yml');
+        $files = $finder->in('./tmp/test_data')->name('msgdb3.yml');
         $this->assertEquals(1, count($files));
     }
 
@@ -68,12 +65,11 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
     {
         $db = new MsgDb();
 
-        $msgId = $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
+        $msgId = $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
         $msg = $db->removeMsg($msgId);
-        #\Doctrine\Common\Util\Debug::dump($msg);
 
         $this->assertEquals(100001, $msg['id']);
-        $this->assertEquals('test_data/email1.eml', $msg['path']);
+        $this->assertEquals('./tmp/test_data/email1.eml', $msg['path']);
         $this->assertEquals([Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], $msg['flags']);
         $this->assertEquals(true, $msg['recent']);
     }
@@ -82,11 +78,11 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
     {
         $db = new MsgDb();
 
-        $msgId = $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
-        $msgId = $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN], false);
-        $msgId = $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $msgId = $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
+        $msgId = $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], false);
+        $msgId = $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
-        $msgId = $db->getMsgIdByPath('test_data/email2.eml');
+        $msgId = $db->getMsgIdByPath('./tmp/test_data/email2.eml');
         $this->assertEquals(100002, $msgId);
     }
 
@@ -94,27 +90,26 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
     {
         $db = new MsgDb();
 
-        $msgId = $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
-        $msgId = $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN], false);
-        $msgId = $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $msgId = $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
+        $msgId = $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], false);
+        $msgId = $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
-        $msgId = $db->getMsgIdByPath('test_data/emailX.eml');
-        $this->assertEquals(null, $msgId);
+        $msgId = $db->getMsgIdByPath('./tmp/test_data/emailX.eml');
+        $this->assertEquals(0, $msgId);
     }
 
     public function testGetMsgById1()
     {
         $db = new MsgDb();
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
-        $msgId = $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN], false);
-        $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
+        $msgId = $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
         $msg = $db->getMsgById($msgId);
-        #\Doctrine\Common\Util\Debug::dump($msg);
 
         $this->assertEquals(100002, $msg['id']);
-        $this->assertEquals('test_data/email2.eml', $msg['path']);
+        $this->assertEquals('./tmp/test_data/email2.eml', $msg['path']);
         $this->assertEquals([Storage::FLAG_SEEN], $msg['flags']);
         $this->assertEquals(false, $msg['recent']);
     }
@@ -123,25 +118,23 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
     {
         $db = new MsgDb();
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
-        $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN], false);
-        $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
+        $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
         $msg = $db->getMsgById(900);
-        #\Doctrine\Common\Util\Debug::dump($msg);
-        $this->assertEquals(null, $msg);
+        $this->assertEquals(0, $msg);
     }
 
     public function testGetMsgIdsByFlags()
     {
         $db = new MsgDb();
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
-        $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN], false);
-        $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
+        $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
         $msgs = $db->getMsgIdsByFlags([Storage::FLAG_SEEN]);
-        #\Doctrine\Common\Util\Debug::dump($msgs);
         $this->assertEquals(100002, $msgs[0]);
         $this->assertEquals(100003, $msgs[1]);
     }
@@ -150,9 +143,9 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
     {
         $db = new MsgDb();
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
-        $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
-        $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
+        $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], true);
+        $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
         $flags = $db->getFlagsById(100002);
         $this->assertEquals(Storage::FLAG_SEEN, $flags[0]);
@@ -167,13 +160,12 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
     {
         $db = new MsgDb();
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
-        $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], false);
-        $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
+        $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], false);
+        $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
         $db->setFlagsById(100002, [Storage::FLAG_FLAGGED, Storage::FLAG_RECENT]);
         $flags = $db->getFlagsById(100002);
-        #\Doctrine\Common\Util\Debug::dump($flags);
         $this->assertEquals(Storage::FLAG_FLAGGED, $flags[0]);
     }
 
@@ -185,11 +177,10 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
         $db->addMsg('', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], false);
         $db->addMsg('', [Storage::FLAG_SEEN], false);
 
-        $db->setPathById(100002, 'test_data/email2.eml');
+        $db->setPathById(100002, './tmp/test_data/email2.eml');
 
         $msg = $db->getMsgById(100002);
-        #\Doctrine\Common\Util\Debug::dump($msg);
-        $this->assertEquals('test_data/email2.eml', $msg['path']);
+        $this->assertEquals('./tmp/test_data/email2.eml', $msg['path']);
     }
 
     public function testGetNextId()
@@ -197,9 +188,9 @@ class MsgDbTest extends PHPUnit_Framework_TestCase
         $db = new MsgDb();
         $this->assertEquals(100001, $db->getNextId());
 
-        $db->addMsg('test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
-        $db->addMsg('test_data/email2.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], false);
-        $db->addMsg('test_data/email3.eml', [Storage::FLAG_SEEN], false);
+        $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_ANSWERED], true);
+        $db->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN, Storage::FLAG_ANSWERED], false);
+        $db->addMsg('./tmp/test_data/email3.eml', [Storage::FLAG_SEEN], false);
 
         $this->assertEquals(100004, $db->getNextId());
     }

@@ -4,9 +4,12 @@ namespace TheFox\Logic;
 
 class AndGate extends Gate
 {
-    public function bool()
+    /**
+     * @return bool
+     */
+    public function getBool(): bool
     {
-        if ($this->getObj1() && $this->getObj1()->bool() && $this->getObj2() && $this->getObj2()->bool()) {
+        if ($this->getObj1() && $this->getObj1()->getBool() && $this->getObj2() && $this->getObj2()->getBool()) {
             return true;
         }
         return false;

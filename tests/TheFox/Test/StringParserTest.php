@@ -22,7 +22,10 @@ class StringParserTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(21, strlen(trim($str)));
     }
 
-    public function providerParse()
+    /**
+     * @return array
+     */
+    public function providerParse(): array
     {
         $rv = [];
 
@@ -126,8 +129,11 @@ class StringParserTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider providerParse
      * @group large
+     * @param string $msgRaw
+     * @param array $expect
+     * @param int|null $argsMax
      */
-    public function testParse1($msgRaw, $expect, $argsMax = null)
+    public function testParse1(string $msgRaw, array $expect, int $argsMax = null)
     {
         $str = new StringParser($msgRaw, $argsMax);
         $this->assertEquals($expect, $str->parse());
@@ -137,8 +143,6 @@ class StringParserTest extends PHPUnit_Framework_TestCase
     {
         $str = new StringParser('arg1 arg2 arg3', 10);
         $args = $str->parse();
-        #\Doctrine\Common\Util\Debug::dump($args);
-        #$this->assertEquals(array('arg1', 'arg2'), $args);
         $this->assertTrue(true);
     }
 }

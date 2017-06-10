@@ -6,20 +6,46 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlStorage
 {
-    private $datadirBasePath = null;
-    private $filePath = null;
+    /**
+     * @var string
+     */
+    private $datadirBasePath = '';
+
+    /**
+     * @var string
+     */
+    private $filePath;
+
+    /**
+     * @var array
+     */
     public $data = [];
+
+    /**
+     * @var bool
+     */
     public $dataChanged = false;
+
+    /**
+     * @var bool
+     */
     private $isLoaded = false;
 
-    public function __construct($filePath = null)
+    /**
+     * YamlStorage constructor.
+     * @param string|null $filePath
+     */
+    public function __construct(string $filePath = null)
     {
         if ($filePath !== null) {
             $this->setFilePath($filePath);
         }
     }
 
-    public function save()
+    /**
+     * @return bool
+     */
+    public function save(): bool
     {
         $rv = false;
 
@@ -35,7 +61,10 @@ class YamlStorage
         return $rv;
     }
 
-    public function load()
+    /**
+     * @return bool
+     */
+    public function load(): bool
     {
         if ($this->getFilePath()) {
             if (file_exists($this->getFilePath())) {
@@ -47,7 +76,11 @@ class YamlStorage
         return false;
     }
 
-    public function isLoaded($isLoaded = null)
+    /**
+     * @param bool|null $isLoaded
+     * @return bool
+     */
+    public function isLoaded(bool $isLoaded = null): bool
     {
         if ($isLoaded !== null) {
             $this->isLoaded = $isLoaded;
@@ -56,36 +89,50 @@ class YamlStorage
         return $this->isLoaded;
     }
 
-    public function setFilePath($filePath)
+    /**
+     * @param string $filePath
+     */
+    public function setFilePath(string $filePath)
     {
         $this->filePath = $filePath;
     }
 
-    public function getFilePath()
+    /**
+     * @return string
+     */
+    public function getFilePath(): string
     {
         return $this->filePath;
     }
 
-    public function setDatadirBasePath($datadirBasePath)
+    /**
+     * @param string $datadirBasePath
+     */
+    public function setDatadirBasePath(string $datadirBasePath)
     {
         $this->datadirBasePath = $datadirBasePath;
     }
 
-    public function getDatadirBasePath()
+    /**
+     * @return string
+     */
+    public function getDatadirBasePath(): string
     {
-        if ($this->datadirBasePath) {
-            return $this->datadirBasePath;
-        }
-
-        return null;
+        return $this->datadirBasePath;
     }
 
-    public function setDataChanged($changed = true)
+    /**
+     * @param bool $changed
+     */
+    public function setDataChanged(bool $changed = true)
     {
         $this->dataChanged = $changed;
     }
 
-    public function getDataChanged()
+    /**
+     * @return bool
+     */
+    public function getDataChanged(): bool
     {
         return $this->dataChanged;
     }

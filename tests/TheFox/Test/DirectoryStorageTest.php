@@ -3,8 +3,6 @@
 namespace TheFox\Test;
 
 use PHPUnit_Framework_TestCase;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Filesystem\Filesystem;
 use TheFox\Imap\Storage\DirectoryStorage;
 
 class DirectoryStorageTest extends PHPUnit_Framework_TestCase
@@ -18,7 +16,7 @@ class DirectoryStorageTest extends PHPUnit_Framework_TestCase
 
     public function testSetPath()
     {
-        $path = './test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+        $path = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $storage = new DirectoryStorage();
         $storage->setPath($path);

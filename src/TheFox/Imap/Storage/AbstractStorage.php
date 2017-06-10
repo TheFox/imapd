@@ -2,66 +2,115 @@
 
 namespace TheFox\Imap\Storage;
 
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Filesystem\Filesystem;
+use TheFox\Storage\YamlStorage;
 
 abstract class AbstractStorage
 {
+    /**
+     * @var string
+     */
     private $path;
+
+    /**
+     * @var int
+     */
     private $pathLen;
+
+    /**
+     * @var string
+     */
     private $dbPath;
+
+    /**
+     * @var YamlStorage
+     */
     private $db;
+
+    /**
+     * @var string
+     */
     private $type = 'normal';
 
-    abstract protected function getDirectorySeperator();
+    abstract protected function getDirectorySeperator(): string;
 
-    public function setPath($path)
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
     {
         $this->path = $path;
         $this->pathLen = strlen($this->path);
     }
 
-    public function getPath()
+    /**
+     * @return string
+     */
+    public function getPath(): string
     {
         return $this->path;
     }
 
-    public function getPathLen()
+    /**
+     * @return int
+     */
+    public function getPathLen(): int
     {
         return $this->pathLen;
     }
 
-    public function setDbPath($dbPath)
+    /**
+     * @param string $dbPath
+     */
+    public function setDbPath(string $dbPath)
     {
         $this->dbPath = $dbPath;
     }
 
-    public function getDbPath()
+    /**
+     * @return string
+     */
+    public function getDbPath(): string
     {
         return $this->dbPath;
     }
 
-    public function setDb($db)
+    /**
+     * @param YamlStorage $db
+     */
+    public function setDb(YamlStorage $db)
     {
         $this->db = $db;
     }
 
-    public function getDb()
+    /**
+     * @return YamlStorage
+     */
+    public function getDb(): YamlStorage
     {
         return $this->db;
     }
 
-    public function setType($type)
+    /**
+     * @param string $type
+     */
+    public function setType(string $type)
     {
         $this->type = $type;
     }
 
-    public function getType()
+    /**
+     * @return string
+     */
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function genFolderPath($path)
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function genFolderPath(string $path): string
     {
         if ($path == 'INBOX') {
             $path = '.';
@@ -69,6 +118,7 @@ abstract class AbstractStorage
 
         if ($path) {
             $seperator = $this->getDirectorySeperator();
+
             $path = str_replace('.', $seperator, $path);
             $path = $this->path . DIRECTORY_SEPARATOR . $path;
             $path = str_replace('//', '/', $path);
@@ -83,39 +133,39 @@ abstract class AbstractStorage
         return $path;
     }
 
-    abstract protected function createFolder($folder);
+    abstract protected function createFolder(string $folder): bool;
 
-    abstract protected function getFolders($baseFolder, $searchFolder, $recursive = false);
+    abstract protected function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false): array;
 
-    abstract protected function folderExists($folder);
+    abstract protected function folderExists(string $folder): bool;
 
-    abstract protected function getMailsCountByFolder($folder, $flags = null);
+    abstract protected function getMailsCountByFolder(string $folder, array $flags = null): int;
 
-    abstract protected function addMail($mailStr, $folder, $flags, $recent);
+    abstract protected function addMail(string $mailStr, string $folder, array $flags, bool $recent): int;
 
-    abstract protected function removeMail($msgId);
+    abstract protected function removeMail(int $msgId);
 
-    abstract protected function copyMailById($msgId, $folder);
+    abstract protected function copyMailById(int $msgId, string $folder);
 
-    abstract protected function copyMailBySequenceNum($seqNum, $folder, $dstFolder);
+    abstract protected function copyMailBySequenceNum(int $seqNum, string $folder, string $dstFolder);
 
-    abstract protected function getPlainMailById($msgId);
+    abstract protected function getPlainMailById(int $msgId): string;
 
-    abstract protected function getMsgSeqById($msgId);
+    abstract protected function getMsgSeqById(int $msgId): int;
 
-    abstract protected function getMsgIdBySeq($seqNum, $folder);
+    abstract protected function getMsgIdBySeq(int $seqNum, string $folder): int;
 
-    abstract protected function getMsgsByFlags($flags);
+    abstract protected function getMsgsByFlags(array $flags): array;
 
-    abstract protected function getFlagsById($msgId);
+    abstract protected function getFlagsById(int $msgId);
 
-    abstract protected function setFlagsById($msgId, $flags);
+    abstract protected function setFlagsById(int $msgId, array $flags);
 
-    abstract protected function getFlagsBySeq($seqNum, $folder);
+    abstract protected function getFlagsBySeq(int $seqNum, string $folder): array;
 
-    abstract protected function setFlagsBySeq($seqNum, $folder, $flags);
+    abstract protected function setFlagsBySeq(int $seqNum, string $folder, array $flags);
 
-    abstract protected function getNextMsgId();
+    abstract protected function getNextMsgId(): int;
 
     public function save()
     {

@@ -1,9 +1,5 @@
-vendor
+CHANGELOG-*.txt
 composer.lock
 composer.phar
-mailbox
-build
-*.yml
-!.travis.yml
-test_data
-tmp_mailbox_*
+/vendor/
+/tmp/

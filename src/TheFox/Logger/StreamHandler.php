@@ -4,20 +4,31 @@ namespace TheFox\Logger;
 
 class StreamHandler
 {
+    /**
+     * @var string
+     */
     private $path;
+    
+    // @todo type?
     private $level;
 
-    public function __construct($path, $level)
+    public function __construct(string $path, $level)
     {
         $this->setPath($path);
         $this->setLevel($level);
     }
 
-    public function setPath($path)
+    /**
+     * @param string $path
+     */
+    public function setPath(string $path)
     {
         $this->path = $path;
     }
 
+    /**
+     * @return string
+     */
     public function getPath()
     {
         return $this->path;

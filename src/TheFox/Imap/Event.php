@@ -12,13 +12,28 @@ class Event
     const TRIGGER_MAIL_ADD = 1010;
     const TRIGGER_MAIL_ADD_POST = 1020;
 
-    private $trigger = null;
-    private $object = null;
-    private $function = null;
-    private $returnValue = null;
+    /**
+     * @var int|null
+     */
+    private $trigger;
 
     /**
-     * @param integer|null $trigger
+     * @var null|object
+     */
+    private $object;
+
+    /**
+     * @var callable|null
+     */
+    private $function;
+
+    /**
+     * @var mixed
+     */
+    private $returnValue;
+
+    /**
+     * @param int|null $trigger
      * @param object|null $object
      * @param callable|null $function
      */

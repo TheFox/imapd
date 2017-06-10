@@ -17,7 +17,7 @@ class YamlStorageTest extends PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $storage = new YamlStorage('test_data/test1.yml');
+        $storage = new YamlStorage('./tmp/test_data/test1.yml');
         $storage->data['test'] = ['test1' => 123, 'test2' => 'test3'];
 
         $this->assertFalse($storage->getDataChanged());
@@ -28,17 +28,17 @@ class YamlStorageTest extends PHPUnit_Framework_TestCase
         $storage->save();
 
         $finder = new Finder();
-        $files = $finder->in('test_data')->name('test1.yml');
+        $files = $finder->in('./tmp/test_data')->name('test1.yml');
         $this->assertEquals(1, count($files));
     }
 
     public function testLoad1()
     {
-        $storage = new YamlStorage('test_data/test1.yml');
+        $storage = new YamlStorage('./tmp/test_data/test1.yml');
         $storage->setDataChanged();
         $storage->save();
 
-        $storage = new YamlStorage('test_data/test1.yml');
+        $storage = new YamlStorage('./tmp/test_data/test1.yml');
         $storage->load();
 
         $this->assertTrue($storage->isLoaded());
@@ -46,7 +46,7 @@ class YamlStorageTest extends PHPUnit_Framework_TestCase
 
     public function testLoad2()
     {
-        $storage = new YamlStorage('test_data/test2.yml');
+        $storage = new YamlStorage('./tmp/test_data/test2.yml');
         $storage->load();
 
         $this->assertFalse($storage->isLoaded());
@@ -67,10 +67,10 @@ class YamlStorageTest extends PHPUnit_Framework_TestCase
     public function testSetDatadirBasePath()
     {
         $storage = new YamlStorage();
-        $this->assertEquals(null, $storage->getDatadirBasePath());
+        $this->assertEquals('', $storage->getDatadirBasePath());
 
-        $storage->setDatadirBasePath('test_data');
+        $storage->setDatadirBasePath('./tmp/test_data');
 
-        $this->assertEquals('test_data', $storage->getDatadirBasePath());
+        $this->assertEquals('./tmp/test_data', $storage->getDatadirBasePath());
     }
 }

@@ -6,12 +6,15 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class TestStorage extends AbstractStorage
 {
-    public function getDirectorySeperator()
+    /**
+     * @return string
+     */
+    public function getDirectorySeperator(): string
     {
         return '_';
     }
 
-    public function setPath($path)
+    public function setPath(string $path)
     {
         parent::setPath($path);
 
@@ -21,89 +24,84 @@ class TestStorage extends AbstractStorage
         }
     }
 
-    public function createFolder($folder)
+    public function createFolder(string $folder): bool
     {
-
+        return false;
     }
 
-    public function getFolders($baseFolder, $searchFolder, $recursive = false)
+    public function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false): array
     {
         $folders = [];
         return $folders;
     }
 
-    public function folderExists($folder)
+    public function folderExists(string $folder): bool
     {
         return false;
     }
 
-    public function getMailsCountByFolder($folder, $flags = null)
+    public function getMailsCountByFolder(string $folder, array $flags = []): int
     {
         return 0;
     }
 
-    public function addMail($mailStr, $folder, $flags, $recent)
+    public function addMail(string $mailStr, string $folder, array $flags, bool $recent): int
     {
-        return null;
+        return 0;
     }
 
-    public function removeMail($msgId)
+    public function removeMail(int $msgId)
     {
-
     }
 
-    public function copyMailById($msgId, $folder)
+    public function copyMailById(int $msgId, string $folder)
     {
-
     }
 
-    public function copyMailBySequenceNum($seqNum, $folder, $dstFolder)
+    public function copyMailBySequenceNum(int $seqNum, string $folder, string $dstFolder)
     {
-
     }
 
-    public function getPlainMailById($msgId)
+    public function getPlainMailById(int $msgId): string
     {
         return '';
     }
 
-    public function getMsgSeqById($msgId)
+    public function getMsgSeqById(int $msgId): int
     {
-        return null;
+        return 0;
     }
 
-    public function getMsgIdBySeq($seqNum, $folder)
+    public function getMsgIdBySeq(int $seqNum, string $folder): int
     {
-        return null;
+        return 0;
     }
 
-    public function getMsgsByFlags($flags)
+    public function getMsgsByFlags(array $flags): array
     {
         return [];
     }
 
-    public function getFlagsById($msgId)
+    public function getFlagsById(int $msgId): array
     {
         return [];
     }
 
-    public function setFlagsById($msgId, $flags)
+    public function setFlagsById(int $msgId, array $flags)
     {
-
     }
 
-    public function getFlagsBySeq($seqNum, $folder)
+    public function getFlagsBySeq(int $seqNum, string $folder): array
     {
         return [];
     }
 
-    public function setFlagsBySeq($seqNum, $folder, $flags)
+    public function setFlagsBySeq(int $seqNum, string $folder, array $flags)
     {
-
     }
 
-    public function getNextMsgId()
+    public function getNextMsgId(): int
     {
-        return null;
+        return 0;
     }
 }
