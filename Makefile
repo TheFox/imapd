@@ -3,9 +3,6 @@ RM = rm -rf
 CHMOD = chmod
 MKDIR = mkdir -p
 VENDOR = vendor
-PHPCS = vendor/bin/phpcs
-PHPCS_STANDARD = vendor/thefox/phpcsrs/Standards/TheFox
-PHPCS_OPTIONS = -v -s --report=full --report-width=160 --standard=$(PHPCS_STANDARD)
 PHPUNIT = vendor/bin/phpunit
 COMPOSER = ./composer.phar
 COMPOSER_OPTIONS ?= --no-interaction
@@ -27,15 +24,11 @@ update: $(COMPOSER)
 	$(COMPOSER) update
 
 .PHONY: test
-test: test_phpcs test_phpunit
+test: test_phpunit
 
 .PHONY: test_phpstan
 test_phpstan:
 	$(PHPSTAN) analyse --level 5 --no-progress src tests
-
-.PHONY: test_phpcs
-test_phpcs: $(PHPCS) $(PHPCS_STANDARD)
-	$(PHPCS) $(PHPCS_OPTIONS) src tests
 
 .PHONY: test_phpunit
 test_phpunit: $(PHPUNIT) phpunit.xml test_data
