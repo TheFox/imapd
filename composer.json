@@ -23,10 +23,10 @@
 		"liip/process-manager": "^1.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "~4.8",
-		"doctrine/common": "~2.4",
+		"phpunit/phpunit": "^6.2",
+		"doctrine/common": "^2.4",
 		"phpstan/phpstan": "^0.7",
-		"thefox/utilities": "~1.1"
+		"thefox/utilities": "^1.1"
 	},
 	"autoload": {
 		"psr-0": { "TheFox": "src" }

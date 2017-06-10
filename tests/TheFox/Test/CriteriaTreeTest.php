@@ -2,7 +2,7 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use TheFox\Logic\CriteriaTree;
 use TheFox\Logic\Obj;
 use TheFox\Logic\Gate;
@@ -10,7 +10,7 @@ use TheFox\Logic\AndGate;
 use TheFox\Logic\OrGate;
 use TheFox\Logic\NotGate;
 
-class CriteriaTreeTest extends PHPUnit_Framework_TestCase
+class CriteriaTreeTest extends TestCase
 {
     /**
      * @return array

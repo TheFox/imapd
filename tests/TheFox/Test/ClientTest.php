@@ -3,7 +3,7 @@
 namespace TheFox\Test;
 
 use DateTime;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\Mail\Message;
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
@@ -15,7 +15,7 @@ use TheFox\Imap\Server;
 use TheFox\Imap\Client;
 use TheFox\Imap\Storage\DirectoryStorage;
 
-class ClientTest extends PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
     public function testGetStatus1()
     {

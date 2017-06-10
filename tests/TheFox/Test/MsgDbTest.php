@@ -2,12 +2,12 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\Mail\Storage;
 use Symfony\Component\Finder\Finder;
 use TheFox\Imap\MsgDb;
 
-class MsgDbTest extends PHPUnit_Framework_TestCase
+class MsgDbTest extends TestCase
 {
     public function testBasic()
     {

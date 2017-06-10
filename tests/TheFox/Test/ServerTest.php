@@ -2,7 +2,7 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\Mail\Message;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
@@ -16,7 +16,7 @@ use TheFox\Imap\Storage\DirectoryStorage;
 use TheFox\Imap\Storage\TestStorage;
 use TheFox\Network\Socket;
 
-class ServerTest extends PHPUnit_Framework_TestCase
+class ServerTest extends TestCase
 {
     public function testBasic()
     {

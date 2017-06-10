@@ -2,11 +2,11 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
 use TheFox\Storage\YamlStorage;
 
-class YamlStorageTest extends PHPUnit_Framework_TestCase
+class YamlStorageTest extends TestCase
 {
     public function testBasic()
     {

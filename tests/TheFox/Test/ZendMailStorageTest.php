@@ -2,10 +2,10 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Zend\Mail\Storage;
 
-class ZendMailStorageTest extends PHPUnit_Framework_TestCase
+class ZendMailStorageTest extends TestCase
 {
     /**
      * @return array

@@ -204,7 +204,9 @@ class MsgDb extends YamlStorage
         if (isset($this->data['msgs'][$msgId])) {
             $this->data['msgs'][$msgId]['flags'] = $flags;
             $this->data['msgs'][$msgId]['recent'] = false;
+            
             $this->msgsByPath[$this->data['msgs'][$msgId]['path']] = $this->data['msgs'][$msgId];
+            
             $this->setDataChanged(true);
         }
     }
@@ -217,8 +219,10 @@ class MsgDb extends YamlStorage
     {
         if (isset($this->data['msgs'][$msgId])) {
             unset($this->msgsByPath[$this->data['msgs'][$msgId]['path']]);
+            
             $this->data['msgs'][$msgId]['path'] = $path;
             $this->msgsByPath[$this->data['msgs'][$msgId]['path']] = $this->data['msgs'][$msgId];
+            
             $this->setDataChanged(true);
         }
     }

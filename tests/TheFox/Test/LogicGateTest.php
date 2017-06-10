@@ -2,14 +2,14 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use TheFox\Logic\Obj;
 use TheFox\Logic\Gate;
 use TheFox\Logic\AndGate;
 use TheFox\Logic\OrGate;
 use TheFox\Logic\NotGate;
 
-class LogicGateTest extends PHPUnit_Framework_TestCase
+class LogicGateTest extends TestCase
 {
     public function testObj()
     {

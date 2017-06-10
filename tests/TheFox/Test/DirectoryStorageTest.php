@@ -2,10 +2,10 @@
 
 namespace TheFox\Test;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use TheFox\Imap\Storage\DirectoryStorage;
 
-class DirectoryStorageTest extends PHPUnit_Framework_TestCase
+class DirectoryStorageTest extends TestCase
 {
     public function testGetDirectorySeperator()
     {
