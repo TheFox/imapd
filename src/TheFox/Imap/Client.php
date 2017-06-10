@@ -72,7 +72,7 @@ class Client
      *
      * @var string
      */
-    private $selectedFolder;
+    private $selectedFolder = '';
 
     public function __construct()
     {
@@ -458,7 +458,7 @@ class Client
             } else {
                 if ($seqLen == 1) {
                     if ($seqMin > 0 && $seqMin <= $count) {
-                        $nums[] = (int)$seqMin;
+                        $nums[] = $seqMin;
                     }
                 } elseif ($seqLen >= 2) {
                     for ($msgSeqNum = 1; $msgSeqNum <= $count; $msgSeqNum++) {
@@ -546,11 +546,11 @@ class Client
                 if (isset($args[0]) && $args[0]) {
                     return $this->sendSelect($tag, $args[0]);
                 } else {
-                    $this->selectedFolder = null;
+                    $this->selectedFolder = '';
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                $this->selectedFolder = null;
+                $this->selectedFolder = '';
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'create') {
@@ -700,7 +700,7 @@ class Client
             $this->log('debug', 'client ' . $this->id . ' close');
 
             if ($this->getStatus('hasAuth')) {
-                if ($this->selectedFolder !== null) {
+                if ($this->selectedFolder) {
                     return $this->sendClose($tag);
                 } else {
                     return $this->sendNo('No mailbox selected.', $tag);
@@ -712,7 +712,7 @@ class Client
             $this->log('debug', 'client ' . $this->id . ' expunge');
 
             if ($this->getStatus('hasAuth')) {
-                if ($this->selectedFolder !== null) {
+                if ($this->selectedFolder) {
                     return $this->sendExpunge($tag);
                 } else {
                     return $this->sendNo('No mailbox selected.', $tag);
@@ -725,7 +725,7 @@ class Client
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($args[0]) && $args[0]) {
-                    if ($this->selectedFolder !== null) {
+                    if ($this->selectedFolder) {
                         $criteriaStr = $args[0];
                         return $this->sendSearch($tag, $criteriaStr);
                     } else {
@@ -744,7 +744,7 @@ class Client
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($args[0]) && $args[0] && isset($args[1]) && $args[1] && isset($args[2]) && $args[2]) {
-                    if ($this->selectedFolder !== null) {
+                    if ($this->selectedFolder) {
                         $seq = $args[0];
                         $name = $args[1];
                         $flagsStr = $args[2];
@@ -765,7 +765,7 @@ class Client
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($args[0]) && $args[0] && isset($args[1]) && $args[1]) {
-                    if ($this->selectedFolder !== null) {
+                    if ($this->selectedFolder) {
                         $seq = $args[0];
                         $folder = $args[1];
                         return $this->sendCopy($tag, $seq, $folder);
@@ -780,7 +780,7 @@ class Client
             }
         } elseif ($commandcmp == 'uid') {
             if ($this->getStatus('hasAuth')) {
-                if ($this->selectedFolder !== null) {
+                if ($this->selectedFolder) {
                     return $this->sendUid($tag, $args);
                 } else {
                     return $this->sendNo('No mailbox selected.', $tag);
@@ -814,7 +814,7 @@ class Client
     public function dataSend(string $msg): string
     {
         $output = $msg . static::MSG_SEPARATOR;
-        
+
         $tmp = $msg;
         $tmp = str_replace("\r", '', $tmp);
         $tmp = str_replace("\n", '\\n', $tmp);
@@ -1128,7 +1128,7 @@ class Client
 
         $this->sendExpungeRaw();
 
-        $this->selectedFolder = null;
+        $this->selectedFolder = '';
 
         return $this->sendOk('CLOSE completed', $tag);
     }
@@ -1320,160 +1320,164 @@ class Client
         $rv = false;
         switch ($itemcmp) {
             case 'all':
-                $rv = true;
-                break;
+                return true;
+
             case 'answered':
-                $rv = in_array(Storage::FLAG_ANSWERED, $flags);
-                break;
+                return in_array(Storage::FLAG_ANSWERED, $flags);
+                
             case 'bcc':
                 $searchStr = strtolower($items[1]);
                 $bccAddressList = $message->getBcc();
                 if (count($bccAddressList)) {
                     foreach ($bccAddressList as $bcc) {
-                        $rv = strpos(strtolower($bcc->getEmail()), $searchStr) !== false;
-                        break;
+                        return strpos(strtolower($bcc->getEmail()), $searchStr) !== false;
                     }
                 }
                 break;
+                
             case 'before':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
+                
             case 'body':
                 $searchStr = strtolower($items[1]);
-                $rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
-                break;
+                return strpos(strtolower($message->getBody()), $searchStr) !== false;
+                
             case 'cc':
                 $searchStr = strtolower($items[1]);
                 $ccAddressList = $message->getCc();
                 if (count($ccAddressList)) {
                     foreach ($ccAddressList as $from) {
-                        $rv = strpos(strtolower($from->getEmail()), $searchStr) !== false;
-                        break;
+                        return strpos(strtolower($from->getEmail()), $searchStr) !== false;
                     }
                 }
                 break;
+                
             case 'deleted':
-                $rv = in_array(Storage::FLAG_DELETED, $flags);
-                break;
+                return in_array(Storage::FLAG_DELETED, $flags);
+                
             case 'draft':
-                $rv = in_array(Storage::FLAG_DRAFT, $flags);
-                break;
+                return in_array(Storage::FLAG_DRAFT, $flags);
+                
             case 'flagged':
-                $rv = in_array(Storage::FLAG_FLAGGED, $flags);
-                break;
+                return in_array(Storage::FLAG_FLAGGED, $flags);
+                
             case 'from':
                 $searchStr = strtolower($items[1]);
                 $fromAddressList = $message->getFrom();
                 if (count($fromAddressList)) {
                     foreach ($fromAddressList as $from) {
-                        $rv = strpos(strtolower($from->getEmail()), $searchStr) !== false;
-                        break;
+                        return strpos(strtolower($from->getEmail()), $searchStr) !== false;
                     }
                 }
                 break;
+                
             case 'header':
                 $searchStr = strtolower($items[2]);
                 $fieldName = $items[1];
                 $header = $message->getHeaders()->get($fieldName);
                 $val = $header->getFieldValue();
-                $rv = strpos(strtolower($val), $searchStr) !== false;
-                break;
+                return strpos(strtolower($val), $searchStr) !== false;
+                
             case 'keyword':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
+                
             case 'larger':
-                $rv = strlen($message->getBody()) > (int)$items[1];
-                break;
+                return strlen($message->getBody()) > (int)$items[1];
+                
             case 'new':
-                $rv = in_array(Storage::FLAG_RECENT, $flags) && !in_array(Storage::FLAG_SEEN, $flags);
-                break;
+                return in_array(Storage::FLAG_RECENT, $flags) && !in_array(Storage::FLAG_SEEN, $flags);
+                
             case 'old':
-                $rv = !in_array(Storage::FLAG_RECENT, $flags);
-                break;
+                return !in_array(Storage::FLAG_RECENT, $flags);
+                
             case 'on':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-                $rv = $messageDate->format('Y-m-d') == $checkDate->format('Y-m-d');
-                break;
+                return $messageDate->format('Y-m-d') == $checkDate->format('Y-m-d');
+                
             case 'recent':
-                $rv = in_array(Storage::FLAG_RECENT, $flags);
-                break;
+                return in_array(Storage::FLAG_RECENT, $flags);
+                
             case 'seen':
-                $rv = in_array(Storage::FLAG_SEEN, $flags);
-                break;
+                return in_array(Storage::FLAG_SEEN, $flags);
+                
             case 'sentbefore':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-                $rv = $messageDate < $checkDate;
-                break;
+                return $messageDate < $checkDate;
+                
             case 'senton':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-                $rv = $messageDate == $checkDate;
-                break;
+                return $messageDate == $checkDate;
+                
             case 'sentsince':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
-                $rv = $messageDate >= $checkDate;
-                break;
+                return $messageDate >= $checkDate;
+                
             case 'since':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
+                
             case 'smaller':
-                $rv = strlen($message->getBody()) < (int)$items[1];
-                break;
+                return strlen($message->getBody()) < (int)$items[1];
+                
             case 'subject':
                 if (isset($items[2])) {
                     $items[1] .= ' ' . $items[2];
                     unset($items[2]);
                 }
                 $searchStr = strtolower($items[1]);
-                $rv = strpos(strtolower($message->getSubject()), $searchStr) !== false;
-                break;
+                return strpos(strtolower($message->getSubject()), $searchStr) !== false;
+                
             case 'text':
                 $searchStr = strtolower($items[1]);
-                $rv = strpos(strtolower($message->getBody()), $searchStr) !== false;
-                break;
+                return strpos(strtolower($message->getBody()), $searchStr) !== false;
+                
             case 'to':
                 $searchStr = strtolower($items[1]);
                 $toAddressList = $message->getTo();
                 if (count($toAddressList)) {
                     foreach ($toAddressList as $to) {
-                        $rv = strpos(strtolower($to->getEmail()), $searchStr) !== false;
-                        break;
+                        return strpos(strtolower($to->getEmail()), $searchStr) !== false;
                     }
                 }
                 break;
+                
             case 'uid':
                 $searchId = (int)$items[1];
-                $rv = $searchId == $messageUid;
-                break;
+                return $searchId == $messageUid;
+
             case 'unanswered':
-                $rv = !in_array(Storage::FLAG_ANSWERED, $flags);
-                break;
+                return !in_array(Storage::FLAG_ANSWERED, $flags);
+
             case 'undeleted':
-                $rv = !in_array(Storage::FLAG_DELETED, $flags);
-                break;
+                return !in_array(Storage::FLAG_DELETED, $flags);
+                
             case 'undraft':
-                $rv = !in_array(Storage::FLAG_DRAFT, $flags);
-                break;
+                return !in_array(Storage::FLAG_DRAFT, $flags);
+                
             case 'unflagged':
-                $rv = !in_array(Storage::FLAG_FLAGGED, $flags);
-                break;
+                return !in_array(Storage::FLAG_FLAGGED, $flags);
+                
             case 'unkeyword':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
+            
             case 'unseen':
-                $rv = !in_array(Storage::FLAG_SEEN, $flags);
-                break;
+                return !in_array(Storage::FLAG_SEEN, $flags);
 
             default:
                 if (is_numeric($itemcmp)) {
                     $searchId = (int)$itemcmp;
-                    $rv = $searchId == $messageSeqNum;
+                    return $searchId == $messageSeqNum;
                 }
         }
-        return $rv;
+        
+        return false;
     }
 
     /**
@@ -1489,6 +1493,7 @@ class Client
     {
         /** @var Obj[]|int[]|string[] $subgates */
         $subgates = [];
+
         if ($gate instanceof Gate) {
             if ($gate->getObj1()) {
                 $subgates[] = $gate->getObj1();
@@ -1958,7 +1963,8 @@ class Client
             return true;
         }
 
-        $this->selectedFolder = null;
+        $this->selectedFolder = '';
+        
         return false;
     }
 

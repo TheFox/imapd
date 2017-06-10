@@ -6,6 +6,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\SplFileInfo;
 use TheFox\Imap\MsgDb;
+use Zend\Mail\Message;
 
 class DirectoryStorage extends AbstractStorage
 {
@@ -100,21 +101,24 @@ class DirectoryStorage extends AbstractStorage
     public function getMailsCountByFolder(string $folder, array $flags = null): int
     {
         $path = $this->genFolderPath($folder);
-        
+
         $finder = new Finder();
-        
+
         /** @var SplFileInfo[] $files */
         $files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
-        
+
         if ($flags === null) {
             return count($files);
         } else {
-            if ($this->getDb()) {
+            /** @var MsgDb $db */
+            $db = $this->getDb();
+
+            if ($db) {
                 $rv = 0;
                 foreach ($files as $fileId => $file) {
-                    $msgId = $this->getDb()->getMsgIdByPath($file->getPathname());
+                    $msgId = $db->getMsgIdByPath($file->getPathname());
                     if ($msgId) {
-                        $msgFlags = $this->getDb()->getFlagsById($msgId);
+                        $msgFlags = $db->getFlagsById($msgId);
                         foreach ($flags as $flag) {
                             if (in_array($flag, $msgFlags)) {
                                 $rv++;
@@ -251,7 +255,7 @@ class DirectoryStorage extends AbstractStorage
                     $seq = 0;
 
                     $finder = new Finder();
-                    
+
                     /** @var SplFileInfo[] $files */
                     $files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml')->sortByName();
 
@@ -280,17 +284,17 @@ class DirectoryStorage extends AbstractStorage
     {
         /** @var MsgDb $db */
         $db = $this->getDb();
-        
+
         if ($db) {
             $path = $this->genFolderPath($folder);
 
             $seq = 0;
 
             $finder = new Finder();
-            
+
             /** @var SplFileInfo[] $files */
             $files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
-            
+
             foreach ($files as $file) {
                 $seq++;
 
@@ -299,7 +303,7 @@ class DirectoryStorage extends AbstractStorage
                 }
             }
         }
-        
+
         return 0;
     }
 
@@ -363,12 +367,12 @@ class DirectoryStorage extends AbstractStorage
             $path = $this->genFolderPath($folder);
 
             $seq = 0;
-            
+
             $finder = new Finder();
-            
+
             /** @var SplFileInfo[] $files */
             $files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
-            
+
             foreach ($files as $file) {
                 $seq++;
                 if ($seq >= $seqNum) {
@@ -407,7 +411,7 @@ class DirectoryStorage extends AbstractStorage
     {
         /** @var MsgDb $db */
         $db = $this->getDb();
-        
+
         if ($db) {
             return $db->getNextId();
         }

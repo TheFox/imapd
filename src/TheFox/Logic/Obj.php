@@ -5,13 +5,13 @@ namespace TheFox\Logic;
 class Obj
 {
     /**
-     * @var null|string|int
+     * @var mixed
      */
-    private $value = null;
+    private $value;
 
     /**
      * Obj constructor.
-     * @param null|string|int $value
+     * @param mixed $value
      */
     public function __construct($value = null)
     {
@@ -35,7 +35,7 @@ class Obj
     }
 
     /**
-     * @param null|string|int $value
+     * @param mixed $value
      */
     public function setValue($value)
     {
@@ -43,7 +43,7 @@ class Obj
     }
 
     /**
-     * @return int|null|string
+     * @return mixed
      */
     public function getValue()
     {

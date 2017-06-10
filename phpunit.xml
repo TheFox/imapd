@@ -25,7 +25,6 @@
 	<testsuites>
 		<testsuite name="default">
 			<file>tests/TheFox/Test/AbstractStorageTest.php</file>
-			<file>tests/TheFox/Test/BasicTest.php</file>
 			
 			<!-- failed to open stream: Too many open files -->
 			<!-- <file>tests/TheFox/Test/ClientTest.php</file> -->

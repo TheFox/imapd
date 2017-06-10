@@ -47,18 +47,22 @@ class YamlStorage
      */
     public function save(): bool
     {
-        $rv = false;
-
-        if ($this->dataChanged) {
-            if ($this->getFilePath()) {
-                $rv = file_put_contents($this->getFilePath(), Yaml::dump($this->data));
-            }
-            if ($rv) {
-                $this->setDataChanged(false);
-            }
+        if (!$this->dataChanged) {
+            return false;
         }
 
-        return $rv;
+        if (!$this->getFilePath()) {
+            return false;
+        }
+
+        $yaml = Yaml::dump($this->data);
+        $rv = file_put_contents($this->getFilePath(), $yaml);
+        if (!$rv) {
+            return false;
+        }
+
+        $this->setDataChanged(false);
+        return true;
     }
 
     /**
