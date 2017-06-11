@@ -30,9 +30,6 @@
 			<file>tests/TheFox/Test/ThreadTest.php</file>
 			<file>tests/TheFox/Test/YamlStorageTest.php</file>
 			<file>tests/TheFox/Test/ZendMailStorageTest.php</file>
-            
-			<file>tests/TheFox/Test/CriteriaTreeTest.php</file>
-			<file>tests/TheFox/Test/LogicGateTest.php</file>
 		</testsuite>
 	</testsuites>
 	<filter>
