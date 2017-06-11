@@ -384,6 +384,10 @@ class Server extends Thread
             $folders[] = $folder;
         }
         
+        usort($folders, function(string $a, string $b){
+            return $a <=> $b;
+        });
+        
         return $folders;
     }
 
