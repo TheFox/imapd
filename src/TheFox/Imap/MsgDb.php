@@ -113,7 +113,8 @@ class MsgDb extends YamlStorage
     public function getMsgIdByPath(string $path): int
     {
         if (isset($this->msgsByPath[$path])) {
-            return $this->msgsByPath[$path]['id'];
+            $id = $this->msgsByPath[$path]['id'];
+            return $id;
         }
 
         return 0;

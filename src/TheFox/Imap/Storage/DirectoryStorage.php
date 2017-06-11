@@ -130,9 +130,9 @@ class DirectoryStorage extends AbstractStorage
                 if (is_dir($path)) {
                     if ($dirHandle = opendir($path)) {
                         while (($fileName = readdir($dirHandle)) !== false) {
-                            $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
-                            if ($file->getExtension() == 'eml') {
-                                $msgId = $db->getMsgIdByPath($file->getPathname());
+                            $fileInfo = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
+                            if ($fileInfo->getExtension() == 'eml') {
+                                $msgId = $db->getMsgIdByPath($fileInfo->getPathname());
                                 if ($msgId) {
                                     $msgFlags = $db->getFlagsById($msgId);
                                     foreach ($flags as $flag) {
@@ -156,8 +156,14 @@ class DirectoryStorage extends AbstractStorage
             if (is_dir($path)) {
                 if ($dirHandle = opendir($path)) {
                     while (($fileName = readdir($dirHandle)) !== false) {
-                        $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
-                        if ($file->getExtension() == 'eml') {
+                        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+                        
+                        if (!is_file($filePath)){
+                            continue;
+                        }
+                        
+                        $fileInfo = new SplFileInfo($filePath);
+                        if ($fileInfo->getExtension() == 'eml') {
                             $count++;
                         }
                     }
@@ -311,11 +317,18 @@ class DirectoryStorage extends AbstractStorage
                     if (is_dir($path)) {
                         if ($dirHandle = opendir($path)) {
                             while (($fileName = readdir($dirHandle)) !== false) {
-                                $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
-                                if ($file->getExtension() == 'eml') {
+                                $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+                                
+                                if (!is_file($filePath)){
+                                    continue;
+                                }
+                                
+                                $fileInfo = new SplFileInfo($filePath);
+                                
+                                if ($fileInfo->getExtension() == 'eml') {
                                     $seq++;
 
-                                    if ($file->getFilename() == $pathinfo['basename']) {
+                                    if ($fileInfo->getFilename() == $pathinfo['basename']) {
                                         break;
                                     }
                                 }
@@ -344,25 +357,41 @@ class DirectoryStorage extends AbstractStorage
 
         if ($db) {
             $path = $this->genFolderPath($folder);
-
-            $seq = 0;
-
+            
             if (is_dir($path)) {
                 if ($dirHandle = opendir($path)) {
+                    /** @var SplFileInfo[] $files */
+                    $files = [];
+                    
                     while (($fileName = readdir($dirHandle)) !== false) {
-                        $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
-                        if ($file->getExtension() == 'eml') {
-                            $seq++;
-
-                            if ($seq >= $seqNum) {
-                                $finder = null;
-                                $files = null;
-
-                                return $db->getMsgIdByPath($file->getPathname());
-                            }
+                        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+                        
+                        if (!is_file($filePath)){
+                            continue;
+                        }
+                        
+                        $fileInfo = new SplFileInfo($filePath);
+                        if ($fileInfo->getExtension() == 'eml') {
+                            $files[] = $fileInfo;
                         }
                     }
                     closedir($dirHandle);
+                    
+                    $fileSortFn = function (SplFileInfo $a, SplFileInfo $b){
+                        return $a->getPathname() <=> $b->getPathname();
+                    };
+                    
+                    usort($files, $fileSortFn);
+
+                    $seq = 0;
+                    foreach ($files as $file){
+                        $seq++;
+                        
+                        if ($seq >= $seqNum) {
+                            $msgId = $db->getMsgIdByPath($file->getPathname());
+                            return $msgId;
+                        }
+                    }
                 }
             }
         }
@@ -429,23 +458,41 @@ class DirectoryStorage extends AbstractStorage
         if ($db) {
             $path = $this->genFolderPath($folder);
 
-            $seq = 0;
-
             if (is_dir($path)) {
                 if ($dirHandle = opendir($path)) {
+                    /** @var SplFileInfo[] $files */
+                    $files = [];
+                    
                     while (($fileName = readdir($dirHandle)) !== false) {
-                        $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
-                        if ($file->getExtension() == 'eml') {
-                            $seq++;
-
-                            if ($seq >= $seqNum) {
-                                $msgId = $db->getMsgIdByPath($file->getPathname());
-
-                                return $this->getFlagsById($msgId);
-                            }
+                        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+                        
+                        if (!is_file($filePath)){
+                            continue;
+                        }
+                        
+                        $fileInfo = new SplFileInfo($filePath);
+                        if ($fileInfo->getExtension() == 'eml') {
+                            $files[] = $fileInfo;
                         }
                     }
                     closedir($dirHandle);
+
+                    $fileSortFn = function (SplFileInfo $a, SplFileInfo $b){
+                        return $a->getPathname() <=> $b->getPathname();
+                    };
+
+                    usort($files, $fileSortFn);
+
+                    $seq = 0;
+                    foreach ($files as $file){
+                        $seq++;
+
+                        if ($seq >= $seqNum) {
+                            $msgId = $db->getMsgIdByPath($file->getPathname());
+                            $flags = $this->getFlagsById($msgId);
+                            return $flags;
+                        }
+                    }
                 }
             }
         }
