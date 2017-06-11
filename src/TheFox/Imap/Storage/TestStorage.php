@@ -44,7 +44,7 @@ class TestStorage extends AbstractStorage
         return 0;
     }
 
-    public function addMail(string $mailStr, string $folder, array $flags, bool $recent): int
+    public function addMail(string $mailStr, string $folder, array $flags = null, bool $recent = false): int
     {
         return 0;
     }

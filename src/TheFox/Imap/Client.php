@@ -133,9 +133,9 @@ class Client
     }
 
     /**
-     * @return Server
+     * @return Server|null
      */
-    public function getServer(): Server
+    public function getServer()
     {
         return $this->server;
     }
@@ -200,8 +200,9 @@ class Client
      */
     public function setIpPort(string $ip = '', int $port = 0)
     {
-        if (!defined('TEST')) {
-            $this->getSocket()->getPeerName($ip, $port);
+        $socket = $this->getSocket();
+        if ($socket) {
+            $socket->getPeerName($ip, $port);
         }
 
         $this->setIp($ip);
@@ -495,32 +496,36 @@ class Client
     {
         $this->log('debug', 'client ' . $this->id . ' raw: /' . $msgRaw . '/');
 
+        /** @var array $args */
         $args = $this->msgParseString($msgRaw, 3);
-        
+
         // Get Tag, and remove Tag from Arguments.
+        /** @var string $tag */
         $tag = array_shift($args);
-        
+
         // Get Command, and remove Command from Arguments.
+        /** @var string $command */
         $command = array_shift($args);
-        $commandcmp = strtolower($command);
-        
+        $commandCmp = strtolower($command);
+
         // Get rest Arguments as String. Do not reuse $args here. Just let it as it is.
-        $restArgs = array_shift($args);
-        
-        if ($commandcmp == 'capability') {
+        /** @var string $restArgs */
+        $restArgs = array_shift($args) ?? '';
+
+        if ($commandCmp == 'capability') {
             return $this->sendCapability($tag);
-        } elseif ($commandcmp == 'noop') {
+        } elseif ($commandCmp == 'noop') {
             return $this->sendNoop($tag);
-        } elseif ($commandcmp == 'logout') {
+        } elseif ($commandCmp == 'logout') {
             $rv = $this->sendBye('IMAP4rev1 Server logging out');
             $rv .= $this->sendLogout($tag);
-            
+
             $this->shutdown();
-            
+
             return $rv;
-        } elseif ($commandcmp == 'authenticate') {
+        } elseif ($commandCmp == 'authenticate') {
             $commandArgs = $this->msgParseString($restArgs, 1);
-            
+
             if (strtolower($commandArgs[0]) == 'plain') {
                 $this->setStatus('authStep', 1);
                 $this->setStatus('authTag', $tag);
@@ -530,15 +535,15 @@ class Client
             } else {
                 return $this->sendNo($commandArgs[0] . ' Unsupported authentication mechanism', $tag);
             }
-        } elseif ($commandcmp == 'login') {
+        } elseif ($commandCmp == 'login') {
             $commandArgs = $this->msgParseString($restArgs, 2);
-            
+
             if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
                 return $this->sendLogin($tag);
             } else {
                 return $this->sendBad('Arguments invalid.', $tag);
             }
-        } elseif ($commandcmp == 'select') {
+        } elseif ($commandCmp == 'select') {
             $commandArgs = $this->msgParseString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
@@ -550,9 +555,9 @@ class Client
                 }
             } else {
                 $this->selectedFolder = '';
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'create') {
+        } elseif ($commandCmp == 'create') {
             $commandArgs = $this->msgParseString($restArgs, 1);
 
             #$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
@@ -564,11 +569,11 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'subscribe') {
+        } elseif ($commandCmp == 'subscribe') {
             $commandArgs = $this->msgParseString($restArgs, 1);
-            
+
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendSubscribe($tag, $commandArgs[0]);
@@ -576,9 +581,9 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'unsubscribe') {
+        } elseif ($commandCmp == 'unsubscribe') {
             $commandArgs = $this->msgParseString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
@@ -588,9 +593,9 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'list') {
+        } elseif ($commandCmp == 'list') {
             $args = $this->msgParseString($restArgs, 2);
 
             if ($this->getStatus('hasAuth')) {
@@ -602,9 +607,9 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'lsub') {
+        } elseif ($commandCmp == 'lsub') {
             $commandArgs = $this->msgParseString($restArgs, 1);
 
             $this->log('debug', 'client ' . $this->id . ' lsub: ' . (isset($commandArgs[0]) ? $commandArgs[0] : 'N/A'));
@@ -616,9 +621,9 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'append') {
+        } elseif ($commandCmp == 'append') {
             $commandArgs = $this->msgParseString($restArgs, 4);
 
             $this->log('debug', 'client ' . $this->id . ' append');
@@ -679,15 +684,15 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'check') {
+        } elseif ($commandCmp == 'check') {
             if ($this->getStatus('hasAuth')) {
                 return $this->sendCheck($tag);
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'close') {
+        } elseif ($commandCmp == 'close') {
             $this->log('debug', 'client ' . $this->id . ' close');
 
             if ($this->getStatus('hasAuth')) {
@@ -697,9 +702,9 @@ class Client
                     return $this->sendNo('No mailbox selected.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'expunge') {
+        } elseif ($commandCmp == 'expunge') {
             $this->log('debug', 'client ' . $this->id . ' expunge');
 
             if ($this->getStatus('hasAuth')) {
@@ -709,9 +714,9 @@ class Client
                     return $this->sendNo('No mailbox selected.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'search') {
+        } elseif ($commandCmp == 'search') {
             $this->log('debug', 'client ' . $this->id . ' search');
 
             if ($this->getStatus('hasAuth')) {
@@ -726,9 +731,9 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'store') {
+        } elseif ($commandCmp == 'store') {
             $commandArgs = $this->msgParseString($restArgs, 3);
 
             $this->log('debug', 'client ' . $this->id . ' store: "' . $commandArgs[0] . '" "' . $commandArgs[1] . '" "' . $commandArgs[2] . '"');
@@ -747,11 +752,11 @@ class Client
                     $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                $this->sendNo($commandcmp . ' failure', $tag);
+                $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'copy') {
+        } elseif ($commandCmp == 'copy') {
             $commandArgs = $this->msgParseString($restArgs, 2);
-            
+
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
                     if ($this->selectedFolder) {
@@ -765,17 +770,17 @@ class Client
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
-        } elseif ($commandcmp == 'uid') {
+        } elseif ($commandCmp == 'uid') {
             if ($this->getStatus('hasAuth')) {
                 if ($this->selectedFolder) {
-                    return $this->sendUid($tag, $args);
+                    return $this->sendUid($tag, $restArgs);
                 } else {
                     return $this->sendNo('No mailbox selected.', $tag);
                 }
             } else {
-                return $this->sendNo($commandcmp . ' failure', $tag);
+                return $this->sendNo($commandCmp . ' failure', $tag);
             }
         } else {
             #$this->log('debug', 'client '.$this->id.' auth step:   '.$this->getStatus('authStep'));
@@ -787,7 +792,7 @@ class Client
             } elseif ($this->getStatus('appendStep') >= 1) {
                 return $this->sendAppend($msgRaw);
             } else {
-                $this->log('debug', 'client ' . $this->id . ' not implemented: "' . $tag . '" "' . $command . '" >"' . $args . '"<');
+                $this->log('debug', 'client ' . $this->id . ' not implemented: "' . $tag . '" "' . $command . '" >"' . join(' ', $args) . '"<');
                 return $this->sendBad('Not implemented: "' . $tag . '" "' . $command . '"', $tag);
             }
         }
@@ -842,7 +847,7 @@ class Client
      */
     private function sendNoop(string $tag): string
     {
-        if ($this->selectedFolder !== null) {
+        if ($this->selectedFolder) {
             $this->sendSelectedFolderInfos();
         }
         return $this->sendOk('NOOP completed client ' . $this->getId() . ', "' . $this->selectedFolder . '"', $tag);
@@ -909,7 +914,9 @@ class Client
         $rv .= $this->dataSend('* ' . $count . ' EXISTS');
         $rv .= $this->dataSend('* ' . $recent . ' RECENT');
         $rv .= $this->sendOk('Message ' . $firstUnseen . ' is first unseen', null, 'UNSEEN ' . $firstUnseen);
+
         #$rv .= $this->dataSend('* OK [UIDVALIDITY 3857529045] UIDs valid');
+
         if ($nextId) {
             $rv .= $this->sendOk('Predicted next UID', null, 'UIDNEXT ' . $nextId);
         }
@@ -1100,7 +1107,7 @@ class Client
      */
     private function sendCheck(string $tag): string
     {
-        if ($this->selectedFolder !== null) {
+        if ($this->selectedFolder) {
             return $this->sendOk('CHECK completed', $tag);
         } else {
             return $this->sendNo('No mailbox selected.', $tag);
@@ -1528,17 +1535,20 @@ class Client
             return '';
         }
 
+        $server = $this->getServer();
+
         $ids = [];
         $msgSeqNums = $this->createSequenceSet('*');
         foreach ($msgSeqNums as $msgSeqNum) {
-            $uid = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
-            $this->log('debug', 'client ' . $this->id . ' check msg: ' . $msgSeqNum . ', ' . $uid);
+            $this->log('debug', 'client ' . $this->id . ' check msg: ' . $msgSeqNum);
 
-            $message = $this->getServer()->getMailBySeq($msgSeqNum, $this->selectedFolder);
+            $message = $server->getMailBySeq($msgSeqNum, $this->selectedFolder);
 
             if ($message) {
                 /** @var Gate $rootGate */
                 $rootGate = clone $tree->getRootGate();
+
+                $uid = $server->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
 
                 $add = $this->parseSearchMessage($message, $msgSeqNum, $uid, $isUid, $rootGate);
                 if ($add) {
@@ -1632,6 +1642,10 @@ class Client
             }
 
             $message = $this->getServer()->getMailById($msgId);
+            if (!$message){
+                continue;
+            }
+            
             $flags = $this->getServer()->getFlagsById($msgId);
 
             $output = [];
@@ -1731,8 +1745,11 @@ class Client
         }
 
         $server = $this->getServer();
+        
+        /** @var int[] $msgSeqNums */
         $msgSeqNums = $this->createSequenceSet($seq, $isUid);
-        $rv = '';
+        
+        $response = '';
 
         // Process collected msgs.
         foreach ($msgSeqNums as $msgSeqNum) {
@@ -1758,11 +1775,11 @@ class Client
             $messageFlags = $server->getFlagsBySeq($msgSeqNum, $this->selectedFolder);
 
             if (!$silent) {
-                $rv .= $this->dataSend('* ' . $msgSeqNum . ' FETCH (FLAGS (' . join(' ', $messageFlags) . '))');
+                $response .= $this->dataSend('* ' . $msgSeqNum . ' FETCH (FLAGS (' . join(' ', $messageFlags) . '))');
             }
         }
 
-        return $rv;
+        return $response;
     }
 
     /**
@@ -1808,14 +1825,14 @@ class Client
 
     /**
      * @param string $tag
-     * @param string $args
+     * @param string $argsStr
      * @return string
      */
-    private function sendUid(string $tag, string $args): string
+    private function sendUid(string $tag, string $argsStr): string
     {
-        $this->log('debug', 'client ' . $this->id . ' sendUid: "' . $args . '"');
+        $this->log('debug', 'client ' . $this->id . ' sendUid: "' . $argsStr . '"');
 
-        $args = $this->msgParseString($args, 2);
+        $args = $this->msgParseString($argsStr, 2);
         $command = $args[0];
         $commandcmp = strtolower($command);
         if (isset($args[1])) {

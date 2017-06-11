@@ -66,11 +66,11 @@ class MsgDb extends YamlStorage
 
     /**
      * @param string $path
-     * @param array $flags
+     * @param array|null $flags
      * @param bool $recent
      * @return int
      */
-    public function addMsg(string $path = '', array $flags = [], bool $recent = true): int
+    public function addMsg(string $path, array $flags = null, bool $recent = true): int
     {
         if ($flags === null) {
             $flags = [Storage::FLAG_SEEN];

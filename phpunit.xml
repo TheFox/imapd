@@ -18,20 +18,11 @@
 	timeoutForLargeTests="60"
 	verbose="true">
 	
-	<php>
-		<const name="TEST" value="true" />
-	</php>
-	
 	<testsuites>
 		<testsuite name="default">
 			<file>tests/TheFox/Test/AbstractStorageTest.php</file>
-			
-			<!-- failed to open stream: Too many open files -->
-			<!-- <file>tests/TheFox/Test/ClientTest.php</file> -->
-			
-			<file>tests/TheFox/Test/CriteriaTreeTest.php</file>
+			<file>tests/TheFox/Test/ClientTest.php</file>
 			<file>tests/TheFox/Test/DirectoryStorageTest.php</file>
-			<file>tests/TheFox/Test/LogicGateTest.php</file>
 			<file>tests/TheFox/Test/MsgDbTest.php</file>
 			<file>tests/TheFox/Test/ServerTest.php</file>
 			<file>tests/TheFox/Test/StringParserTest.php</file>
@@ -39,6 +30,9 @@
 			<file>tests/TheFox/Test/ThreadTest.php</file>
 			<file>tests/TheFox/Test/YamlStorageTest.php</file>
 			<file>tests/TheFox/Test/ZendMailStorageTest.php</file>
+            
+			<file>tests/TheFox/Test/CriteriaTreeTest.php</file>
+			<file>tests/TheFox/Test/LogicGateTest.php</file>
 		</testsuite>
 	</testsuites>
 	<filter>

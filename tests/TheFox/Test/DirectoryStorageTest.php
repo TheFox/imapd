@@ -23,4 +23,33 @@ class DirectoryStorageTest extends TestCase
 
         $this->assertTrue(file_exists($path));
     }
+
+    public function testFolderExists()
+    {
+        $path = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+
+        $storage = new DirectoryStorage();
+        //$storage->setPath($path);
+
+        $this->assertFalse($storage->folderExists($path));
+    }
+
+    public function testCreateFolder()
+    {
+        $path = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+
+        $storage = new DirectoryStorage();
+
+        $this->assertTrue($storage->createFolder($path));
+        $this->assertFalse($storage->createFolder($path));
+    }
+    
+    public function testGetMailsCountByFolder(){
+        $path = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
+
+        $storage = new DirectoryStorage();
+        $storage->setPath($path);
+        
+        $this->assertEquals(0, $storage->getMailsCountByFolder('.'));
+    }
 }

@@ -31,6 +31,7 @@ class ServerTest extends TestCase
     public function testInit()
     {
         $server = new Server('', 0);
+        $server->setLog(new Logger('test_application'));
         $server->init();
         $log = $server->getLog();
 

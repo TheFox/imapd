@@ -29,7 +29,7 @@ class ClientTest extends TestCase
     public function testGetStatus2()
     {
         $client = new Client();
-        $this->assertEquals(null, $client->getStatus('NOT_EXISTING'));
+        $this->assertNull($client->getStatus('NOT_EXISTING'));
     }
 
     public function testSetIp()
@@ -383,9 +383,9 @@ class ClientTest extends TestCase
     /**
      * @dataProvider providerMsgHandle
      * @param string $msgRaw
-     * @param array $expect
+     * @param string $expect
      */
-    public function testMsgHandleBasic(string $msgRaw, array $expect)
+    public function testMsgHandleBasic(string $msgRaw, string $expect)
     {
         $server = new Server('', 0);
         $server->setLog(new Logger('test_application'));

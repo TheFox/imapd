@@ -123,11 +123,9 @@ class Server extends Thread
             }
         }
 
-        if (!defined('TEST')) {
-            $this->log->info('start');
-            $this->log->info('ip = "' . $this->ip . '"');
-            $this->log->info('port = "' . $this->port . '"');
-        }
+        //$this->log->info('start');
+        //$this->log->info('ip = "' . $this->ip . '"');
+        //$this->log->info('port = "' . $this->port . '"');
     }
 
     /**
@@ -292,7 +290,7 @@ class Server extends Thread
     }
 
     /**
-     * @return AbstractStorage|DirectoryStorage
+     * @return DirectoryStorage
      */
     public function getDefaultStorage()
     {
@@ -378,13 +376,15 @@ class Server extends Thread
         }
 
         $storage = $this->getDefaultStorage();
-        $folders = $storage->getFolders($baseFolder, $searchFolder, $recursive);
-        $rv = [];
-        foreach ($folders as $folder) {
+        $foundFolders = $storage->getFolders($baseFolder, $searchFolder, $recursive);
+        
+        $folders = [];
+        foreach ($foundFolders as $folder) {
             $folder = str_replace('/', '.', $folder);
-            $rv[] = $folder;
+            $folders[] = $folder;
         }
-        return $rv;
+        
+        return $folders;
     }
 
     /**
@@ -459,11 +459,11 @@ class Server extends Thread
     }
 
     /**
-     * @param string $seqNum
+     * @param int $seqNum
      * @param string $folder
      * @param array $flags
      */
-    public function setFlagsBySeq(string $seqNum, string $folder, array $flags)
+    public function setFlagsBySeq(int $seqNum, string $folder, array $flags)
     {
         $storage = $this->getDefaultStorage();
         $storage->setFlagsBySeq($seqNum, $folder, $flags);
@@ -474,8 +474,9 @@ class Server extends Thread
      * @param array|null $flags
      * @return int
      */
-    public function getCountMailsByFolder(string $folder, array $flags = null): int
+    public function getCountMailsByFolder(string $folder, array $flags = []): int
     {
+        /** @var DirectoryStorage $storage */
         $storage = $this->getDefaultStorage();
         return $storage->getMailsCountByFolder($folder, $flags);
     }
@@ -487,17 +488,23 @@ class Server extends Thread
      * @param bool $recent
      * @return int
      */
-    public function addMail(ZendMailMessage $mail, string $folder = '', array $flags = [], bool $recent = true): int
+    public function addMail(ZendMailMessage $mail, string $folder = null, array $flags = null, bool $recent = true): int
     {
+        if (!$folder) {
+            $folder = '';
+        }
+        
         $this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
 
         $storage = $this->getDefaultStorage();
         $mailStr = $mail->toString();
 
         $msgId = $storage->addMail($mailStr, $folder, $flags, $recent);
+        $storage->save();
 
         foreach ($this->storages as $storageId => $storage) {
             $storage->addMail($mailStr, $folder, $flags, $recent);
+            $storage->save();
         }
 
         $this->eventExecute(Event::TRIGGER_MAIL_ADD, [$mail]);
@@ -568,15 +575,27 @@ class Server extends Thread
 
     /**
      * @param int $msgId
-     * @return ZendMailMessage
+     * @return ZendMailMessage|null
      */
-    public function getMailById(int $msgId): ZendMailMessage
+    public function getMailById(int $msgId)
     {
+        /** @var DirectoryStorage $storage */
         $storage = $this->getDefaultStorage();
+        
         $mailStr = $storage->getPlainMailById($msgId);
-        $mail = ZendMailMessage::fromString($mailStr);
+        if (!$mailStr){
+            return null;
+        }
+        
+        try{
+            $mail = ZendMailMessage::fromString($mailStr);
+            return $mail;
+        }
+        catch (\Error $e){
+            print 'ZendMailMessage::fromString ERROR: '.$e."\n";
+        }
 
-        return $mail;
+        return null;
     }
 
     /**

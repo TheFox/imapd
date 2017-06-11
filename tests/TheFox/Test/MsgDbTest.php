@@ -21,7 +21,9 @@ class MsgDbTest extends TestCase
 
         $db1->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN], true);
         $db1->addMsg('./tmp/test_data/email2.eml', [Storage::FLAG_SEEN], true);
-        $db1->save();
+        $saved = $db1->save();
+
+        $this->assertTrue($saved);
 
         $finder = new Finder();
         $files = $finder->in('./tmp/test_data')->name('msgdb1.yml');
@@ -45,6 +47,9 @@ class MsgDbTest extends TestCase
         $db = new MsgDb();
 
         $msgId = $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN], true);
+        $this->assertEquals(100001, $msgId);
+        
+        // Empty Flags
         $msgId = $db->addMsg('./tmp/test_data/email2.eml');
         $this->assertEquals(100002, $msgId);
     }
@@ -54,10 +59,26 @@ class MsgDbTest extends TestCase
         $db = new MsgDb('./tmp/test_data/msgdb3.yml');
 
         $db->addMsg('./tmp/test_data/email1.eml', [Storage::FLAG_SEEN], true);
-        $db->save();
+        $saved = $db->save();
+
+        $this->assertTrue($saved);
 
         $finder = new Finder();
         $files = $finder->in('./tmp/test_data')->name('msgdb3.yml');
+        $this->assertEquals(1, count($files));
+    }
+    
+    public function testAddMsgEmptyFlags(){
+        $db = new MsgDb('./tmp/test_data/msgdb_emtpy_flags.yml');
+
+        $msgId = $db->addMsg('./tmp/test_data/email1.eml');
+        $saved = $db->save();
+        
+        $this->assertEquals(100001, $msgId);
+        $this->assertTrue($saved);
+
+        $finder = new Finder();
+        $files = $finder->in('./tmp/test_data')->name('msgdb_emtpy_flags.yml');
         $this->assertEquals(1, count($files));
     }
 

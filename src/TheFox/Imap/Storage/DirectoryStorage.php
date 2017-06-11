@@ -2,11 +2,9 @@
 
 namespace TheFox\Imap\Storage;
 
-use Symfony\Component\Finder\Finder;
+use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\SplFileInfo;
 use TheFox\Imap\MsgDb;
-use Zend\Mail\Message;
 
 class DirectoryStorage extends AbstractStorage
 {
@@ -35,6 +33,16 @@ class DirectoryStorage extends AbstractStorage
      * @param string $folder
      * @return bool
      */
+    public function folderExists(string $folder): bool
+    {
+        $path = $this->genFolderPath($folder);
+        return file_exists($path) && is_dir($path);
+    }
+
+    /**
+     * @param string $folder
+     * @return bool
+     */
     public function createFolder(string $folder): bool
     {
         if (!$this->folderExists($folder)) {
@@ -49,34 +57,54 @@ class DirectoryStorage extends AbstractStorage
 
         return false;
     }
+    
+    private function recursiveDirectorySearch(string $path, string $pattern, bool $recursive = false, int $level = 0){
+        $folders = [];
+        if (is_dir($path)) {
+            if ($dirHandle = opendir($path)) {
+                while (($fileName = readdir($dirHandle)) !== false) {
+                    if ($fileName == '.' || $fileName == '..'){
+                        continue;
+                    }
+                    
+                    $dir = $path . DIRECTORY_SEPARATOR . $fileName;
+                    
+                    if (!is_dir($dir)){
+                        continue;
+                    }
 
-    /**
-     * @param string $baseFolder
-     * @param string $searchFolder
-     * @param bool $recursive
-     * @return array
-     */
+                    if (fnmatch($pattern, $fileName)){
+                        $folders[] = new SplFileInfo($dir);
+                    }
+                    
+                    if ($recursive){
+                        $recursiveFolders = $this->recursiveDirectorySearch($dir, $pattern, $recursive, $level + 1);
+                        
+                        // Append Folders.
+                        $folders = array_merge($folders, $recursiveFolders);
+                    }
+                }
+                closedir($dirHandle);
+            }
+        }
+        return $folders;
+    }
+
     public function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false): array
     {
-        $path = $this->genFolderPath($baseFolder);
-
-        $finder = new Finder();
-
-        if ($recursive) {
-            /** @var SplFileInfo[] $files */
-            $files = $finder->in($path)->directories()->name($searchFolder)->sortByName();
-        } else {
-            /** @var SplFileInfo[] $files */
-            $files = $finder->in($path)->directories()->depth(0)->name($searchFolder)->sortByName();
-        }
+        $basePath = $this->genFolderPath($baseFolder);
+        
+        /** @var SplFileInfo[] $foundFolders */
+        $foundFolders = $this->recursiveDirectorySearch($basePath, $searchFolder, $recursive);
 
         $folders = [];
-        foreach ($files as $file) {
-            $folderPath = $file->getPathname();
+        foreach ($foundFolders as $dir) {
+            $folderPath = $dir->getPathname();
             $folderPath = substr($folderPath, $this->getPathLen());
             if ($folderPath[0] == '/') {
                 $folderPath = substr($folderPath, 1);
             }
+            
             $folders[] = $folderPath;
         }
 
@@ -85,62 +113,72 @@ class DirectoryStorage extends AbstractStorage
 
     /**
      * @param string $folder
-     * @return bool
-     */
-    public function folderExists(string $folder): bool
-    {
-        $path = $this->genFolderPath($folder);
-        return file_exists($path) && is_dir($path);
-    }
-
-    /**
-     * @param string $folder
-     * @param array|null $flags
+     * @param array $flags
      * @return int
      */
     public function getMailsCountByFolder(string $folder, array $flags = []): int
     {
         $path = $this->genFolderPath($folder);
 
-        $finder = new Finder();
-
-        /** @var SplFileInfo[] $files */
-        $files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
-
-        if ($flags === null) {
-            return count($files);
-        } else {
+        if ($flags) {
             /** @var MsgDb $db */
             $db = $this->getDb();
 
             if ($db) {
-                $rv = 0;
-                foreach ($files as $fileId => $file) {
-                    $msgId = $db->getMsgIdByPath($file->getPathname());
-                    if ($msgId) {
-                        $msgFlags = $db->getFlagsById($msgId);
-                        foreach ($flags as $flag) {
-                            if (in_array($flag, $msgFlags)) {
-                                $rv++;
-                                break;
+                $count = 0;
+
+                if (is_dir($path)) {
+                    if ($dirHandle = opendir($path)) {
+                        while (($fileName = readdir($dirHandle)) !== false) {
+                            $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
+                            if ($file->getExtension() == 'eml') {
+                                $msgId = $db->getMsgIdByPath($file->getPathname());
+                                if ($msgId) {
+                                    $msgFlags = $db->getFlagsById($msgId);
+                                    foreach ($flags as $flag) {
+                                        if (in_array($flag, $msgFlags)) {
+                                            $count++;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                         }
+                        closedir($dirHandle);
                     }
                 }
-                return $rv;
+
+                return $count;
             }
+        } else {
+            $count = 0;
+
+            if (is_dir($path)) {
+                if ($dirHandle = opendir($path)) {
+                    while (($fileName = readdir($dirHandle)) !== false) {
+                        $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
+                        if ($file->getExtension() == 'eml') {
+                            $count++;
+                        }
+                    }
+                    closedir($dirHandle);
+                }
+            }
+
+            return $count;
         }
+
         return 0;
     }
 
     /**
      * @param string $mailStr
      * @param string $folder
-     * @param array $flags
+     * @param array|null $flags
      * @param bool $recent
      * @return int
      */
-    public function addMail(string $mailStr, string $folder, array $flags = [], bool $recent = true): int
+    public function addMail(string $mailStr, string $folder, array $flags = null, bool $recent = true): int
     {
         $msgId = 0;
 
@@ -224,17 +262,32 @@ class DirectoryStorage extends AbstractStorage
         /** @var MsgDb $db */
         $db = $this->getDb();
 
-        if ($db) {
-            $msg = $db->getMsgById($msgId);
-            if ($msg && file_exists($msg['path'])) {
-                $content = file_get_contents($msg['path']);
-                if ($content !== false) {
-                    return $content;
-                }
-            }
+        if (!$db) {
+            return '';
         }
 
-        return '';
+        $msg = $db->getMsgById($msgId);
+        if (!$msg) {
+            return '';
+        }
+
+        if (!file_exists($msg['path'])) {
+            return '';
+        }
+
+        try {
+            $content = file_get_contents($msg['path']);
+        } catch (\Error $e) {
+            return '';
+        } catch (\Exception $e) {
+            return '';
+        }
+
+        if ($content === false) {
+            return '';
+        }
+
+        return $content;
     }
 
     /**
@@ -254,16 +307,20 @@ class DirectoryStorage extends AbstractStorage
                 if (isset($pathinfo['dirname']) && isset($pathinfo['basename'])) {
                     $seq = 0;
 
-                    $finder = new Finder();
+                    $path = $pathinfo['dirname'];
+                    if (is_dir($path)) {
+                        if ($dirHandle = opendir($path)) {
+                            while (($fileName = readdir($dirHandle)) !== false) {
+                                $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
+                                if ($file->getExtension() == 'eml') {
+                                    $seq++;
 
-                    /** @var SplFileInfo[] $files */
-                    $files = $finder->in($pathinfo['dirname'])->files()->depth(0)->name('*.eml')->sortByName();
-
-                    foreach ($files as $file) {
-                        $seq++;
-
-                        if ($file->getFilename() == $pathinfo['basename']) {
-                            break;
+                                    if ($file->getFilename() == $pathinfo['basename']) {
+                                        break;
+                                    }
+                                }
+                            }
+                            closedir($dirHandle);
                         }
                     }
 
@@ -290,16 +347,22 @@ class DirectoryStorage extends AbstractStorage
 
             $seq = 0;
 
-            $finder = new Finder();
+            if (is_dir($path)) {
+                if ($dirHandle = opendir($path)) {
+                    while (($fileName = readdir($dirHandle)) !== false) {
+                        $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
+                        if ($file->getExtension() == 'eml') {
+                            $seq++;
 
-            /** @var SplFileInfo[] $files */
-            $files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
+                            if ($seq >= $seqNum) {
+                                $finder = null;
+                                $files = null;
 
-            foreach ($files as $file) {
-                $seq++;
-
-                if ($seq >= $seqNum) {
-                    return $db->getMsgIdByPath($file->getPathname());
+                                return $db->getMsgIdByPath($file->getPathname());
+                            }
+                        }
+                    }
+                    closedir($dirHandle);
                 }
             }
         }
@@ -368,17 +431,21 @@ class DirectoryStorage extends AbstractStorage
 
             $seq = 0;
 
-            $finder = new Finder();
+            if (is_dir($path)) {
+                if ($dirHandle = opendir($path)) {
+                    while (($fileName = readdir($dirHandle)) !== false) {
+                        $file = new SplFileInfo($path . DIRECTORY_SEPARATOR . $fileName);
+                        if ($file->getExtension() == 'eml') {
+                            $seq++;
 
-            /** @var SplFileInfo[] $files */
-            $files = $finder->in($path)->files()->depth(0)->name('*.eml')->sortByName();
+                            if ($seq >= $seqNum) {
+                                $msgId = $db->getMsgIdByPath($file->getPathname());
 
-            foreach ($files as $file) {
-                $seq++;
-                if ($seq >= $seqNum) {
-                    $msgId = $db->getMsgIdByPath($file->getPathname());
-
-                    return $this->getFlagsById($msgId);
+                                return $this->getFlagsById($msgId);
+                            }
+                        }
+                    }
+                    closedir($dirHandle);
                 }
             }
         }

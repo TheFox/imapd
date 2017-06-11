@@ -11,8 +11,4 @@
 --type-set=markdown:ext:md
 --type=markdown
 
---ignore-dir=build
---ignore-dir=mailbox
---ignore-dir=maildata
---ignore-dir=test_data
 --ignore-dir=vendor
