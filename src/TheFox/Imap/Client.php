@@ -115,6 +115,7 @@ class Client
         if (array_key_exists($name, $this->status)) {
             return $this->status[$name];
         }
+
         return null;
     }
 
@@ -275,7 +276,8 @@ class Client
     public function msgParseString(string $msgRaw, int $argsMax = null): array
     {
         $str = new StringParser($msgRaw, $argsMax);
-        return $str->parse();
+        $args = $str->parse();
+        return $args;
     }
 
     /**
@@ -493,58 +495,55 @@ class Client
     {
         $this->log('debug', 'client ' . $this->id . ' raw: /' . $msgRaw . '/');
 
-        $rv = '';
-
         $args = $this->msgParseString($msgRaw, 3);
+        
+        // Get Tag, and remove Tag from Arguments.
         $tag = array_shift($args);
+        
+        // Get Command, and remove Command from Arguments.
         $command = array_shift($args);
         $commandcmp = strtolower($command);
-        $args = array_shift($args);
-
-        #$this->log('debug', 'client '.$this->id.': >'.$tag.'< >'.$command.'<');
-
+        
+        // Get rest Arguments as String. Do not reuse $args here. Just let it as it is.
+        $restArgs = array_shift($args);
+        
         if ($commandcmp == 'capability') {
-            #$this->log('debug', 'client '.$this->id.' capability: '.$tag);
-
             return $this->sendCapability($tag);
         } elseif ($commandcmp == 'noop') {
             return $this->sendNoop($tag);
         } elseif ($commandcmp == 'logout') {
-            $rv .= $this->sendBye('IMAP4rev1 Server logging out');
+            $rv = $this->sendBye('IMAP4rev1 Server logging out');
             $rv .= $this->sendLogout($tag);
+            
             $this->shutdown();
+            
+            return $rv;
         } elseif ($commandcmp == 'authenticate') {
-            $args = $this->msgParseString($args, 1);
-
-            #$this->log('debug', 'client '.$this->id.' authenticate: "'.$args[0].'"');
-
-            if (strtolower($args[0]) == 'plain') {
+            $commandArgs = $this->msgParseString($restArgs, 1);
+            
+            if (strtolower($commandArgs[0]) == 'plain') {
                 $this->setStatus('authStep', 1);
                 $this->setStatus('authTag', $tag);
-                $this->setStatus('authMechanism', $args[0]);
+                $this->setStatus('authMechanism', $commandArgs[0]);
 
                 return $this->sendAuthenticate();
             } else {
-                return $this->sendNo($args[0] . ' Unsupported authentication mechanism', $tag);
+                return $this->sendNo($commandArgs[0] . ' Unsupported authentication mechanism', $tag);
             }
         } elseif ($commandcmp == 'login') {
-            $args = $this->msgParseString($args, 2);
-
-            #$this->log('debug', 'client '.$this->id.' login: "'.$args[0].'" "'.$args[1].'"');
-
-            if (isset($args[0]) && $args[0] && isset($args[1]) && $args[1]) {
+            $commandArgs = $this->msgParseString($restArgs, 2);
+            
+            if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
                 return $this->sendLogin($tag);
             } else {
                 return $this->sendBad('Arguments invalid.', $tag);
             }
         } elseif ($commandcmp == 'select') {
-            $args = $this->msgParseString($args, 1);
-
-            #$this->log('debug', 'client '.$this->id.' select: "'.$args[0].'"');
+            $commandArgs = $this->msgParseString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0]) {
-                    return $this->sendSelect($tag, $args[0]);
+                if (isset($commandArgs[0]) && $commandArgs[0]) {
+                    return $this->sendSelect($tag, $commandArgs[0]);
                 } else {
                     $this->selectedFolder = '';
                     return $this->sendBad('Arguments invalid.', $tag);
@@ -554,13 +553,13 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'create') {
-            $args = $this->msgParseString($args, 1);
+            $commandArgs = $this->msgParseString($restArgs, 1);
 
             #$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
 
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0]) {
-                    return $this->sendCreate($tag, $args[0]);
+                if (isset($commandArgs[0]) && $commandArgs[0]) {
+                    return $this->sendCreate($tag, $commandArgs[0]);
                 } else {
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
@@ -568,13 +567,11 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'subscribe') {
-            $args = $this->msgParseString($args, 1);
-
-            #$this->log('debug', 'client '.$this->id.' subscribe: '.$args[0]);
-
+            $commandArgs = $this->msgParseString($restArgs, 1);
+            
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0]) {
-                    return $this->sendSubscribe($tag, $args[0]);
+                if (isset($commandArgs[0]) && $commandArgs[0]) {
+                    return $this->sendSubscribe($tag, $commandArgs[0]);
                 } else {
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
@@ -582,13 +579,11 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'unsubscribe') {
-            $args = $this->msgParseString($args, 1);
-
-            #$this->log('debug', 'client '.$this->id.' unsubscribe: '.$args[0]);
+            $commandArgs = $this->msgParseString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0]) {
-                    return $this->sendUnsubscribe($tag, $args[0]);
+                if (isset($commandArgs[0]) && $commandArgs[0]) {
+                    return $this->sendUnsubscribe($tag, $commandArgs[0]);
                 } else {
                     return $this->sendBad('Arguments invalid.', $tag);
                 }
@@ -596,9 +591,7 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'list') {
-            $args = $this->msgParseString($args, 2);
-
-            #$this->log('debug', 'client '.$this->id.' list');
+            $args = $this->msgParseString($restArgs, 2);
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($args[0]) && isset($args[1]) && $args[1]) {
@@ -612,12 +605,12 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'lsub') {
-            $args = $this->msgParseString($args, 1);
+            $commandArgs = $this->msgParseString($restArgs, 1);
 
-            $this->log('debug', 'client ' . $this->id . ' lsub: ' . (isset($args[0]) ? $args[0] : 'N/A'));
+            $this->log('debug', 'client ' . $this->id . ' lsub: ' . (isset($commandArgs[0]) ? $commandArgs[0] : 'N/A'));
 
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0]) {
+                if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendLsub($tag);
                 } else {
                     return $this->sendBad('Arguments invalid.', $tag);
@@ -626,12 +619,12 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'append') {
-            $args = $this->msgParseString($args, 4);
+            $commandArgs = $this->msgParseString($restArgs, 4);
 
             $this->log('debug', 'client ' . $this->id . ' append');
 
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0] && isset($args[1]) && $args[1]) {
+                if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
                     $this->setStatus('appendFlags', []);
                     $this->setStatus('appendDate', '');
                     $this->setStatus('appendLiteral', 0);
@@ -640,28 +633,28 @@ class Client
                     $flags = [];
                     $literal = 0;
 
-                    if (!isset($args[2]) && !isset($args[3])) {
+                    if (!isset($commandArgs[2]) && !isset($commandArgs[3])) {
                         $this->log('debug', 'client ' . $this->id . ' append: 2 not set, 3 not set');
-                        $literal = $args[1];
-                    } elseif (isset($args[2]) && !isset($args[3])) {
+                        $literal = $commandArgs[1];
+                    } elseif (isset($commandArgs[2]) && !isset($commandArgs[3])) {
                         $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 not set, A');
 
-                        if ($args[1][0] == '(' && substr($args[1], -1) == ')') {
+                        if ($commandArgs[1][0] == '(' && substr($commandArgs[1], -1) == ')') {
                             $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 not set, B');
 
-                            $flags = $this->msgGetParenthesizedlist($args[1]);
+                            $flags = $this->msgGetParenthesizedlist($commandArgs[1]);
                         } else {
                             $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 not set, C');
 
-                            $this->setStatus('appendDate', $args[1]);
+                            $this->setStatus('appendDate', $commandArgs[1]);
                         }
-                        $literal = $args[2];
-                    } elseif (isset($args[2]) && isset($args[3])) {
+                        $literal = $commandArgs[2];
+                    } elseif (isset($commandArgs[2]) && isset($commandArgs[3])) {
                         $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 set');
 
-                        $flags = $this->msgGetParenthesizedlist($args[1]);
-                        $this->setStatus('appendDate', $args[2]);
-                        $literal = $args[3];
+                        $flags = $this->msgGetParenthesizedlist($commandArgs[1]);
+                        $this->setStatus('appendDate', $commandArgs[2]);
+                        $literal = $commandArgs[3];
                     }
 
                     if ($flags) {
@@ -679,7 +672,7 @@ class Client
 
                     $this->setStatus('appendStep', 1);
                     $this->setStatus('appendTag', $tag);
-                    $this->setStatus('appendFolder', $args[0]);
+                    $this->setStatus('appendFolder', $commandArgs[0]);
 
                     return $this->sendAppend();
                 } else {
@@ -689,8 +682,6 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'check') {
-            #$this->log('debug', 'client '.$this->id.' check');
-
             if ($this->getStatus('hasAuth')) {
                 return $this->sendCheck($tag);
             } else {
@@ -738,16 +729,16 @@ class Client
                 return $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'store') {
-            $args = $this->msgParseString($args, 3);
+            $commandArgs = $this->msgParseString($restArgs, 3);
 
-            $this->log('debug', 'client ' . $this->id . ' store: "' . $args[0] . '" "' . $args[1] . '" "' . $args[2] . '"');
+            $this->log('debug', 'client ' . $this->id . ' store: "' . $commandArgs[0] . '" "' . $commandArgs[1] . '" "' . $commandArgs[2] . '"');
 
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0] && isset($args[1]) && $args[1] && isset($args[2]) && $args[2]) {
+                if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1] && isset($commandArgs[2]) && $commandArgs[2]) {
                     if ($this->selectedFolder) {
-                        $seq = $args[0];
-                        $name = $args[1];
-                        $flagsStr = $args[2];
+                        $seq = $commandArgs[0];
+                        $name = $commandArgs[1];
+                        $flagsStr = $commandArgs[2];
                         $this->sendStore($tag, $seq, $name, $flagsStr);
                     } else {
                         $this->sendNo('No mailbox selected.', $tag);
@@ -759,15 +750,13 @@ class Client
                 $this->sendNo($commandcmp . ' failure', $tag);
             }
         } elseif ($commandcmp == 'copy') {
-            $args = $this->msgParseString($args, 2);
-
-            #$this->log('debug', 'client '.$this->id.' copy: "'.$args[0].'" "'.$args[1].'"');
-
+            $commandArgs = $this->msgParseString($restArgs, 2);
+            
             if ($this->getStatus('hasAuth')) {
-                if (isset($args[0]) && $args[0] && isset($args[1]) && $args[1]) {
+                if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
                     if ($this->selectedFolder) {
-                        $seq = $args[0];
-                        $folder = $args[1];
+                        $seq = $commandArgs[0];
+                        $folder = $commandArgs[1];
                         return $this->sendCopy($tag, $seq, $folder);
                     } else {
                         return $this->sendNo('No mailbox selected.', $tag);
@@ -803,7 +792,7 @@ class Client
             }
         }
 
-        return $rv;
+        return '';
     }
 
     /**
@@ -1324,7 +1313,7 @@ class Client
 
             case 'answered':
                 return in_array(Storage::FLAG_ANSWERED, $flags);
-                
+
             case 'bcc':
                 $searchStr = strtolower($items[1]);
                 $bccAddressList = $message->getBcc();
@@ -1334,15 +1323,15 @@ class Client
                     }
                 }
                 break;
-                
+
             case 'before':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
-                
+
             case 'body':
                 $searchStr = strtolower($items[1]);
                 return strpos(strtolower($message->getBody()), $searchStr) !== false;
-                
+
             case 'cc':
                 $searchStr = strtolower($items[1]);
                 $ccAddressList = $message->getCc();
@@ -1352,16 +1341,16 @@ class Client
                     }
                 }
                 break;
-                
+
             case 'deleted':
                 return in_array(Storage::FLAG_DELETED, $flags);
-                
+
             case 'draft':
                 return in_array(Storage::FLAG_DRAFT, $flags);
-                
+
             case 'flagged':
                 return in_array(Storage::FLAG_FLAGGED, $flags);
-                
+
             case 'from':
                 $searchStr = strtolower($items[1]);
                 $fromAddressList = $message->getFrom();
@@ -1371,60 +1360,60 @@ class Client
                     }
                 }
                 break;
-                
+
             case 'header':
                 $searchStr = strtolower($items[2]);
                 $fieldName = $items[1];
                 $header = $message->getHeaders()->get($fieldName);
                 $val = $header->getFieldValue();
                 return strpos(strtolower($val), $searchStr) !== false;
-                
+
             case 'keyword':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
-                
+
             case 'larger':
                 return strlen($message->getBody()) > (int)$items[1];
-                
+
             case 'new':
                 return in_array(Storage::FLAG_RECENT, $flags) && !in_array(Storage::FLAG_SEEN, $flags);
-                
+
             case 'old':
                 return !in_array(Storage::FLAG_RECENT, $flags);
-                
+
             case 'on':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
                 return $messageDate->format('Y-m-d') == $checkDate->format('Y-m-d');
-                
+
             case 'recent':
                 return in_array(Storage::FLAG_RECENT, $flags);
-                
+
             case 'seen':
                 return in_array(Storage::FLAG_SEEN, $flags);
-                
+
             case 'sentbefore':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
                 return $messageDate < $checkDate;
-                
+
             case 'senton':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
                 return $messageDate == $checkDate;
-                
+
             case 'sentsince':
                 $checkDate = new DateTime($items[1]);
                 $messageDate = new DateTime($message->getHeaders()->get('Date')->getFieldValue());
                 return $messageDate >= $checkDate;
-                
+
             case 'since':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
-                
+
             case 'smaller':
                 return strlen($message->getBody()) < (int)$items[1];
-                
+
             case 'subject':
                 if (isset($items[2])) {
                     $items[1] .= ' ' . $items[2];
@@ -1432,11 +1421,11 @@ class Client
                 }
                 $searchStr = strtolower($items[1]);
                 return strpos(strtolower($message->getSubject()), $searchStr) !== false;
-                
+
             case 'text':
                 $searchStr = strtolower($items[1]);
                 return strpos(strtolower($message->getBody()), $searchStr) !== false;
-                
+
             case 'to':
                 $searchStr = strtolower($items[1]);
                 $toAddressList = $message->getTo();
@@ -1446,7 +1435,7 @@ class Client
                     }
                 }
                 break;
-                
+
             case 'uid':
                 $searchId = (int)$items[1];
                 return $searchId == $messageUid;
@@ -1456,17 +1445,17 @@ class Client
 
             case 'undeleted':
                 return !in_array(Storage::FLAG_DELETED, $flags);
-                
+
             case 'undraft':
                 return !in_array(Storage::FLAG_DRAFT, $flags);
-                
+
             case 'unflagged':
                 return !in_array(Storage::FLAG_FLAGGED, $flags);
-                
+
             case 'unkeyword':
                 // @NOTICE NOT_IMPLEMENTED
                 break;
-            
+
             case 'unseen':
                 return !in_array(Storage::FLAG_SEEN, $flags);
 
@@ -1476,7 +1465,7 @@ class Client
                     return $searchId == $messageSeqNum;
                 }
         }
-        
+
         return false;
     }
 
@@ -1964,7 +1953,7 @@ class Client
         }
 
         $this->selectedFolder = '';
-        
+
         return false;
     }
 
