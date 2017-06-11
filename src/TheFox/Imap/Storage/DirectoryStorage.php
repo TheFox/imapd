@@ -311,11 +311,13 @@ class DirectoryStorage extends AbstractStorage
 
                 $pathinfo = pathinfo($msg['path']);
                 if (isset($pathinfo['dirname']) && isset($pathinfo['basename'])) {
-                    $seq = 0;
 
                     $path = $pathinfo['dirname'];
                     if (is_dir($path)) {
                         if ($dirHandle = opendir($path)) {
+                            /** @var SplFileInfo[] $files */
+                            $files = [];
+                            
                             while (($fileName = readdir($dirHandle)) !== false) {
                                 $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
                                 
@@ -326,18 +328,30 @@ class DirectoryStorage extends AbstractStorage
                                 $fileInfo = new SplFileInfo($filePath);
                                 
                                 if ($fileInfo->getExtension() == 'eml') {
-                                    $seq++;
+                                    //$seq++;
 
-                                    if ($fileInfo->getFilename() == $pathinfo['basename']) {
-                                        break;
-                                    }
+                                    /**/
+                                    $files[] = $fileInfo;
                                 }
                             }
                             closedir($dirHandle);
+
+                            $fileSortFn = function (SplFileInfo $a, SplFileInfo $b){
+                                return $a->getPathname() <=> $b->getPathname();
+                            };
+
+                            usort($files, $fileSortFn);
+
+                            $seq = 0;
+                            foreach ($files as $file){
+                                $seq++;
+
+                                if ($file->getFilename() == $pathinfo['basename']) {
+                                    return $seq;
+                                }
+                            }
                         }
                     }
-
-                    return $seq;
                 }
             }
         }
