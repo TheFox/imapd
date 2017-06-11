@@ -328,9 +328,6 @@ class DirectoryStorage extends AbstractStorage
                                 $fileInfo = new SplFileInfo($filePath);
                                 
                                 if ($fileInfo->getExtension() == 'eml') {
-                                    //$seq++;
-
-                                    /**/
                                     $files[] = $fileInfo;
                                 }
                             }
