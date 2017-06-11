@@ -98,7 +98,7 @@ class DirectoryStorage extends AbstractStorage
      * @param array|null $flags
      * @return int
      */
-    public function getMailsCountByFolder(string $folder, array $flags = null): int
+    public function getMailsCountByFolder(string $folder, array $flags = []): int
     {
         $path = $this->genFolderPath($folder);
 

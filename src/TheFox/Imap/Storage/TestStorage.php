@@ -31,8 +31,7 @@ class TestStorage extends AbstractStorage
 
     public function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false): array
     {
-        $folders = [];
-        return $folders;
+        return [];
     }
 
     public function folderExists(string $folder): bool

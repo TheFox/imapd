@@ -139,7 +139,7 @@ abstract class AbstractStorage
 
     abstract protected function folderExists(string $folder): bool;
 
-    abstract protected function getMailsCountByFolder(string $folder, array $flags = null): int;
+    abstract protected function getMailsCountByFolder(string $folder, array $flags = []): int;
 
     abstract protected function addMail(string $mailStr, string $folder, array $flags, bool $recent): int;
 
