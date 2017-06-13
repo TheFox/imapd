@@ -1,43 +1,53 @@
 {
-	"name": "thefox/imapd",
-	"description": "IMAP server (library) written in pure PHP.",
-	"license": "GPL-3.0",
-	"type": "library",
-	"keywords": [ "imap", "email", "mail", "server", "daemon" ],
-	"homepage": "https://fox21.at",
-	"authors": [
-		{
-			"name": "Christian Mayer",
-			"email": "christian@fox21.at",
-			"homepage": "https://fox21.at"
-		}
-	],
-	"require": {
-		"php": "^7.0",
-		"zendframework/zend-mail": "^2.3",
-		"symfony/yaml": "^2.4",
-		"symfony/console": "^2.5",
-		"symfony/filesystem": "^2.5",
-		"liip/process-manager": "^1.0",
-		"thefox/logic": "^0.1",
-		"thefox/network": "^0.1"
-	},
-	"require-dev": {
-		"symfony/finder": "^2.5",
-		"phpunit/phpunit": "^6.2",
-		"doctrine/common": "^2.4",
-		"phpstan/phpstan": "^0.7",
-		"thefox/utilities": "^1.1"
-	},
-	"autoload": {
-		"psr-0": { "TheFox": "src" }
-	},
-	"autoload-dev": {
-		"psr-0": { "TheFox": "tests" }
-	},
-	"extra": {
-		"branch-alias": {
-			"dev-master": "1.x.x-dev"
-		}
-	}
+    "name": "thefox/imapd",
+    "description": "IMAP server (library) written in pure PHP.",
+    "license": "GPL-3.0",
+    "type": "library",
+    "keywords": [
+        "imap",
+        "email",
+        "mail",
+        "server",
+        "daemon"
+    ],
+    "homepage": "https://fox21.at",
+    "authors": [
+        {
+            "name": "Christian Mayer",
+            "email": "christian@fox21.at",
+            "homepage": "https://fox21.at"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "zendframework/zend-mail": "^2.3",
+        "symfony/yaml": "^2.4",
+        "symfony/console": "^2.5",
+        "symfony/filesystem": "^2.5",
+        "liip/process-manager": "^1.0",
+        "thefox/logic": "^0.1",
+        "thefox/network": "^0.1"
+    },
+    "require-dev": {
+        "symfony/finder": "^2.5",
+        "phpunit/phpunit": "^6.2",
+        "doctrine/common": "^2.4",
+        "phpstan/phpstan": "^0.7",
+        "thefox/utilities": "^1.1"
+    },
+    "autoload": {
+        "psr-0": {
+            "TheFox": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "TheFox": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x.x-dev"
+        }
+    }
 }
