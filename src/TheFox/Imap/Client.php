@@ -6,7 +6,10 @@ use Exception;
 use RuntimeException;
 use InvalidArgumentException;
 use DateTime;
-use TheFox\Logger\Logger;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
+use Monolog\Logger;
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
 use Zend\Mail\Message;
@@ -20,6 +23,8 @@ use TheFox\Logic\NotGate;
 
 class Client
 {
+    use LoggerAwareTrait;
+
     const MSG_SEPARATOR = "\r\n";
 
     /**
@@ -30,7 +35,7 @@ class Client
     /**
      * @var array
      */
-    private $status = [];
+    private $status;
 
     /**
      * @var Server
@@ -41,6 +46,11 @@ class Client
      * @var AbstractSocket
      */
     private $socket;
+
+    /**
+     * @var array
+     */
+    private $options;
 
     /**
      * @var string
@@ -74,8 +84,21 @@ class Client
      */
     private $selectedFolder = '';
 
-    public function __construct()
+    /**
+     * Client constructor.
+     * @param array $options
+     */
+    public function __construct(array $options = [])
     {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'logger' => new NullLogger(),
+        ]);
+        $this->options = $resolver->resolve($options);
+
+        $this->logger = $this->options['logger'];
+
+        $this->status = [];
         $this->status['hasShutdown'] = false;
         $this->status['hasAuth'] = false;
         $this->status['authStep'] = 0;
@@ -220,26 +243,20 @@ class Client
     /**
      * @todo rename to getLogger
      * @return null|Logger
+     * @deprecated
      */
     private function getLog()
     {
-        if ($this->getServer()) {
-            return $this->getServer()->getLog();
-        }
         return null;
     }
 
     /**
      * @param string $level
      * @param string $msg
+     * @deprecated
      */
     private function log(string $level, string $msg)
     {
-        if ($this->getLog()) {
-            if (method_exists($this->getLog(), $level)) {
-                $this->getLog()->$level($msg);
-            }
-        }
     }
 
     public function run()
@@ -256,7 +273,7 @@ class Client
                 $this->recvBufferTmp .= $data;
                 $data = '';
 
-                $this->log('debug', 'client ' . $this->id . ': collect data');
+                $this->logger->debug('client ' . $this->id . ': collect data');
             } else {
                 $msg = $this->recvBufferTmp . substr($data, 0, $separatorPos);
                 $this->recvBufferTmp = '';
@@ -494,7 +511,7 @@ class Client
      */
     public function msgHandle(string $msgRaw): string
     {
-        $this->log('debug', 'client ' . $this->id . ' raw: /' . $msgRaw . '/');
+        $this->logger->debug('client ' . $this->id . ' raw: /' . $msgRaw . '/');
 
         /** @var array $args */
         $args = $this->msgParseString($msgRaw, 3);
@@ -560,7 +577,7 @@ class Client
         } elseif ($commandCmp == 'create') {
             $commandArgs = $this->msgParseString($restArgs, 1);
 
-            #$this->log('debug', 'client '.$this->id.' create: '.$args[0]);
+            #$this->logger->debug('client '.$this->id.' create: '.$args[0]);
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
@@ -612,7 +629,7 @@ class Client
         } elseif ($commandCmp == 'lsub') {
             $commandArgs = $this->msgParseString($restArgs, 1);
 
-            $this->log('debug', 'client ' . $this->id . ' lsub: ' . (isset($commandArgs[0]) ? $commandArgs[0] : 'N/A'));
+            $this->logger->debug('client ' . $this->id . ' lsub: ' . (isset($commandArgs[0]) ? $commandArgs[0] : 'N/A'));
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
@@ -626,7 +643,7 @@ class Client
         } elseif ($commandCmp == 'append') {
             $commandArgs = $this->msgParseString($restArgs, 4);
 
-            $this->log('debug', 'client ' . $this->id . ' append');
+            $this->logger->debug('client ' . $this->id . ' append');
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
@@ -639,23 +656,23 @@ class Client
                     $literal = 0;
 
                     if (!isset($commandArgs[2]) && !isset($commandArgs[3])) {
-                        $this->log('debug', 'client ' . $this->id . ' append: 2 not set, 3 not set');
+                        $this->logger->debug('client ' . $this->id . ' append: 2 not set, 3 not set');
                         $literal = $commandArgs[1];
                     } elseif (isset($commandArgs[2]) && !isset($commandArgs[3])) {
-                        $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 not set, A');
+                        $this->logger->debug('client ' . $this->id . ' append: 2 set, 3 not set, A');
 
                         if ($commandArgs[1][0] == '(' && substr($commandArgs[1], -1) == ')') {
-                            $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 not set, B');
+                            $this->logger->debug('client ' . $this->id . ' append: 2 set, 3 not set, B');
 
                             $flags = $this->msgGetParenthesizedlist($commandArgs[1]);
                         } else {
-                            $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 not set, C');
+                            $this->logger->debug('client ' . $this->id . ' append: 2 set, 3 not set, C');
 
                             $this->setStatus('appendDate', $commandArgs[1]);
                         }
                         $literal = $commandArgs[2];
                     } elseif (isset($commandArgs[2]) && isset($commandArgs[3])) {
-                        $this->log('debug', 'client ' . $this->id . ' append: 2 set, 3 set');
+                        $this->logger->debug('client ' . $this->id . ' append: 2 set, 3 set');
 
                         $flags = $this->msgGetParenthesizedlist($commandArgs[1]);
                         $this->setStatus('appendDate', $commandArgs[2]);
@@ -693,7 +710,7 @@ class Client
                 return $this->sendNo($commandCmp . ' failure', $tag);
             }
         } elseif ($commandCmp == 'close') {
-            $this->log('debug', 'client ' . $this->id . ' close');
+            $this->logger->debug('client ' . $this->id . ' close');
 
             if ($this->getStatus('hasAuth')) {
                 if ($this->selectedFolder) {
@@ -705,7 +722,7 @@ class Client
                 return $this->sendNo($commandCmp . ' failure', $tag);
             }
         } elseif ($commandCmp == 'expunge') {
-            $this->log('debug', 'client ' . $this->id . ' expunge');
+            $this->logger->debug('client ' . $this->id . ' expunge');
 
             if ($this->getStatus('hasAuth')) {
                 if ($this->selectedFolder) {
@@ -717,7 +734,7 @@ class Client
                 return $this->sendNo($commandCmp . ' failure', $tag);
             }
         } elseif ($commandCmp == 'search') {
-            $this->log('debug', 'client ' . $this->id . ' search');
+            $this->logger->debug('client ' . $this->id . ' search');
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($args[0]) && $args[0]) {
@@ -736,7 +753,7 @@ class Client
         } elseif ($commandCmp == 'store') {
             $commandArgs = $this->msgParseString($restArgs, 3);
 
-            $this->log('debug', 'client ' . $this->id . ' store: "' . $commandArgs[0] . '" "' . $commandArgs[1] . '" "' . $commandArgs[2] . '"');
+            $this->logger->debug('client ' . $this->id . ' store: "' . $commandArgs[0] . '" "' . $commandArgs[1] . '" "' . $commandArgs[2] . '"');
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1] && isset($commandArgs[2]) && $commandArgs[2]) {
@@ -783,8 +800,8 @@ class Client
                 return $this->sendNo($commandCmp . ' failure', $tag);
             }
         } else {
-            #$this->log('debug', 'client '.$this->id.' auth step:   '.$this->getStatus('authStep'));
-            #$this->log('debug', 'client '.$this->id.' append step: '.$this->getStatus('appendStep'));
+            #$this->logger->debug('client '.$this->id.' auth step:   '.$this->getStatus('authStep'));
+            #$this->logger->debug('client '.$this->id.' append step: '.$this->getStatus('appendStep'));
 
             if ($this->getStatus('authStep') == 1) {
                 $this->setStatus('authStep', 2);
@@ -792,7 +809,7 @@ class Client
             } elseif ($this->getStatus('appendStep') >= 1) {
                 return $this->sendAppend($msgRaw);
             } else {
-                $this->log('debug', 'client ' . $this->id . ' not implemented: "' . $tag . '" "' . $command . '" >"' . join(' ', $args) . '"<');
+                $this->logger->debug('client ' . $this->id . ' not implemented: "' . $tag . '" "' . $command . '" >"' . join(' ', $args) . '"<');
                 return $this->sendBad('Not implemented: "' . $tag . '" "' . $command . '"', $tag);
             }
         }
@@ -815,10 +832,10 @@ class Client
 
         $socket = $this->getSocket();
         if ($socket) {
-            $this->log('debug', 'client ' . $this->id . ' data send: "' . $tmp . '"');
+            $this->logger->debug('client ' . $this->id . ' data send: "' . $tmp . '"');
             $socket->write($output);
         } else {
-            $this->log('debug', 'client ' . $this->id . ' DEBUG data send: "' . $tmp . '"');
+            $this->logger->debug('client ' . $this->id . ' DEBUG data send: "' . $tmp . '"');
         }
 
         return $output;
@@ -1021,7 +1038,7 @@ class Client
      */
     private function sendList(string $tag, string $baseFolder, string $folder): string
     {
-        $this->log('debug', 'client ' . $this->id . ' list: /' . $baseFolder . '/ /' . $folder . '/');
+        $this->logger->debug('client ' . $this->id . ' list: /' . $baseFolder . '/ /' . $folder . '/');
 
         $folder = str_replace('%', '*', $folder); // @NOTICE NOT_IMPLEMENTED
 
@@ -1078,7 +1095,7 @@ class Client
 
             if ($appendMsgLen >= $this->getStatus('appendLiteral')) {
                 $this->status['appendStep']++;
-                $this->log('debug', 'client ' . $this->id . ' append len reached: ' . $appendMsgLen);
+                $this->logger->debug('client ' . $this->id . ' append len reached: ' . $appendMsgLen);
 
                 $message = Message::fromString($this->getStatus('appendMsg'));
 
@@ -1086,7 +1103,7 @@ class Client
                     $this->getServer()->addMail($message, $this->getStatus('appendFolder'),
                         $this->getStatus('appendFlags'), false)
                     ;
-                    $this->log('debug', 'client ' . $this->id . ' append completed: ' . $this->getStatus('appendStep'));
+                    $this->logger->debug('client ' . $this->id . ' append completed: ' . $this->getStatus('appendStep'));
                     return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
                 } catch (Exception $e) {
                     $noMsg = 'Can not get folder: ' . $this->getStatus('appendFolder');
@@ -1094,7 +1111,7 @@ class Client
                 }
             } else {
                 $diff = $this->getStatus('appendLiteral') - $appendMsgLen;
-                $this->log('debug', 'client ' . $this->id . ' append left: ' . $diff . ' (' . $appendMsgLen . ')');
+                $this->logger->debug('client ' . $this->id . ' append left: ' . $diff . ' (' . $appendMsgLen . ')');
             }
         }
 
@@ -1120,7 +1137,7 @@ class Client
      */
     private function sendClose(string $tag): string
     {
-        $this->log('debug', 'client ' . $this->id . ' current folder: ' . $this->selectedFolder);
+        $this->logger->debug('client ' . $this->id . ' current folder: ' . $this->selectedFolder);
 
         $this->sendExpungeRaw();
 
@@ -1134,7 +1151,7 @@ class Client
      */
     private function sendExpungeRaw(): array
     {
-        $this->log('debug', 'client ' . $this->id . ' sendExpungeRaw');
+        $this->logger->debug('client ' . $this->id . ' sendExpungeRaw');
 
         $msgSeqNumsExpunge = [];
         $expungeDiff = 0;
@@ -1143,11 +1160,11 @@ class Client
 
         foreach ($msgSeqNums as $msgSeqNum) {
             $expungeSeqNum = $msgSeqNum - $expungeDiff;
-            $this->log('debug', 'client ' . $this->id . ' check msg: ' . $msgSeqNum . ', ' . $expungeDiff . ', ' . $expungeSeqNum);
+            $this->logger->debug('client ' . $this->id . ' check msg: ' . $msgSeqNum . ', ' . $expungeDiff . ', ' . $expungeSeqNum);
 
             $flags = $this->getServer()->getFlagsBySeq($expungeSeqNum, $this->selectedFolder);
             if (in_array(Storage::FLAG_DELETED, $flags)) {
-                $this->log('debug', 'client ' . $this->id . '      del msg: ' . $expungeSeqNum);
+                $this->logger->debug('client ' . $this->id . '      del msg: ' . $expungeSeqNum);
                 $this->getServer()->removeMailBySeq($expungeSeqNum, $this->selectedFolder);
                 $msgSeqNumsExpunge[] = $expungeSeqNum;
                 $expungeDiff++;
@@ -1167,7 +1184,7 @@ class Client
 
         $msgSeqNumsExpunge = $this->sendExpungeRaw();
         foreach ($msgSeqNumsExpunge as $msgSeqNum) {
-            #$this->log('debug', 'client '.$this->id.' expunge: '.$msgSeqNum);
+            #$this->logger->debug('client '.$this->id.' expunge: '.$msgSeqNum);
             $rv .= $this->dataSend('* ' . $msgSeqNum . ' EXPUNGE');
         }
         $rv .= $this->sendOk('EXPUNGE completed', $tag);
@@ -1540,7 +1557,7 @@ class Client
         $ids = [];
         $msgSeqNums = $this->createSequenceSet('*');
         foreach ($msgSeqNums as $msgSeqNum) {
-            $this->log('debug', 'client ' . $this->id . ' check msg: ' . $msgSeqNum);
+            $this->logger->debug('client ' . $this->id . ' check msg: ' . $msgSeqNum);
 
             $message = $server->getMailBySeq($msgSeqNum, $this->selectedFolder);
 
@@ -1581,7 +1598,7 @@ class Client
      */
     private function sendSearch(string $tag, string $criteriaStr): string
     {
-        $this->log('debug', 'client ' . $this->id . ' current folder: ' . $this->selectedFolder);
+        $this->logger->debug('client ' . $this->id . ' current folder: ' . $this->selectedFolder);
 
         $rv = $this->sendSearchRaw($criteriaStr, false);
         $rv .= $this->sendOk('SEARCH completed', $tag);
@@ -1637,15 +1654,15 @@ class Client
         foreach ($msgSeqNums as $msgSeqNum) {
             $msgId = $this->getServer()->getMsgIdBySeq($msgSeqNum, $this->selectedFolder);
             if (!$msgId) {
-                $this->log('error', 'Can not get ID for seq num ' . $msgSeqNum . ' from root storage.');
+                $this->logger->error('Can not get ID for seq num ' . $msgSeqNum . ' from root storage.');
                 continue;
             }
 
             $message = $this->getServer()->getMailById($msgId);
-            if (!$message){
+            if (!$message) {
                 continue;
             }
-            
+
             $flags = $this->getServer()->getFlagsById($msgId);
 
             $output = [];
@@ -1707,7 +1724,7 @@ class Client
 
     /*private function sendFetch($tag, $seq, $name){
         #$this->select();
-        $this->log('debug', 'client '.$this->id.' current folder: '.$this->selectedFolder);
+        $this->logger->debug('client '.$this->id.' current folder: '.$this->selectedFolder);
         
         $this->sendFetchRaw($tag, $seq, $name, false);
         $this->sendOk('FETCH completed', $tag);
@@ -1745,10 +1762,10 @@ class Client
         }
 
         $server = $this->getServer();
-        
+
         /** @var int[] $msgSeqNums */
         $msgSeqNums = $this->createSequenceSet($seq, $isUid);
-        
+
         $response = '';
 
         // Process collected msgs.
@@ -1790,7 +1807,7 @@ class Client
      */
     private function sendStore(string $tag, string $seq, string $name, string $flagsStr)
     {
-        $this->log('debug', 'client ' . $this->id . ' current folder: ' . $this->selectedFolder);
+        $this->logger->debug('client ' . $this->id . ' current folder: ' . $this->selectedFolder);
 
         $this->sendStoreRaw($tag, $seq, $name, $flagsStr, false);
         $this->sendOk('STORE completed', $tag);
@@ -1830,7 +1847,7 @@ class Client
      */
     private function sendUid(string $tag, string $argsStr): string
     {
-        $this->log('debug', 'client ' . $this->id . ' sendUid: "' . $argsStr . '"');
+        $this->logger->debug('client ' . $this->id . ' sendUid: "' . $argsStr . '"');
 
         $args = $this->msgParseString($argsStr, 2);
         $command = $args[0];
@@ -1962,9 +1979,9 @@ class Client
     public function select(string $folder): bool
     {
         if ($this->getServer()->folderExists($folder)) {
-            $this->log('debug', 'client ' . $this->id . ' old folder: "' . $this->selectedFolder . '"');
+            $this->logger->debug('client ' . $this->id . ' old folder: "' . $this->selectedFolder . '"');
             $this->selectedFolder = $folder;
-            $this->log('debug', 'client ' . $this->id . ' new folder: "' . $this->selectedFolder . '"');
+            $this->logger->debug('client ' . $this->id . ' new folder: "' . $this->selectedFolder . '"');
 
             return true;
         }

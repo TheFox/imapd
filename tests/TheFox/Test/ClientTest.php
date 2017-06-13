@@ -10,7 +10,6 @@ use Zend\Mail\Headers;
 use Zend\Mail\Header\Date;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
-use TheFox\Logger\Logger;
 use TheFox\Imap\Server;
 use TheFox\Imap\Client;
 use TheFox\Imap\Storage\DirectoryStorage;
@@ -199,12 +198,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -387,9 +381,7 @@ class ClientTest extends TestCase
      */
     public function testMsgHandleBasic(string $msgRaw, string $expect)
     {
-        $server = new Server('', 0);
-        $server->setLog(new Logger('test_application'));
-        $server->init();
+        $server = new Server();
 
         $client = new Client();
         $client->setServer($server);
@@ -404,9 +396,7 @@ class ClientTest extends TestCase
 
     public function testMsgHandleCapability()
     {
-        $server = new Server('', 0);
-        $server->setLog(new Logger('test_application'));
-        $server->init();
+        $server = new Server();
 
         $client = new Client();
         $client->setServer($server);
@@ -420,9 +410,7 @@ class ClientTest extends TestCase
 
     public function testMsgHandleNoop()
     {
-        $server = new Server('', 0);
-        $server->setLog(new Logger('test_application'));
-        $server->init();
+        $server = new Server();
 
         $client = new Client();
         $client->setServer($server);
@@ -436,9 +424,7 @@ class ClientTest extends TestCase
 
     public function testMsgHandleLogout()
     {
-        $server = new Server('', 0);
-        $server->setLog(new Logger('test_application'));
-        $server->init();
+        $server = new Server();
 
         $client = new Client();
         $client->setServer($server);
@@ -452,9 +438,7 @@ class ClientTest extends TestCase
 
     public function testMsgHandleAuthenticate()
     {
-        $server = new Server('', 0);
-        $server->setLog(new Logger('test_application'));
-        $server->init();
+        $server = new Server();
 
         $client = new Client();
         $client->setServer($server);
@@ -472,9 +456,7 @@ class ClientTest extends TestCase
 
     public function testMsgHandleLogin()
     {
-        $server = new Server('', 0);
-        $server->setLog(new Logger('test_application'));
-        $server->init();
+        $server = new Server();
 
         $client = new Client();
         $client->setServer($server);
@@ -494,12 +476,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -539,12 +516,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -621,12 +593,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -689,12 +656,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -757,12 +719,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -797,12 +754,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -842,12 +794,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -881,12 +828,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -917,12 +859,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -985,12 +922,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1032,12 +964,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1073,12 +1000,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1164,12 +1086,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1218,12 +1135,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1273,12 +1185,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1328,12 +1235,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1377,12 +1279,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1412,12 +1309,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1447,12 +1339,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1552,12 +1439,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -1801,12 +1683,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2222,12 +2099,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2309,12 +2181,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2371,12 +2238,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2432,12 +2294,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2507,12 +2364,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2712,12 +2564,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2743,12 +2590,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2841,13 +2683,8 @@ class ClientTest extends TestCase
     public function testMsgHandleUidCopy()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
@@ -2995,12 +2832,7 @@ class ClientTest extends TestCase
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
-        $log = new Logger('test_application');
-        #$log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        $server = new Server('', 0);
-        $server->setLog($log);
-        $server->init();
+        $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);

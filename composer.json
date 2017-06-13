@@ -24,7 +24,9 @@
         "symfony/yaml": "^2.4",
         "symfony/console": "^2.5",
         "symfony/filesystem": "^2.5",
+        "symfony/options-resolver": "^3.3",
         "liip/process-manager": "^1.0",
+        "psr/log": "^1.0",
         "thefox/logic": "^0.1",
         "thefox/network": "^0.1"
     },
@@ -33,6 +35,7 @@
         "phpunit/phpunit": "^6.2",
         "doctrine/common": "^2.4",
         "phpstan/phpstan": "^0.7",
+        "monolog/monolog": "^1.22",
         "thefox/utilities": "^1.1"
     },
     "autoload": {

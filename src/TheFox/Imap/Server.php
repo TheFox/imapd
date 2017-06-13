@@ -9,22 +9,27 @@ namespace TheFox\Imap;
 
 use Exception;
 use RuntimeException;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 use TheFox\Network\StreamSocket;
 use Zend\Mail\Message as ZendMailMessage;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Monolog\Logger;
 use TheFox\Imap\Storage\AbstractStorage;
 use TheFox\Imap\Storage\DirectoryStorage;
-use TheFox\Logger\Logger;
-use TheFox\Logger\StreamHandler;
 use TheFox\Network\Socket;
 use Zend\Mail\Message;
 
 class Server extends Thread
 {
+    use LoggerAwareTrait;
+    
     const LOOP_USLEEP = 10000;
 
     /**
      * @var Logger
+     * @deprecated
      */
     private $log;
 
@@ -39,12 +44,19 @@ class Server extends Thread
     private $isListening = false;
 
     /**
+     * @var array
+     */
+    private $options;
+
+    /**
      * @var string
+     * @deprecated
      */
     private $ip;
 
     /**
      * @var int
+     * @deprecated
      */
     private $port;
 
@@ -83,20 +95,24 @@ class Server extends Thread
      */
     private $events = [];
 
-    public function __construct($ip = '127.0.0.1', $port = 20143)
+    /**
+     * Server constructor.
+     * @param array $options
+     */
+    public function __construct(array $options = [])
     {
-        $this->setIp($ip);
-        $this->setPort($port);
-    }
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([
+            'ip' => '127.0.0.1',
+            'port' => 20143,
+            'logger' => new NullLogger(),
+        ]);
+        $this->options = $resolver->resolve($options);
 
-    public function setLog($log)
-    {
-        $this->log = $log;
-    }
-
-    public function getLog()
-    {
-        return $this->log;
+        $this->logger = $this->options['logger'];
+        
+        $this->setIp($this->options['ip']);
+        $this->setPort($this->options['port']);
     }
 
     public function setIp($ip)
@@ -110,31 +126,12 @@ class Server extends Thread
     }
 
     /**
-     * Initialization
-     * Setup log.
-     */
-    public function init()
-    {
-        if (!$this->log) {
-            $this->log = new Logger('server');
-            $this->log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-            if (file_exists('log')) {
-                $this->log->pushHandler(new StreamHandler('log/server.log', Logger::DEBUG));
-            }
-        }
-
-        //$this->log->info('start');
-        //$this->log->info('ip = "' . $this->ip . '"');
-        //$this->log->info('port = "' . $this->port . '"');
-    }
-
-    /**
      * @return bool
      */
     public function listen(): bool
     {
         if ($this->ip && $this->port) {
-            $this->log->notice('listen on ' . $this->ip . ':' . $this->port);
+            $this->logger->notice('listen on ' . $this->ip . ':' . $this->port);
 
             // Create a new Socket object.
             $this->socket = new Socket();
@@ -144,13 +141,13 @@ class Server extends Thread
                 $bind = $this->socket->bind($this->ip, $this->port);
 
                 if ($this->socket->listen()) {
-                    $this->log->notice('listen ok');
+                    $this->logger->notice('listen ok');
                     $this->isListening = true;
 
                     return true;
                 }
             } catch (Exception $e) {
-                $this->log->error($e->getMessage());
+                $this->logger->error($e->getMessage());
             }
         }
 
@@ -167,7 +164,6 @@ class Server extends Thread
             throw new RuntimeException('Socket not initialized. You need to execute listen().', 1);
         }
 
-        // @TODO type
         $readHandles = [];
         $writeHandles = [];
         $exceptHandles = [];
@@ -184,7 +180,6 @@ class Server extends Thread
             // Run client.
             $client->run();
         }
-        //$readHandlesNum = count($readHandles);
 
         $handlesChanged = $this->socket->select($readHandles, $writeHandles, $exceptHandles);
         if ($handlesChanged) {
@@ -200,7 +195,7 @@ class Server extends Thread
                     // Client
                     $client = $this->clientGetByHandle($readableHandle);
                     if ($client) {
-                        $socket = $client->getSocket();
+                        //$socket = $client->getSocket();
 
                         if (feof($client->getSocket()->getHandle())) {
                             $this->clientRemove($client);
@@ -254,7 +249,10 @@ class Server extends Thread
     {
         $this->clientsId++;
 
-        $client = new Client();
+        $options = [
+            'logger' => $this->logger,
+        ];
+        $client = new Client($options);
         $client->setSocket($socket);
         $client->setId($this->clientsId);
         $client->setServer($this);
@@ -281,7 +279,7 @@ class Server extends Thread
      */
     public function clientRemove(Client $client)
     {
-        $this->log->debug('client remove: ' . $client->getId());
+        $this->logger->debug('client remove: ' . $client->getId());
 
         $client->shutdown();
 
@@ -365,7 +363,7 @@ class Server extends Thread
 
     public function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false, int $level = 0): array
     {
-        $this->log->debug('getFolders' . $level . ': /' . $baseFolder . '/ /' . $searchFolder . '/ ' . (int)$recursive . ', ' . $level);
+        $this->logger->debug('getFolders' . $level . ': /' . $baseFolder . '/ /' . $searchFolder . '/ ' . (int)$recursive . ', ' . $level);
 
         if ($level >= 100) {
             return []; // @todo throw exception instead
@@ -524,7 +522,7 @@ class Server extends Thread
     public function removeMailById(int $msgId)
     {
         $storage = $this->getDefaultStorage();
-        $this->log->debug('remove msgId: /' . $msgId . '/');
+        $this->logger->debug('remove msgId: /' . $msgId . '/');
         $storage->removeMail($msgId);
 
         foreach ($this->storages as $storageId => $storage) {
@@ -538,7 +536,7 @@ class Server extends Thread
      */
     public function removeMailBySeq(int $seqNum, string $folder)
     {
-        $this->log->debug('remove seq: /' . $seqNum . '/');
+        $this->logger->debug('remove seq: /' . $seqNum . '/');
 
         $msgId = $this->getMsgIdBySeq($seqNum, $folder);
         if ($msgId) {
@@ -553,7 +551,7 @@ class Server extends Thread
     public function copyMailById(int $msgId, string $dstFolder)
     {
         $storage = $this->getDefaultStorage();
-        $this->log->debug('copy msgId: /' . $msgId . '/');
+        $this->logger->debug('copy msgId: /' . $msgId . '/');
         $storage->copyMailById($msgId, $dstFolder);
 
         foreach ($this->storages as $storageId => $storage) {
@@ -569,7 +567,7 @@ class Server extends Thread
     public function copyMailBySequenceNum(int $seqNum, string $folder, string $dstFolder)
     {
         $storage = $this->getDefaultStorage();
-        $this->log->debug('copy seq: /' . $seqNum . '/');
+        $this->logger->debug('copy seq: /' . $seqNum . '/');
         $storage->copyMailBySequenceNum($seqNum, $folder, $dstFolder);
 
         foreach ($this->storages as $storageId => $storage) {

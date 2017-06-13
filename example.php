@@ -2,13 +2,24 @@
 
 require_once __DIR__.'/vendor/autoload.php';
 
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use TheFox\Imap\Server;
 use TheFox\Imap\Event;
 
+// Create a Logger with Monolog.
+$logger = new Logger('smtp_example');
+$logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+
+
 // In production you use port 143. On most Unix-like systems you need to be
 // root to open a port <1024. It's not recommended to run this script as root.
-$server = new Server('127.0.0.1', 20143);
-$server->init();
+$options = [
+    'ip' => '127.0.0.1',
+    'port' => 20143,
+    'logger' => $logger,
+];
+$server = new Server($options);
 $server->listen();
 
 $eventPreAddMail = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event){
