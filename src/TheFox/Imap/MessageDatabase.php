@@ -93,9 +93,9 @@ class MessageDatabase extends YamlStorage
 
     /**
      * @param int $msgId
-     * @return mixed
+     * @return array
      */
-    public function removeMsg(int $msgId) // @todo return array
+    public function removeMsg(int $msgId): array
     {
         $msg = $this->data['msgs'][$msgId];
         unset($this->data['msgs'][$msgId]);
@@ -205,9 +205,9 @@ class MessageDatabase extends YamlStorage
         if (isset($this->data['msgs'][$msgId])) {
             $this->data['msgs'][$msgId]['flags'] = $flags;
             $this->data['msgs'][$msgId]['recent'] = false;
-            
+
             $this->msgsByPath[$this->data['msgs'][$msgId]['path']] = $this->data['msgs'][$msgId];
-            
+
             $this->setDataChanged(true);
         }
     }
@@ -220,10 +220,10 @@ class MessageDatabase extends YamlStorage
     {
         if (isset($this->data['msgs'][$msgId])) {
             unset($this->msgsByPath[$this->data['msgs'][$msgId]['path']]);
-            
+
             $this->data['msgs'][$msgId]['path'] = $path;
             $this->msgsByPath[$this->data['msgs'][$msgId]['path']] = $this->data['msgs'][$msgId];
-            
+
             $this->setDataChanged(true);
         }
     }
