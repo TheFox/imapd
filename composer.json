@@ -32,7 +32,6 @@
     "require-dev": {
         "symfony/finder": "^2.5",
         "phpunit/phpunit": "^6.2",
-        "doctrine/common": "^2.4",
         "phpstan/phpstan": "^0.7",
         "monolog/monolog": "^1.22",
         "thefox/utilities": "^1.1"
