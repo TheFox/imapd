@@ -28,7 +28,6 @@
 			<file>tests/TheFox/Test/StringParserTest.php</file>
 			<file>tests/TheFox/Test/TestStorageTest.php</file>
 			<file>tests/TheFox/Test/ThreadTest.php</file>
-			<file>tests/TheFox/Test/YamlStorageTest.php</file>
 			<file>tests/TheFox/Test/ZendMailStorageTest.php</file>
 		</testsuite>
 	</testsuites>
