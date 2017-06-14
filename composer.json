@@ -30,7 +30,7 @@
         "thefox/network": "^1.0"
     },
     "require-dev": {
-        "symfony/finder": "^2.5",
+        "symfony/finder": "^3.3",
         "phpunit/phpunit": "^6.2",
         "phpstan/phpstan": "^0.7",
         "monolog/monolog": "^1.22",
