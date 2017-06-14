@@ -3,13 +3,10 @@
 namespace TheFox\Imap;
 
 use Exception;
-use RuntimeException;
-use InvalidArgumentException;
 use DateTime;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
-use Monolog\Logger;
 use Zend\Mail\Storage;
 use Zend\Mail\Headers;
 use Zend\Mail\Message;
