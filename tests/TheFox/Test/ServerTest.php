@@ -8,7 +8,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 use TheFox\Imap\Server;
 use TheFox\Imap\Client;
-use TheFox\Imap\MsgDb;
+use TheFox\Imap\MessageDatabase;
 use TheFox\Imap\Event;
 use TheFox\Imap\Storage\DirectoryStorage;
 use TheFox\Imap\Storage\TestStorage;
@@ -22,7 +22,7 @@ class ServerTest extends TestCase
 
         $server = new Server();
 
-        $client = $server->clientNew($socket);
+        $client = $server->newClient($socket);
         $this->assertTrue($client instanceof Client);
     }
 
@@ -35,8 +35,8 @@ class ServerTest extends TestCase
 
         $server = new Server();
         
-        $client1 = $server->clientNew($socket);
-        $client2 = $server->clientGetByHandle($handle1);
+        $client1 = $server->newClient($socket);
+        $client2 = $server->getClientByHandle($handle1);
         $this->assertEquals($client1, $client2);
 
         $server->shutdown();
@@ -50,8 +50,8 @@ class ServerTest extends TestCase
 
         $server = new Server();
 
-        $client = $server->clientNew($socket);
-        $server->clientRemove($client);
+        $client = $server->newClient($socket);
+        $server->removeClient($client);
 
         $this->assertTrue($client->getStatus('hasShutdown'));
 
@@ -874,21 +874,21 @@ class ServerTest extends TestCase
 
             return 42;
         });
-        $server->eventAdd($event1);
+        $server->addEvent($event1);
 
         $event2 = new Event(Event::TRIGGER_MAIL_ADD_PRE, $this, 'functionForTestEvent');
-        $server->eventAdd($event2);
+        $server->addEvent($event2);
 
         $event3 = new Event(Event::TRIGGER_MAIL_ADD, null, function ($event, $mail) use ($phpunit) {
             $phpunit->assertTrue(is_object($mail));
             $phpunit->assertEquals('my_subject 1', $mail->getSubject());
         });
-        $server->eventAdd($event3);
+        $server->addEvent($event3);
 
         $event4 = new Event(Event::TRIGGER_MAIL_ADD_POST, null, function ($event, $msgId) use ($phpunit) {
             $phpunit->assertEquals(100001, $msgId);
         });
-        $server->eventAdd($event4);
+        $server->addEvent($event4);
 
 
         $message = new Message();
@@ -922,7 +922,7 @@ class ServerTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-        $storage2db = new MsgDb();
+        $storage2db = new MessageDatabase();
         $storage2 = new TestStorage();
         $storage2->setPath($path2);
         $storage2->setType('temp');

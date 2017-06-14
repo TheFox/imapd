@@ -4,7 +4,7 @@ namespace TheFox\Imap\Storage;
 
 use SplFileInfo;
 use Symfony\Component\Filesystem\Filesystem;
-use TheFox\Imap\MsgDb;
+use TheFox\Imap\MessageDatabase;
 
 class DirectoryStorage extends AbstractStorage
 {
@@ -121,7 +121,7 @@ class DirectoryStorage extends AbstractStorage
         $path = $this->genFolderPath($folder);
 
         if ($flags) {
-            /** @var MsgDb $db */
+            /** @var MessageDatabase $db */
             $db = $this->getDb();
 
             if ($db) {
@@ -192,7 +192,7 @@ class DirectoryStorage extends AbstractStorage
         $fileName = 'mail_' . sprintf('%.32f', microtime(true)) . '_' . mt_rand(100000, 999999) . '.eml';
         $filePath = $path . '/' . $fileName;
 
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -214,7 +214,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function removeMail(int $msgId)
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -231,7 +231,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function copyMailById(int $msgId, string $folder)
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -265,7 +265,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getPlainMailById(int $msgId): string
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if (!$db) {
@@ -302,7 +302,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getMsgSeqById(int $msgId): int
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -363,7 +363,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getMsgIdBySeq(int $seqNum, string $folder): int
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -416,7 +416,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getMsgsByFlags(array $flags): array
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -432,7 +432,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getFlagsById(int $msgId): array
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -448,7 +448,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function setFlagsById(int $msgId, array $flags)
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -463,7 +463,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getFlagsBySeq(int $seqNum, string $folder): array
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -518,7 +518,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function setFlagsBySeq(int $seqNum, string $folder, array $flags)
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {
@@ -534,7 +534,7 @@ class DirectoryStorage extends AbstractStorage
      */
     public function getNextMsgId(): int
     {
-        /** @var MsgDb $db */
+        /** @var MessageDatabase $db */
         $db = $this->getDb();
 
         if ($db) {

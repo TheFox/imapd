@@ -188,21 +188,21 @@ class Server extends Thread
                     // Server
                     $socket = $this->socket->accept();
                     if ($socket) {
-                        $client = $this->clientNew($socket);
+                        $client = $this->newClient($socket);
                         $client->sendHello();
                     }
                 } else {
                     // Client
-                    $client = $this->clientGetByHandle($readableHandle);
+                    $client = $this->getClientByHandle($readableHandle);
                     if ($client) {
                         //$socket = $client->getSocket();
 
                         if (feof($client->getSocket()->getHandle())) {
-                            $this->clientRemove($client);
+                            $this->removeClient($client);
                         } else {
                             $client->dataRecv();
                             if ($client->getStatus('hasShutdown')) {
-                                $this->clientRemove($client);
+                                $this->removeClient($client);
                             }
                         }
                     }
@@ -233,7 +233,7 @@ class Server extends Thread
         // Notify all clients.
         foreach ($this->clients as $clientId => $client) {
             $client->sendBye('Server shutdown');
-            $this->clientRemove($client);
+            $this->removeClient($client);
         }
 
         // Remove all temp files and save dbs.
@@ -241,11 +241,10 @@ class Server extends Thread
     }
 
     /**
-     * @TODO rename this function to newClient
      * @param StreamSocket $socket
      * @return Client
      */
-    public function clientNew(StreamSocket $socket): Client
+    public function newClient(StreamSocket $socket): Client
     {
         $this->clientsId++;
 
@@ -263,9 +262,10 @@ class Server extends Thread
     }
 
     /**
-     * @FIXME rename this function to getClientByHandle
+     * @param resource $handle
+     * @return Client|null
      */
-    public function clientGetByHandle($handle)
+    public function getClientByHandle($handle)
     {
         foreach ($this->clients as $clientId => $client) {
             if ($client->getSocket()->getHandle() == $handle) {
@@ -275,9 +275,9 @@ class Server extends Thread
     }
 
     /**
-     * @FIXME rename this function to removeClient
+     * @param Client $client
      */
-    public function clientRemove(Client $client)
+    public function removeClient(Client $client)
     {
         $this->logger->debug('client remove: ' . $client->getId());
 
@@ -317,7 +317,7 @@ class Server extends Thread
             $dbPath .= '.yml';
             $storage->setDbPath($dbPath);
 
-            $db = new MsgDb($dbPath);
+            $db = new MessageDatabase($dbPath);
             $db->load();
 
             $storage->setDb($db);
@@ -496,7 +496,7 @@ class Server extends Thread
             $folder = '';
         }
         
-        $this->eventExecute(Event::TRIGGER_MAIL_ADD_PRE);
+        $this->executeEvent(Event::TRIGGER_MAIL_ADD_PRE);
 
         $storage = $this->getDefaultStorage();
         $mailStr = $mail->toString();
@@ -509,9 +509,9 @@ class Server extends Thread
             $storage->save();
         }
 
-        $this->eventExecute(Event::TRIGGER_MAIL_ADD, [$mail]);
+        $this->executeEvent(Event::TRIGGER_MAIL_ADD, [$mail]);
 
-        $this->eventExecute(Event::TRIGGER_MAIL_ADD_POST, [$msgId]);
+        $this->executeEvent(Event::TRIGGER_MAIL_ADD_POST, [$msgId]);
 
         return $msgId;
     }
@@ -629,21 +629,19 @@ class Server extends Thread
     }
 
     /**
-     * @FIXME rename this function to addEvent
      * @param Event $event
      */
-    public function eventAdd(Event $event)
+    public function addEvent(Event $event)
     {
         $this->eventsId++;
         $this->events[$this->eventsId] = $event;
     }
 
     /**
-     * @FIXME rename this function to executeEvent
      * @param int $trigger
      * @param array $args
      */
-    private function eventExecute(int $trigger, array $args = [])
+    private function executeEvent(int $trigger, array $args = [])
     {
         foreach ($this->events as $eventId => $event) {
             if ($event->getTrigger() != $trigger) {

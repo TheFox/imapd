@@ -10,7 +10,7 @@ use Zend\Mail\Message;
 use Zend\Mail\Storage;
 use TheFox\Storage\YamlStorage;
 
-class MsgDb extends YamlStorage
+class MessageDatabase extends YamlStorage
 {
     /**
      * @var array
@@ -95,7 +95,7 @@ class MsgDb extends YamlStorage
      * @param int $msgId
      * @return mixed
      */
-    public function removeMsg(int $msgId) // @todo return type?
+    public function removeMsg(int $msgId) // @todo return array
     {
         $msg = $this->data['msgs'][$msgId];
         unset($this->data['msgs'][$msgId]);

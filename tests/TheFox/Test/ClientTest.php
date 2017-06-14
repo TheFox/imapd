@@ -132,7 +132,7 @@ class ClientTest extends TestCase
     public function testMsgGetArgs(string $msgRaw, array $expect)
     {
         $client = new Client();
-        $this->assertEquals($expect, $client->msgGetArgs($msgRaw));
+        $this->assertEquals($expect, $client->getMessageArguments($msgRaw));
     }
 
     /**
@@ -191,7 +191,7 @@ class ClientTest extends TestCase
     public function testMsgGetParenthesizedlist(string $msgRaw, array $expect)
     {
         $client = new Client();
-        $this->assertEquals($expect, $client->msgGetParenthesizedlist($msgRaw));
+        $this->assertEquals($expect, $client->getParenthesizedMessageList($msgRaw));
     }
 
     public function testCreateSequenceSet1()
@@ -209,7 +209,7 @@ class ClientTest extends TestCase
         $client->setId(1);
         $client->setStatus('hasAuth', true);
         $server->addFolder('test_dir1');
-        $client->msgHandle('6 select test_dir1');
+        $client->handleRawPacket('6 select test_dir1');
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -387,7 +387,7 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle($msgRaw);
+        $msg = $client->handleRawPacket($msgRaw);
 
         $this->assertEquals($expect, $msg);
 
@@ -402,7 +402,7 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('1 capability');
+        $msg = $client->handleRawPacket('1 capability');
         $expect = '* CAPABILITY IMAP4rev1 AUTH=PLAIN' . Client::MSG_SEPARATOR;
         $expect .= '1 OK CAPABILITY completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -416,7 +416,7 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('2 NOOP');
+        $msg = $client->handleRawPacket('2 NOOP');
         $this->assertEquals('2 OK NOOP completed client 1, ""' . Client::MSG_SEPARATOR, $msg);
 
         $server->shutdown();
@@ -430,7 +430,7 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('3 LOGOUT');
+        $msg = $client->handleRawPacket('3 LOGOUT');
         $expect = '* BYE IMAP4rev1 Server logging out' . Client::MSG_SEPARATOR;
         $expect .= '3 OK LOGOUT completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -444,13 +444,13 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('4 authenticate UNSUPPORTED');
+        $msg = $client->handleRawPacket('4 authenticate UNSUPPORTED');
         $this->assertEquals('4 NO UNSUPPORTED Unsupported authentication mechanism' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('4 authenticate plain');
+        $msg = $client->handleRawPacket('4 authenticate plain');
         $this->assertEquals('+' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('AHRoZWZveAB0ZXN0');
+        $msg = $client->handleRawPacket('AHRoZWZveAB0ZXN0');
         $this->assertEquals('4 OK plain authentication successful' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -462,13 +462,13 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('3 LOGIN');
+        $msg = $client->handleRawPacket('3 LOGIN');
         $this->assertEquals('3 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('3 LOGIN user');
+        $msg = $client->handleRawPacket('3 LOGIN user');
         $this->assertEquals('3 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('3 LOGIN user password');
+        $msg = $client->handleRawPacket('3 LOGIN user password');
         $this->assertEquals('3 OK LOGIN completed' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -487,18 +487,18 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('6 select test_dir');
+        $msg = $client->handleRawPacket('6 select test_dir');
         $this->assertEquals('6 NO select failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
-        $msg = $client->msgHandle('6 select');
+        $msg = $client->handleRawPacket('6 select');
         $this->assertEquals('6 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('6 select test_dir');
+        $msg = $client->handleRawPacket('6 select test_dir');
         $this->assertEquals('6 NO "test_dir" no such mailbox' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $msg = $client->msgHandle('6 select test_dir');
+        $msg = $client->handleRawPacket('6 select test_dir');
 
         $expect = '';
         $expect .= '* 0 EXISTS' . Client::MSG_SEPARATOR;
@@ -571,7 +571,7 @@ class ClientTest extends TestCase
         $server->addMail($message, 'test_dir', null, false);
 
 
-        $msg = $client->msgHandle('6 select test_dir');
+        $msg = $client->handleRawPacket('6 select test_dir');
 
         $expect = '';
         $expect .= '* 6 EXISTS' . Client::MSG_SEPARATOR;
@@ -634,7 +634,7 @@ class ClientTest extends TestCase
         $server->addMail($message, 'test_dir', [], false);
 
 
-        $msg = $client->msgHandle('6 select test_dir');
+        $msg = $client->handleRawPacket('6 select test_dir');
 
         $expect = '';
         $expect .= '* 4 EXISTS' . Client::MSG_SEPARATOR;
@@ -697,7 +697,7 @@ class ClientTest extends TestCase
         $server->addMail($message, 'test_dir', [], true);
 
 
-        $msg = $client->msgHandle('6 select test_dir');
+        $msg = $client->handleRawPacket('6 select test_dir');
 
         $expect = '';
         $expect .= '* 4 EXISTS' . Client::MSG_SEPARATOR;
@@ -732,7 +732,7 @@ class ClientTest extends TestCase
         $client->setStatus('hasAuth', true);
 
 
-        $msg = $client->msgHandle('6 select Inbox');
+        $msg = $client->handleRawPacket('6 select Inbox');
 
         $expect = '';
         $expect .= '* 0 EXISTS' . Client::MSG_SEPARATOR;
@@ -765,28 +765,28 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('7 create');
+        $msg = $client->handleRawPacket('7 create');
         $this->assertEquals('7 NO create failure' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('7 create test_dir');
+        $msg = $client->handleRawPacket('7 create test_dir');
         $this->assertEquals('7 NO create failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
-        $msg = $client->msgHandle('7 create test_dir');
+        $msg = $client->handleRawPacket('7 create test_dir');
         $this->assertEquals('7 OK CREATE completed' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('7 create test_dir');
+        $msg = $client->handleRawPacket('7 create test_dir');
         $this->assertEquals('7 NO CREATE failure: folder already exists' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('7 create');
+        $msg = $client->handleRawPacket('7 create');
         $this->assertEquals('7 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('7 create test_dir/test_subdir1');
+        $msg = $client->handleRawPacket('7 create test_dir/test_subdir1');
         $expect = '7 NO CREATE failure: invalid name';
         $expect .= ' - no directory separator allowed in folder name' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('7 create test_dir.test_subdir2');
+        $msg = $client->handleRawPacket('7 create test_dir.test_subdir2');
         $this->assertEquals('7 OK CREATE completed' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -805,22 +805,22 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('8 subscribe');
+        $msg = $client->handleRawPacket('8 subscribe');
         $this->assertEquals('8 NO subscribe failure' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('8 subscribe test_dir');
+        $msg = $client->handleRawPacket('8 subscribe test_dir');
         $this->assertEquals('8 NO subscribe failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('8 subscribe');
+        $msg = $client->handleRawPacket('8 subscribe');
         $this->assertEquals('8 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('8 subscribe test_dir');
+        $msg = $client->handleRawPacket('8 subscribe test_dir');
         $this->assertEquals('8 NO SUBSCRIBE failure: no subfolder named test_dir' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $msg = $client->msgHandle('8 subscribe test_dir');
+        $msg = $client->handleRawPacket('8 subscribe test_dir');
         $this->assertEquals('8 OK SUBSCRIBE completed' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -839,19 +839,19 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('9 unsubscribe test_dir');
+        $msg = $client->handleRawPacket('9 unsubscribe test_dir');
         $this->assertEquals('9 NO unsubscribe failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('9 unsubscribe');
+        $msg = $client->handleRawPacket('9 unsubscribe');
         $this->assertEquals('9 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('9 unsubscribe test_dir');
+        $msg = $client->handleRawPacket('9 unsubscribe test_dir');
         $this->assertEquals('9 NO UNSUBSCRIBE failure: no subfolder named test_dir' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $msg = $client->msgHandle('9 unsubscribe test_dir');
+        $msg = $client->handleRawPacket('9 unsubscribe test_dir');
         $this->assertEquals('9 OK UNSUBSCRIBE completed' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -870,39 +870,39 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('10 LIST');
+        $msg = $client->handleRawPacket('10 LIST');
         $this->assertEquals('10 NO list failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('10 LIST');
+        $msg = $client->handleRawPacket('10 LIST');
         $this->assertEquals('10 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('10 LIST test_dir1');
+        $msg = $client->handleRawPacket('10 LIST test_dir1');
         $this->assertEquals('10 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('10 LIST test_dir1.*');
+        $msg = $client->handleRawPacket('10 LIST test_dir1.*');
         $this->assertEquals('10 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('10 LIST "" test_dir1');
+        $msg = $client->handleRawPacket('10 LIST "" test_dir1');
         $this->assertEquals('10 OK LIST completed' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('10 LIST "" test_dir1.*');
+        $msg = $client->handleRawPacket('10 LIST "" test_dir1.*');
         $this->assertEquals('10 OK LIST completed' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('10 LIST "" INBOX');
+        $msg = $client->handleRawPacket('10 LIST "" INBOX');
         $expect = '* LIST () "." "INBOX"' . Client::MSG_SEPARATOR;
         $expect .= '10 OK LIST completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
         $server->addFolder('test_dir1');
 
-        $msg = $client->msgHandle('10 LIST "" test_dir1');
+        $msg = $client->handleRawPacket('10 LIST "" test_dir1');
         $expect = '* LIST () "." "test_dir1"' . Client::MSG_SEPARATOR;
         $expect .= '10 OK LIST completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('10 LIST "" test_dir1.*');
+        $msg = $client->handleRawPacket('10 LIST "" test_dir1.*');
         $this->assertEquals('10 OK LIST completed' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir1.test_subdir2');
@@ -912,7 +912,7 @@ class ClientTest extends TestCase
         #$expect .= '10 OK LIST completed'.Client::MSG_SEPARATOR;
         #$this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('10 LIST "test_dir1" test_sub*');
+        $msg = $client->handleRawPacket('10 LIST "test_dir1" test_sub*');
         $expect = '* LIST () "." "test_dir1.test_subdir2"' . Client::MSG_SEPARATOR;
         $expect .= '10 OK LIST completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -933,27 +933,27 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('11 lsub');
+        $msg = $client->handleRawPacket('11 lsub');
         $this->assertEquals('11 NO lsub failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('11 lsub');
+        $msg = $client->handleRawPacket('11 lsub');
         $this->assertEquals('11 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('11 lsub test_dir');
+        $msg = $client->handleRawPacket('11 lsub test_dir');
         $this->assertEquals('11 OK LSUB completed' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir1');
 
-        $client->msgHandle('8 subscribe test_dir1');
-        $msg = $client->msgHandle('11 lsub test_dir1');
+        $client->handleRawPacket('8 subscribe test_dir1');
+        $msg = $client->handleRawPacket('11 lsub test_dir1');
         $expect = '* LSUB () "." "test_dir1"' . Client::MSG_SEPARATOR . '11 OK LSUB completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
         $server->addFolder('test_dir2');
-        $client->msgHandle('8 subscribe test_dir2');
-        $msg = $client->msgHandle('11 lsub test_dir2');
+        $client->handleRawPacket('8 subscribe test_dir2');
+        $msg = $client->handleRawPacket('11 lsub test_dir2');
         $expect = '* LSUB () "." "test_dir1"' . Client::MSG_SEPARATOR;
         $expect .= '* LSUB () "." "test_dir2"' . Client::MSG_SEPARATOR;
         $expect .= '11 OK LSUB completed' . Client::MSG_SEPARATOR;
@@ -977,21 +977,21 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append');
+        $msg = $client->handleRawPacket('19 append');
         $this->assertEquals('19 NO append failure' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('19 append');
+        $msg = $client->handleRawPacket('19 append');
         $this->assertEquals('19 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent"');
+        $msg = $client->handleRawPacket('19 append "Sent"');
         $this->assertEquals('19 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent" (\Seen)');
+        $msg = $client->handleRawPacket('19 append "Sent" (\Seen)');
         $this->assertEquals('19 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(0, $client->getStatus('appendStep'));
     }
@@ -1017,24 +1017,24 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent" (' . Storage::FLAG_SEEN . ') {416}');
+        $msg = $client->handleRawPacket('19 append "Sent" (' . Storage::FLAG_SEEN . ') {416}');
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+        $msg = $client->handleRawPacket('Message-ID: <53E79E0C.7060001@fox21.at>');
         $this->assertEquals(null, $msg);
 
-        $msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-        $msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+        $msg = $client->handleRawPacket('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+        $msg = $client->handleRawPacket('From: Derp Dev <dev1@fox21.at>');
         $raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
-        $msg = $client->msgHandle($raw);
-        $msg = $client->msgHandle('MIME-Version: 1.0');
-        $msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
-        $msg = $client->msgHandle('Subject: test2a');
-        $msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
-        $msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-        $msg = $client->msgHandle('');
-        $msg = $client->msgHandle('test2');
+        $msg = $client->handleRawPacket($raw);
+        $msg = $client->handleRawPacket('MIME-Version: 1.0');
+        $msg = $client->handleRawPacket('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+        $msg = $client->handleRawPacket('Subject: test2a');
+        $msg = $client->handleRawPacket('Content-Type: text/plain; charset=utf-8; format=flowed');
+        $msg = $client->handleRawPacket('Content-Transfer-Encoding: 7bit');
+        $msg = $client->handleRawPacket('');
+        $msg = $client->handleRawPacket('test2');
 
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1047,24 +1047,24 @@ class ClientTest extends TestCase
         $this->assertEquals(1, count($msgIds));
 
 
-        $msg = $client->msgHandle('19 append "Sent" (' . Storage::FLAG_ANSWERED . ') {414}');
+        $msg = $client->handleRawPacket('19 append "Sent" (' . Storage::FLAG_ANSWERED . ') {414}');
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+        $msg = $client->handleRawPacket('Message-ID: <53E79E0C.7060001@fox21.at>');
         $this->assertEquals(null, $msg);
 
-        $msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-        $msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+        $msg = $client->handleRawPacket('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+        $msg = $client->handleRawPacket('From: Derp Dev <dev1@fox21.at>');
         $raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
-        $msg = $client->msgHandle($raw);
-        $msg = $client->msgHandle('MIME-Version: 1.0');
-        $msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
-        $msg = $client->msgHandle('Subject: test2b');
-        $msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
-        $msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-        $msg = $client->msgHandle('');
-        $msg = $client->msgHandle('tes');
+        $msg = $client->handleRawPacket($raw);
+        $msg = $client->handleRawPacket('MIME-Version: 1.0');
+        $msg = $client->handleRawPacket('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+        $msg = $client->handleRawPacket('Subject: test2b');
+        $msg = $client->handleRawPacket('Content-Type: text/plain; charset=utf-8; format=flowed');
+        $msg = $client->handleRawPacket('Content-Transfer-Encoding: 7bit');
+        $msg = $client->handleRawPacket('');
+        $msg = $client->handleRawPacket('tes');
 
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1103,25 +1103,25 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent" {417}');
+        $msg = $client->handleRawPacket('19 append "Sent" {417}');
 
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+        $msg = $client->handleRawPacket('Message-ID: <53E79E0C.7060001@fox21.at>');
         $this->assertEquals(null, $msg);
 
-        $msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-        $msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+        $msg = $client->handleRawPacket('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+        $msg = $client->handleRawPacket('From: Derp Dev <dev1@fox21.at>');
         $raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
-        $msg = $client->msgHandle($raw);
-        $msg = $client->msgHandle('MIME-Version: 1.0');
-        $msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
-        $msg = $client->msgHandle('Subject: test3');
-        $msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
-        $msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-        $msg = $client->msgHandle('');
-        $msg = $client->msgHandle('test333');
+        $msg = $client->handleRawPacket($raw);
+        $msg = $client->handleRawPacket('MIME-Version: 1.0');
+        $msg = $client->handleRawPacket('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+        $msg = $client->handleRawPacket('Subject: test3');
+        $msg = $client->handleRawPacket('Content-Type: text/plain; charset=utf-8; format=flowed');
+        $msg = $client->handleRawPacket('Content-Transfer-Encoding: 7bit');
+        $msg = $client->handleRawPacket('');
+        $msg = $client->handleRawPacket('test333');
 
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
@@ -1152,25 +1152,25 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent" 2014-11-18 {417}');
+        $msg = $client->handleRawPacket('19 append "Sent" 2014-11-18 {417}');
 
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+        $msg = $client->handleRawPacket('Message-ID: <53E79E0C.7060001@fox21.at>');
         $this->assertEquals(null, $msg);
 
-        $msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-        $msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+        $msg = $client->handleRawPacket('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+        $msg = $client->handleRawPacket('From: Derp Dev <dev1@fox21.at>');
         $raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
-        $msg = $client->msgHandle($raw);
-        $msg = $client->msgHandle('MIME-Version: 1.0');
-        $msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
-        $msg = $client->msgHandle('Subject: test3');
-        $msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
-        $msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-        $msg = $client->msgHandle('');
-        $msg = $client->msgHandle('test333');
+        $msg = $client->handleRawPacket($raw);
+        $msg = $client->handleRawPacket('MIME-Version: 1.0');
+        $msg = $client->handleRawPacket('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+        $msg = $client->handleRawPacket('Subject: test3');
+        $msg = $client->handleRawPacket('Content-Type: text/plain; charset=utf-8; format=flowed');
+        $msg = $client->handleRawPacket('Content-Transfer-Encoding: 7bit');
+        $msg = $client->handleRawPacket('');
+        $msg = $client->handleRawPacket('test333');
 
 
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
@@ -1202,25 +1202,25 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent" 2014-11-18 (' . Storage::FLAG_ANSWERED . ') {417}');
+        $msg = $client->handleRawPacket('19 append "Sent" 2014-11-18 (' . Storage::FLAG_ANSWERED . ') {417}');
 
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+        $msg = $client->handleRawPacket('Message-ID: <53E79E0C.7060001@fox21.at>');
         $this->assertEquals(null, $msg);
 
-        $msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-        $msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+        $msg = $client->handleRawPacket('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+        $msg = $client->handleRawPacket('From: Derp Dev <dev1@fox21.at>');
         $raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
-        $msg = $client->msgHandle($raw);
-        $msg = $client->msgHandle('MIME-Version: 1.0');
-        $msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
-        $msg = $client->msgHandle('Subject: test3');
-        $msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
-        $msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-        $msg = $client->msgHandle('');
-        $msg = $client->msgHandle('test333');
+        $msg = $client->handleRawPacket($raw);
+        $msg = $client->handleRawPacket('MIME-Version: 1.0');
+        $msg = $client->handleRawPacket('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+        $msg = $client->handleRawPacket('Subject: test3');
+        $msg = $client->handleRawPacket('Content-Type: text/plain; charset=utf-8; format=flowed');
+        $msg = $client->handleRawPacket('Content-Transfer-Encoding: 7bit');
+        $msg = $client->handleRawPacket('');
+        $msg = $client->handleRawPacket('test333');
 
 
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
@@ -1250,25 +1250,25 @@ class ClientTest extends TestCase
 
         $this->assertEquals(0, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('19 append "Sent" 2014-11-18 (' . Storage::FLAG_ANSWERED . ') {417}');
+        $msg = $client->handleRawPacket('19 append "Sent" 2014-11-18 (' . Storage::FLAG_ANSWERED . ') {417}');
 
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
 
-        $msg = $client->msgHandle('Message-ID: <53E79E0C.7060001@fox21.at>');
+        $msg = $client->handleRawPacket('Message-ID: <53E79E0C.7060001@fox21.at>');
         $this->assertEquals(null, $msg);
 
-        $msg = $client->msgHandle('Date: Sun, 10 Aug 2014 18:30:04 +0200');
-        $msg = $client->msgHandle('From: Derp Dev <dev1@fox21.at>');
+        $msg = $client->handleRawPacket('Date: Sun, 10 Aug 2014 18:30:04 +0200');
+        $msg = $client->handleRawPacket('From: Derp Dev <dev1@fox21.at>');
         $raw = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:31.0) Gecko/20100101 Thunderbird/31.0';
-        $msg = $client->msgHandle($raw);
-        $msg = $client->msgHandle('MIME-Version: 1.0');
-        $msg = $client->msgHandle('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
-        $msg = $client->msgHandle('Subject: test3');
-        $msg = $client->msgHandle('Content-Type: text/plain; charset=utf-8; format=flowed');
-        $msg = $client->msgHandle('Content-Transfer-Encoding: 7bit');
-        $msg = $client->msgHandle('');
-        $msg = $client->msgHandle('test333');
+        $msg = $client->handleRawPacket($raw);
+        $msg = $client->handleRawPacket('MIME-Version: 1.0');
+        $msg = $client->handleRawPacket('To: user_560d <2985d252-0065-4a51-b0b0-96f37af6275d@phpchat.fox21.at>');
+        $msg = $client->handleRawPacket('Subject: test3');
+        $msg = $client->handleRawPacket('Content-Type: text/plain; charset=utf-8; format=flowed');
+        $msg = $client->handleRawPacket('Content-Transfer-Encoding: 7bit');
+        $msg = $client->handleRawPacket('');
+        $msg = $client->handleRawPacket('test333');
 
 
         $this->assertEquals('19 NO [TRYCREATE] Can not get folder: Sent' . Client::MSG_SEPARATOR, $msg);
@@ -1290,18 +1290,18 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('12 check');
+        $msg = $client->handleRawPacket('12 check');
         $this->assertEquals('12 NO check failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('12 check');
+        $msg = $client->handleRawPacket('12 check');
         $this->assertEquals('12 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $client->msgHandle('6 select test_dir');
+        $client->handleRawPacket('6 select test_dir');
 
-        $msg = $client->msgHandle('12 check');
+        $msg = $client->handleRawPacket('12 check');
         $this->assertEquals('12 OK CHECK completed' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -1320,18 +1320,18 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('13 close');
+        $msg = $client->handleRawPacket('13 close');
         $this->assertEquals('13 NO close failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('13 close');
+        $msg = $client->handleRawPacket('13 close');
         $this->assertEquals('13 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $client->msgHandle('6 select test_dir');
+        $client->handleRawPacket('6 select test_dir');
 
-        $msg = $client->msgHandle('13 close');
+        $msg = $client->handleRawPacket('13 close');
         $this->assertEquals('13 OK CLOSE completed' . Client::MSG_SEPARATOR, $msg);
     }
 
@@ -1350,18 +1350,18 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 NO expunge failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $client->msgHandle('6 select test_dir');
+        $client->handleRawPacket('6 select test_dir');
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 OK EXPUNGE completed' . Client::MSG_SEPARATOR, $msg);
 
 
@@ -1422,7 +1422,7 @@ class ClientTest extends TestCase
         $server->addMail($message, 'test_dir');
 
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $expect = '* 1 EXPUNGE' . Client::MSG_SEPARATOR;
         $expect .= '* 2 EXPUNGE' . Client::MSG_SEPARATOR;
         $expect .= '* 4 EXPUNGE' . Client::MSG_SEPARATOR;
@@ -1450,18 +1450,18 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 NO expunge failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir');
-        $client->msgHandle('6 select test_dir');
+        $client->handleRawPacket('6 select test_dir');
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 OK EXPUNGE completed' . Client::MSG_SEPARATOR, $msg);
 
 
@@ -1486,7 +1486,7 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, 'test_dir', [Storage::FLAG_DELETED]);
 
-        $msg = $client->msgHandle('14 expunge');
+        $msg = $client->handleRawPacket('14 expunge');
         $expect = '* 2 EXPUNGE' . Client::MSG_SEPARATOR;
         $expect .= '* 2 EXPUNGE' . Client::MSG_SEPARATOR;
         $expect .= '14 OK EXPUNGE completed' . Client::MSG_SEPARATOR;
@@ -1694,15 +1694,15 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('17 uid search');
+        $msg = $client->handleRawPacket('17 uid search');
         $this->assertEquals('17 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('17 uid search');
+        $msg = $client->handleRawPacket('17 uid search');
         $this->assertEquals('17 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
 
         $message = new Message();
@@ -1879,22 +1879,22 @@ class ClientTest extends TestCase
         $server->addMail($message, null, [Storage::FLAG_SEEN], false);
 
 
-        $msg = $client->msgHandle('17 uid SEARCH');
+        $msg = $client->handleRawPacket('17 uid SEARCH');
         $expect = '17 BAD Arguments invalid.' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH ALL');
+        $msg = $client->handleRawPacket('17 uid SEARCH ALL');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 ';
         $expect .= '100011 100012 100013 100014 100015 100016 100017 100018 100019 100020 100021 ';
         $expect .= '100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH ANSWERED');
+        $msg = $client->handleRawPacket('17 uid SEARCH ANSWERED');
         $expect = '* SEARCH 100002 100019' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH BCC apple');
+        $msg = $client->handleRawPacket('17 uid SEARCH BCC apple');
         $expect = '* SEARCH 100003' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
@@ -1902,132 +1902,132 @@ class ClientTest extends TestCase
         $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         #$this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH BODY world');
+        $msg = $client->handleRawPacket('17 uid SEARCH BODY world');
         $expect = '* SEARCH 100006' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH CC dev3');
+        $msg = $client->handleRawPacket('17 uid SEARCH CC dev3');
         $expect = '* SEARCH 100022 100023' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH DELETED');
+        $msg = $client->handleRawPacket('17 uid SEARCH DELETED');
         $expect = '* SEARCH 100007 100020' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH DRAFT');
+        $msg = $client->handleRawPacket('17 uid SEARCH DRAFT');
         $expect = '* SEARCH 100008 100021' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH FLAGGED');
+        $msg = $client->handleRawPacket('17 uid SEARCH FLAGGED');
         $expect = '* SEARCH 100009 100022' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH FROM test@');
+        $msg = $client->handleRawPacket('17 uid SEARCH FROM test@');
         $expect = '* SEARCH 100010' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH HEADER Date 1987');
+        $msg = $client->handleRawPacket('17 uid SEARCH HEADER Date 1987');
         $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH HEADER TO fox21');
+        $msg = $client->handleRawPacket('17 uid SEARCH HEADER TO fox21');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 ';
         $expect .= '100013 100014 100015 100016 100018 100019 100020 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH LARGER 40');
+        $msg = $client->handleRawPacket('17 uid SEARCH LARGER 40');
         $expect = '* SEARCH 100011' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH NEW');
+        $msg = $client->handleRawPacket('17 uid SEARCH NEW');
         $expect = '* SEARCH 100012' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH OLD');
+        $msg = $client->handleRawPacket('17 uid SEARCH OLD');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH ON 1987-02-21');
+        $msg = $client->handleRawPacket('17 uid SEARCH ON 1987-02-21');
         $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH OR 5 6');
+        $msg = $client->handleRawPacket('17 uid SEARCH OR 5 6');
         $expect = '* SEARCH 100005 100006' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH OR OR 5 6 7');
+        $msg = $client->handleRawPacket('17 uid SEARCH OR OR 5 6 7');
         $expect = '* SEARCH 100005 100006 100007' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH RECENT');
+        $msg = $client->handleRawPacket('17 uid SEARCH RECENT');
         $expect = '* SEARCH 100012' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH SEEN');
+        $msg = $client->handleRawPacket('17 uid SEARCH SEEN');
         $expect = '* SEARCH 100001 100003 100004 100005 100006 100010 100011 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH SENTBEFORE 1990-01-01');
+        $msg = $client->handleRawPacket('17 uid SEARCH SENTBEFORE 1990-01-01');
         $expect = '* SEARCH 100004 100005 100006' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH SENTON 1987-02-21');
+        $msg = $client->handleRawPacket('17 uid SEARCH SENTON 1987-02-21');
         $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH SENTSINCE 1987-02-21');
+        $msg = $client->handleRawPacket('17 uid SEARCH SENTSINCE 1987-02-21');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100007 100008 100009 100010 100011 100012 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH SMALLER 30');
+        $msg = $client->handleRawPacket('17 uid SEARCH SMALLER 30');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100012 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH SUBJECT "t 13"');
+        $msg = $client->handleRawPacket('17 uid SEARCH SUBJECT "t 13"');
         $expect = '* SEARCH 100013' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH TEXT test');
+        $msg = $client->handleRawPacket('17 uid SEARCH TEXT test');
         $expect = '* SEARCH 100011 100015' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH TO steve');
+        $msg = $client->handleRawPacket('17 uid SEARCH TO steve');
         $expect = '* SEARCH 100017' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH UID 100018');
+        $msg = $client->handleRawPacket('17 uid SEARCH UID 100018');
         $expect = '* SEARCH 100018' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH UNANSWERED');
+        $msg = $client->handleRawPacket('17 uid SEARCH UNANSWERED');
         $expect = '* SEARCH 100001 100003 100004 100005 100006 100007 100008 100009 100010 100011 100012 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100020 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH UNDELETED');
+        $msg = $client->handleRawPacket('17 uid SEARCH UNDELETED');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100008 100009 100010 100011 100012 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100019 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH UNDRAFT');
+        $msg = $client->handleRawPacket('17 uid SEARCH UNDRAFT');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100009 100010 100011 100012 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100019 100020 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH UNFLAGGED');
+        $msg = $client->handleRawPacket('17 uid SEARCH UNFLAGGED');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100010 100011 100012 100013';
         $expect .= ' 100014 100015 100016 100017 100018 100019 100020 100021 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
@@ -2037,47 +2037,47 @@ class ClientTest extends TestCase
         $expect = '* SEARCH 123' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         #$this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH UNSEEN');
+        $msg = $client->handleRawPacket('17 uid SEARCH UNSEEN');
         $expect = '* SEARCH 100002 100007 100008 100009 100012 100013 100014 100015 100016 100017 100018';
         $expect .= ' 100019 100020 100021 100022' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH OR CC dev3 TO steve');
+        $msg = $client->handleRawPacket('17 uid SEARCH OR CC dev3 TO steve');
         $expect = '* SEARCH 100017 100022 100023';
         $expect .= '' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH OR CC dev3 NOT CC dev2');
+        $msg = $client->handleRawPacket('17 uid SEARCH OR CC dev3 NOT CC dev2');
         $expect = '* SEARCH 100001 100002 100003 100004 100005 100006 100007 100008 100009 100010 100011';
         $expect .= ' 100012 100013 100014 100015 100016 100017';
         $expect .= ' 100018 100019 100020 100021 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH CC dev3 AND TO dev2');
+        $msg = $client->handleRawPacket('17 uid SEARCH CC dev3 AND TO dev2');
         $expect = '';
         $expect .= '* SEARCH 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH CC dev3 AND OR FROM dev1 TO dev2');
+        $msg = $client->handleRawPacket('17 uid SEARCH CC dev3 AND OR FROM dev1 TO dev2');
         $expect = '';
         $expect .= '* SEARCH 100022 100023' . Client::MSG_SEPARATOR;
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH CC dev3 AND AND FROM dev1 NOT TO dev2');
+        $msg = $client->handleRawPacket('17 uid SEARCH CC dev3 AND AND FROM dev1 NOT TO dev2');
         $expect = '';
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
 
-        $msg = $client->msgHandle('17 uid SEARCH BEFORE 1985');
+        $msg = $client->handleRawPacket('17 uid SEARCH BEFORE 1985');
         $this->assertEquals('17 OK UID SEARCH completed' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('17 uid SEARCH BODY xyz');
+        $msg = $client->handleRawPacket('17 uid SEARCH BODY xyz');
         $this->assertEquals('17 OK UID SEARCH completed' . Client::MSG_SEPARATOR, $msg);
 
         #$msg = $client->msgHandle('17 uid SEARCH OR (UNDELETED FROM "thefox") ANSWERED AND FROM "21"');
@@ -2110,17 +2110,17 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('15 UID fetch');
+        $msg = $client->handleRawPacket('15 UID fetch');
         $this->assertEquals('15 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('15 UID fetch');
+        $msg = $client->handleRawPacket('15 UID fetch');
         $this->assertEquals('15 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
-        $msg = $client->msgHandle('15 UID fetch');
+        $msg = $client->handleRawPacket('15 UID fetch');
         $this->assertEquals('15 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
         $message = new Message();
@@ -2152,7 +2152,7 @@ class ClientTest extends TestCase
         $server->addMail($message, null, [], true);
 
 
-        $msg = $client->msgHandle('15 UID fetch 1:* (ALL)');
+        $msg = $client->handleRawPacket('15 UID fetch 1:* (ALL)');
         $expect = '* 1 FETCH (UID 100001)' . Client::MSG_SEPARATOR;
         $expect .= '* 2 FETCH (UID 100002)' . Client::MSG_SEPARATOR;
         $expect .= '* 3 FETCH (UID 100003)' . Client::MSG_SEPARATOR;
@@ -2160,7 +2160,7 @@ class ClientTest extends TestCase
         $expect .= '15 OK UID FETCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('15 UID fetch 1:* (FAST)');
+        $msg = $client->handleRawPacket('15 UID fetch 1:* (FAST)');
         $expect = '* 1 FETCH (UID 100001)' . Client::MSG_SEPARATOR;
         $expect .= '* 2 FETCH (UID 100002)' . Client::MSG_SEPARATOR;
         $expect .= '* 3 FETCH (UID 100003)' . Client::MSG_SEPARATOR;
@@ -2168,7 +2168,7 @@ class ClientTest extends TestCase
         $expect .= '15 OK UID FETCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        $msg = $client->msgHandle('15 UID fetch 1:* (FULL)');
+        $msg = $client->handleRawPacket('15 UID fetch 1:* (FULL)');
         $expect = '* 1 FETCH (UID 100001)' . Client::MSG_SEPARATOR;
         $expect .= '* 2 FETCH (UID 100002)' . Client::MSG_SEPARATOR;
         $expect .= '* 3 FETCH (UID 100003)' . Client::MSG_SEPARATOR;
@@ -2193,7 +2193,7 @@ class ClientTest extends TestCase
         $client->setId(1);
 
         $client->setStatus('hasAuth', true);
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -2224,7 +2224,7 @@ class ClientTest extends TestCase
         $server->addMail($message, null, [], true);
 
 
-        $msg = $client->msgHandle('15 UID fetch 1:* (FLAGS)');
+        $msg = $client->handleRawPacket('15 UID fetch 1:* (FLAGS)');
         $expect = '';
         $expect .= '* 1 FETCH (UID 100001 FLAGS (' . Storage::FLAG_RECENT . '))' . Client::MSG_SEPARATOR;
         $expect .= '* 2 FETCH (UID 100002 FLAGS (' . Storage::FLAG_RECENT . '))' . Client::MSG_SEPARATOR;
@@ -2250,7 +2250,7 @@ class ClientTest extends TestCase
         $client->setId(1);
 
         $client->setStatus('hasAuth', true);
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -2281,7 +2281,7 @@ class ClientTest extends TestCase
         $server->addMail($message, null, [], true);
 
 
-        $msg = $client->msgHandle('15 UID fetch 100002:100004 (FLAGS)');
+        $msg = $client->handleRawPacket('15 UID fetch 100002:100004 (FLAGS)');
         $expect = '';
         $expect = '* 2 FETCH (UID 100002 FLAGS (' . Storage::FLAG_RECENT . '))' . Client::MSG_SEPARATOR;
         $expect .= '* 3 FETCH (UID 100003 FLAGS (' . Storage::FLAG_RECENT . '))' . Client::MSG_SEPARATOR;
@@ -2306,7 +2306,7 @@ class ClientTest extends TestCase
         $client->setId(1);
 
         $client->setStatus('hasAuth', true);
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
         $message1 = new Message();
         $message1->addFrom('dev1@fox21.at');
@@ -2345,7 +2345,7 @@ class ClientTest extends TestCase
         $rawMsg .= 'From To Cc Bcc Subject Date Message-ID Priority X-Priority References';
         $rawMsg .= ' Newsgroups In-Reply-To Content-Type Reply-To';
         $rawMsg .= ')])';
-        $msg = $client->msgHandle($rawMsg);
+        $msg = $client->handleRawPacket($rawMsg);
 
         $expect = '';
         $expect .= '* 1 FETCH (UID 100001 RFC822.SIZE 111 FLAGS (\Recent) BODY[HEADER] {104}' . Client::MSG_SEPARATOR;
@@ -2375,16 +2375,16 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('18 UID store');
+        $msg = $client->handleRawPacket('18 UID store');
         $this->assertEquals('18 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('18 uid store 100001 +FLAGS (' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_SEEN . ')');
+        $msg = $client->handleRawPacket('18 uid store 100001 +FLAGS (' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_SEEN . ')');
         $this->assertEquals('18 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
-        $msg = $client->msgHandle('18 uid store 100001 +FLAGS (' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_SEEN . ')');
+        $msg = $client->handleRawPacket('18 uid store 100001 +FLAGS (' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_SEEN . ')');
         $this->assertEquals('18 OK UID STORE completed' . Client::MSG_SEPARATOR, $msg);
 
 
@@ -2440,14 +2440,14 @@ class ClientTest extends TestCase
 
         $this->assertEquals(5, count($server->getMailIdsByFlags([Storage::FLAG_RECENT])));
 
-        $msg = $client->msgHandle('18 uid store 100001 -FLAGS (' . Storage::FLAG_RECENT . ')');
+        $msg = $client->handleRawPacket('18 uid store 100001 -FLAGS (' . Storage::FLAG_RECENT . ')');
         $expect = '* 1 FETCH (FLAGS ())' . Client::MSG_SEPARATOR . '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
         $this->assertEquals(4, count($server->getMailIdsByFlags([Storage::FLAG_RECENT])));
 
 
-        $msg = $client->msgHandle('18 uid store 100001 +FLAGS (' . Storage::FLAG_SEEN . ')');
+        $msg = $client->handleRawPacket('18 uid store 100001 +FLAGS (' . Storage::FLAG_SEEN . ')');
         $expect = '* 1 FETCH (FLAGS (' . Storage::FLAG_SEEN . '))' . Client::MSG_SEPARATOR;
         $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -2455,7 +2455,7 @@ class ClientTest extends TestCase
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_SEEN])));
 
 
-        $msg = $client->msgHandle('18 uid store 100002 +FLAGS (' . Storage::FLAG_SEEN . ')');
+        $msg = $client->handleRawPacket('18 uid store 100002 +FLAGS (' . Storage::FLAG_SEEN . ')');
         $expect = '* 2 FETCH (FLAGS (' . Storage::FLAG_SEEN . '))' . Client::MSG_SEPARATOR;
         $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -2463,7 +2463,7 @@ class ClientTest extends TestCase
         $this->assertEquals(3, count($server->getMailIdsByFlags([Storage::FLAG_SEEN])));
 
 
-        $msg = $client->msgHandle('18 uid store 100003 +FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ')');
+        $msg = $client->handleRawPacket('18 uid store 100003 +FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ')');
         $expect = '* 3 FETCH (FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . '))' . Client::MSG_SEPARATOR;
         $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -2473,7 +2473,7 @@ class ClientTest extends TestCase
 
         $raw = '18 uid store 100003 +FLAGS ';
         $raw .= '(' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ')';
-        $msg = $client->msgHandle($raw);
+        $msg = $client->handleRawPacket($raw);
         $expect = '* 3 FETCH (FLAGS (';
         $expect .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . '))' . Client::MSG_SEPARATOR;
         $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
@@ -2484,7 +2484,7 @@ class ClientTest extends TestCase
 
         $raw = '18 uid store 100003 +FLAGS (';
         $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED . ')';
-        $msg = $client->msgHandle($raw);
+        $msg = $client->handleRawPacket($raw);
         $expect = '* 3 FETCH (FLAGS (';
         $expect .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED;
         $expect .= '))' . Client::MSG_SEPARATOR . '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
@@ -2496,7 +2496,7 @@ class ClientTest extends TestCase
         $raw = '18 uid store 100003 +FLAGS (';
         $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED;
         $raw .= ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . ')';
-        $msg = $client->msgHandle($raw);
+        $msg = $client->handleRawPacket($raw);
         $expect = '* 3 FETCH (FLAGS (';
         $expect .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ';
         $expect .= Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . '))' . Client::MSG_SEPARATOR;
@@ -2509,7 +2509,7 @@ class ClientTest extends TestCase
         $raw = '18 uid store 100003 +FLAGS (';
         $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED;
         $raw .= ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . ')';
-        $msg = $client->msgHandle($raw);
+        $msg = $client->handleRawPacket($raw);
         $expect = '* 3 FETCH (FLAGS (';
         #$expect = .' ';
         #$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN..'))'.Client::MSG_SEPARATOR;
@@ -2526,7 +2526,7 @@ class ClientTest extends TestCase
         $raw = '18 uid store 100003:100004 +FLAGS (';
         $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ';
         $raw .= Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . ')';
-        $msg = $client->msgHandle($raw);
+        $msg = $client->handleRawPacket($raw);
         $expect = '* 3 FETCH (FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ';
         $expect .= Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . '))' . Client::MSG_SEPARATOR;
         $expect .= '* 4 FETCH (FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ';
@@ -2537,13 +2537,13 @@ class ClientTest extends TestCase
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_DRAFT])));
 
 
-        $msg = $client->msgHandle('18 uid store 100005 +FLAGS.SILENT (' . Storage::FLAG_FLAGGED . ')');
+        $msg = $client->handleRawPacket('18 uid store 100005 +FLAGS.SILENT (' . Storage::FLAG_FLAGGED . ')');
         $this->assertEquals('18 OK UID STORE completed' . Client::MSG_SEPARATOR, $msg);
 
         $this->assertEquals(3, count($server->getMailIdsByFlags([Storage::FLAG_FLAGGED])));
 
 
-        $msg = $client->msgHandle('18 uid store 100005 -FLAGS.SILENT (' . Storage::FLAG_FLAGGED . ')');
+        $msg = $client->handleRawPacket('18 uid store 100005 -FLAGS.SILENT (' . Storage::FLAG_FLAGGED . ')');
         $this->assertEquals('18 OK UID STORE completed' . Client::MSG_SEPARATOR, $msg);
 
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_FLAGGED])));
@@ -2576,9 +2576,9 @@ class ClientTest extends TestCase
         $client->setId(1);
 
         $client->setStatus('hasAuth', true);
-        $client->msgHandle('6 select INBOX');
+        $client->handleRawPacket('6 select INBOX');
 
-        $msg = $client->msgHandle('18 uid FAIL1 FAIL2');
+        $msg = $client->handleRawPacket('18 uid FAIL1 FAIL2');
         $this->assertEquals('18 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
         $server->shutdown();
@@ -2601,32 +2601,32 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('16 copy');
+        $msg = $client->handleRawPacket('16 copy');
         $this->assertEquals('16 NO copy failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('16 copy');
+        $msg = $client->handleRawPacket('16 copy');
         $this->assertEquals('16 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir1');
         $server->addFolder('test_dir2');
 
-        $msg = $client->msgHandle('16 copy 1 test_dir2');
+        $msg = $client->handleRawPacket('16 copy 1 test_dir2');
         $this->assertEquals('16 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
-        $client->msgHandle('6 select test_dir1');
+        $client->handleRawPacket('6 select test_dir1');
 
-        $msg = $client->msgHandle('16 copy');
+        $msg = $client->handleRawPacket('16 copy');
         $this->assertEquals('16 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('16 copy 1');
+        $msg = $client->handleRawPacket('16 copy 1');
         $this->assertEquals('16 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('16 copy 1 test_dir3');
+        $msg = $client->handleRawPacket('16 copy 1 test_dir3');
         $this->assertEquals('16 BAD No messages in selected mailbox.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('16 UID copy 1 test_dir2');
+        $msg = $client->handleRawPacket('16 UID copy 1 test_dir2');
         $this->assertEquals('16 BAD No messages in selected mailbox.' . Client::MSG_SEPARATOR, $msg);
 
 
@@ -2663,13 +2663,13 @@ class ClientTest extends TestCase
         $this->assertEquals(4, count($files));
 
 
-        $msg = $client->msgHandle('15 copy 2 test_dir2');
+        $msg = $client->handleRawPacket('15 copy 2 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
         $finder = new Finder();
         $files = $finder->in($path1 . '/test_dir2')->files();
         $this->assertEquals(1, count($files));
 
-        $msg = $client->msgHandle('15 copy 3:4 test_dir2');
+        $msg = $client->handleRawPacket('15 copy 3:4 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
         $finder = new Finder();
         $files = $finder->in($path1 . '/test_dir2')->files();
@@ -2695,28 +2695,28 @@ class ClientTest extends TestCase
         $client->setServer($server);
         $client->setId(1);
 
-        $msg = $client->msgHandle('15 UID copy');
+        $msg = $client->handleRawPacket('15 UID copy');
         $this->assertEquals('15 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
 
-        $msg = $client->msgHandle('15 UID copy');
+        $msg = $client->handleRawPacket('15 UID copy');
         $this->assertEquals('15 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
         $server->addFolder('test_dir1');
         $server->addFolder('test_dir2');
-        $client->msgHandle('6 select test_dir1');
+        $client->handleRawPacket('6 select test_dir1');
 
-        $msg = $client->msgHandle('15 UID copy');
+        $msg = $client->handleRawPacket('15 UID copy');
         $this->assertEquals('15 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('15 UID copy 100001');
+        $msg = $client->handleRawPacket('15 UID copy 100001');
         $this->assertEquals('15 BAD Arguments invalid.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('15 UID copy 100001 test_dir3');
+        $msg = $client->handleRawPacket('15 UID copy 100001 test_dir3');
         $this->assertEquals('15 BAD No messages in selected mailbox.' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('15 UID copy 100001 test_dir2');
+        $msg = $client->handleRawPacket('15 UID copy 100001 test_dir2');
         $this->assertEquals('15 BAD No messages in selected mailbox.' . Client::MSG_SEPARATOR, $msg);
 
 
@@ -2753,22 +2753,22 @@ class ClientTest extends TestCase
         $this->assertEquals(4, count($files));
 
 
-        $msg = $client->msgHandle('15 UID copy 100002 test_dir2');
+        $msg = $client->handleRawPacket('15 UID copy 100002 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
         $finder = new Finder();
         $files = $finder->in($path1 . '/test_dir2')->files();
         $this->assertEquals(1, count($files));
 
-        $msg = $client->msgHandle('15 UID copy 100003:100004 test_dir2');
+        $msg = $client->handleRawPacket('15 UID copy 100003:100004 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
         $finder = new Finder();
         $files = $finder->in($path1 . '/test_dir2')->files();
         $this->assertEquals(3, count($files));
 
-        $msg = $client->msgHandle('15 UID copy 1 test_dir2');
+        $msg = $client->handleRawPacket('15 UID copy 1 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->msgHandle('15 UID copy 100001 test_dir3');
+        $msg = $client->handleRawPacket('15 UID copy 100001 test_dir3');
         $expect = '15 NO [TRYCREATE] Can not get folder: no subfolder named test_dir3' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 

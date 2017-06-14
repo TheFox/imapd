@@ -25,17 +25,17 @@ $server->listen();
 $eventPreAddMail = new Event(Event::TRIGGER_MAIL_ADD_PRE, null, function($event){
 	// Do stuff: handle mail, etc.
 });
-$server->eventAdd($eventPreAddMail);
+$server->addEvent($eventPreAddMail);
 
 $eventAddMail = new Event(Event::TRIGGER_MAIL_ADD, null, function($event){
 	// Do stuff: handle mail, etc.
 });
-$server->eventAdd($eventAddMail);
+$server->addEvent($eventAddMail);
 
 $eventPostAddMail = new Event(Event::TRIGGER_MAIL_ADD_POST, null, function($event){
 	// Do stuff: handle mail, etc.
 });
-$server->eventAdd($eventPostAddMail);
+$server->addEvent($eventPostAddMail);
 
 // `$server->loop()` is only a while-loop with `$server->run()` executed.
 // If you also need to process other things in your application as well

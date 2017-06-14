@@ -23,7 +23,7 @@
 			<file>tests/TheFox/Test/AbstractStorageTest.php</file>
 			<file>tests/TheFox/Test/ClientTest.php</file>
 			<file>tests/TheFox/Test/DirectoryStorageTest.php</file>
-			<file>tests/TheFox/Test/MsgDbTest.php</file>
+			<file>tests/TheFox/Test/MessageDatabaseTest.php</file>
 			<file>tests/TheFox/Test/ServerTest.php</file>
 			<file>tests/TheFox/Test/StringParserTest.php</file>
 			<file>tests/TheFox/Test/TestStorageTest.php</file>
