@@ -27,7 +27,7 @@
         "symfony/options-resolver": "^3.3",
         "liip/process-manager": "^1.0",
         "psr/log": "^1.0",
-        "thefox/logic": "^0.1",
+        "thefox/logic": "^1.0",
         "thefox/network": "^1.0"
     },
     "require-dev": {
