@@ -28,7 +28,7 @@
         "liip/process-manager": "^1.0",
         "psr/log": "^1.0",
         "thefox/logic": "^0.1",
-        "thefox/network": "^0.1"
+        "thefox/network": "^1.0"
     },
     "require-dev": {
         "symfony/finder": "^2.5",
