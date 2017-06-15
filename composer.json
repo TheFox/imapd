@@ -33,8 +33,7 @@
         "symfony/finder": "^3.3",
         "phpunit/phpunit": "^6.2",
         "phpstan/phpstan": "^0.7",
-        "monolog/monolog": "^1.22",
-        "thefox/utilities": "^1.1"
+        "monolog/monolog": "^1.22"
     },
     "autoload": {
         "psr-0": {

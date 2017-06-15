@@ -10,7 +10,6 @@ $settings = ['dirname' => 'test_maildir'];
 #Maildir::initMaildir($settings['dirname']);
 
 $mail = new Maildir($settings);
-#\Doctrine\Common\Util\Debug::dump($mail);
 
 $message = new Message();
 $message->addFrom('dev1@fox21.at');
