@@ -68,7 +68,8 @@ class MessageDatabaseTest extends TestCase
         $this->assertEquals(1, count($files));
     }
     
-    public function testAddMsgEmptyFlags(){
+    public function testAddMsgEmptyFlags()
+    {
         $db = new MessageDatabase('./tmp/test_data/msgdb_emtpy_flags.yml');
 
         $msgId = $db->addMsg('./tmp/test_data/email1.eml');

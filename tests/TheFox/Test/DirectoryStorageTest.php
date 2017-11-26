@@ -44,7 +44,8 @@ class DirectoryStorageTest extends TestCase
         $this->assertFalse($storage->createFolder($path));
     }
     
-    public function testGetMailsCountByFolder(){
+    public function testGetMailsCountByFolder()
+    {
         $path = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
 
         $storage = new DirectoryStorage();
