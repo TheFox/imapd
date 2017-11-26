@@ -110,7 +110,6 @@ class StringParser
         $endChar = '';
 
         for ($pos = 0; $pos < $this->len; $pos++) {
-
             $char = $str[$pos];
             $nextChar = ($pos < $this->len - 1) ? $str[$pos + 1] : '';
 

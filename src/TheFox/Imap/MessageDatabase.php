@@ -51,7 +51,6 @@ class MessageDatabase extends YamlStorage
     public function load(): bool
     {
         if (parent::load()) {
-
             if (array_key_exists('msgs', $this->data) && $this->data['msgs']) {
                 foreach ($this->data['msgs'] as $msgId => $msgAr) {
                     $this->msgsByPath[$msgAr['path']] = $msgAr;

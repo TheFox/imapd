@@ -58,26 +58,27 @@ class DirectoryStorage extends AbstractStorage
         return false;
     }
     
-    private function recursiveDirectorySearch(string $path, string $pattern, bool $recursive = false, int $level = 0){
+    private function recursiveDirectorySearch(string $path, string $pattern, bool $recursive = false, int $level = 0)
+    {
         $folders = [];
         if (is_dir($path)) {
             if ($dirHandle = opendir($path)) {
                 while (($fileName = readdir($dirHandle)) !== false) {
-                    if ($fileName == '.' || $fileName == '..'){
+                    if ($fileName == '.' || $fileName == '..') {
                         continue;
                     }
                     
                     $dir = $path . DIRECTORY_SEPARATOR . $fileName;
                     
-                    if (!is_dir($dir)){
+                    if (!is_dir($dir)) {
                         continue;
                     }
 
-                    if (fnmatch($pattern, $fileName)){
+                    if (fnmatch($pattern, $fileName)) {
                         $folders[] = new SplFileInfo($dir);
                     }
                     
-                    if ($recursive){
+                    if ($recursive) {
                         $recursiveFolders = $this->recursiveDirectorySearch($dir, $pattern, $recursive, $level + 1);
                         
                         // Append Folders.
@@ -158,7 +159,7 @@ class DirectoryStorage extends AbstractStorage
                     while (($fileName = readdir($dirHandle)) !== false) {
                         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
                         
-                        if (!is_file($filePath)){
+                        if (!is_file($filePath)) {
                             continue;
                         }
                         
@@ -308,10 +309,8 @@ class DirectoryStorage extends AbstractStorage
         if ($db) {
             $msg = $db->getMsgById($msgId);
             if ($msg) {
-
                 $pathinfo = pathinfo($msg['path']);
                 if (isset($pathinfo['dirname']) && isset($pathinfo['basename'])) {
-
                     $path = $pathinfo['dirname'];
                     if (is_dir($path)) {
                         if ($dirHandle = opendir($path)) {
@@ -321,7 +320,7 @@ class DirectoryStorage extends AbstractStorage
                             while (($fileName = readdir($dirHandle)) !== false) {
                                 $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
                                 
-                                if (!is_file($filePath)){
+                                if (!is_file($filePath)) {
                                     continue;
                                 }
                                 
@@ -333,14 +332,14 @@ class DirectoryStorage extends AbstractStorage
                             }
                             closedir($dirHandle);
 
-                            $fileSortFn = function (SplFileInfo $a, SplFileInfo $b){
+                            $fileSortFn = function (SplFileInfo $a, SplFileInfo $b) {
                                 return $a->getPathname() <=> $b->getPathname();
                             };
 
                             usort($files, $fileSortFn);
 
                             $seq = 0;
-                            foreach ($files as $file){
+                            foreach ($files as $file) {
                                 $seq++;
 
                                 if ($file->getFilename() == $pathinfo['basename']) {
@@ -377,7 +376,7 @@ class DirectoryStorage extends AbstractStorage
                     while (($fileName = readdir($dirHandle)) !== false) {
                         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
                         
-                        if (!is_file($filePath)){
+                        if (!is_file($filePath)) {
                             continue;
                         }
                         
@@ -388,14 +387,14 @@ class DirectoryStorage extends AbstractStorage
                     }
                     closedir($dirHandle);
                     
-                    $fileSortFn = function (SplFileInfo $a, SplFileInfo $b){
+                    $fileSortFn = function (SplFileInfo $a, SplFileInfo $b) {
                         return $a->getPathname() <=> $b->getPathname();
                     };
                     
                     usort($files, $fileSortFn);
 
                     $seq = 0;
-                    foreach ($files as $file){
+                    foreach ($files as $file) {
                         $seq++;
                         
                         if ($seq >= $seqNum) {
@@ -477,7 +476,7 @@ class DirectoryStorage extends AbstractStorage
                     while (($fileName = readdir($dirHandle)) !== false) {
                         $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
                         
-                        if (!is_file($filePath)){
+                        if (!is_file($filePath)) {
                             continue;
                         }
                         
@@ -488,14 +487,14 @@ class DirectoryStorage extends AbstractStorage
                     }
                     closedir($dirHandle);
 
-                    $fileSortFn = function (SplFileInfo $a, SplFileInfo $b){
+                    $fileSortFn = function (SplFileInfo $a, SplFileInfo $b) {
                         return $a->getPathname() <=> $b->getPathname();
                     };
 
                     usort($files, $fileSortFn);
 
                     $seq = 0;
-                    foreach ($files as $file){
+                    foreach ($files as $file) {
                         $seq++;
 
                         if ($seq >= $seqNum) {

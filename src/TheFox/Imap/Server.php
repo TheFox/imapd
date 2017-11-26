@@ -382,7 +382,7 @@ class Server extends Thread
             $folders[] = $folder;
         }
         
-        usort($folders, function(string $a, string $b){
+        usort($folders, function (string $a, string $b) {
             return $a <=> $b;
         });
         
@@ -585,15 +585,14 @@ class Server extends Thread
         $storage = $this->getDefaultStorage();
         
         $mailStr = $storage->getPlainMailById($msgId);
-        if (!$mailStr){
+        if (!$mailStr) {
             return null;
         }
         
-        try{
+        try {
             $mail = ZendMailMessage::fromString($mailStr);
             return $mail;
-        }
-        catch (\Error $e){
+        } catch (\Error $e) {
             print 'ZendMailMessage::fromString ERROR: '.$e."\n";
         }
 

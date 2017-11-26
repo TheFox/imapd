@@ -21,7 +21,6 @@ use TheFox\Logic\NotGate;
 class Client
 {
     use LoggerAwareTrait;
-
     const MSG_SEPARATOR = "\r\n";
 
     /**
@@ -326,7 +325,6 @@ class Client
             $msgRawLen = strlen($msgRaw);
             while ($msgRawLen) {
                 if ($msgRaw[0] == '(' || $msgRaw[0] == '[') {
-
                     $pair = ')';
                     if ($msgRaw[0] == '[') {
                         $pair = ']';
@@ -1082,8 +1080,12 @@ class Client
                 $message = Message::fromString($this->getStatus('appendMsg'));
 
                 try {
-                    $this->getServer()->addMail($message, $this->getStatus('appendFolder'),
-                        $this->getStatus('appendFlags'), false)
+                    $this->getServer()->addMail(
+                        $message,
+                        $this->getStatus('appendFolder'),
+                        $this->getStatus('appendFlags'),
+                        false
+                    )
                     ;
                     $this->logger->debug('client ' . $this->id . ' append completed: ' . $this->getStatus('appendStep'));
                     return $this->sendOk('APPEND completed', $this->getStatus('appendTag'));
@@ -1209,8 +1211,7 @@ class Client
                 $itemWithArgs = [$this->parseSearchKeys($item, $subPosOffset, 0, true, $level + 1)];
             } else {
                 $itemcmp = strtolower($item);
-                if (
-                    $itemcmp == 'all'
+                if ($itemcmp == 'all'
                     || $itemcmp == 'answered'
                     || $itemcmp == 'deleted'
                     || $itemcmp == 'draft'
@@ -1732,12 +1733,14 @@ class Client
         switch (strtolower($name)) {
             case '+flags.silent':
                 $silent = true;
+                // no break
             case '+flags':
                 $add = true;
                 break;
 
             case '-flags.silent':
                 $silent = true;
+                // no break
             case '-flags':
                 $rem = true;
                 break;
