@@ -1,0 +1,15 @@
+/log
+/vendor
+/tmp
+*.yml
+*.xml
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+.editorconfig
+.git
+.gitignore
+.idea
+.env
+.env.example
+README.md
