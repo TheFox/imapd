@@ -1,8 +1,9 @@
 /log
 /vendor
 /tmp
+*.txt
 *.yml
-*.xml
+#*.xml
 *.sublime-project
 *.sublime-workspace
 .DS_Store

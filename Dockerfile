@@ -3,10 +3,10 @@ ARG COMPOSER_AUTH
 
 ENV DEBIAN_FRONTEND noninteractive
 
-#RUN apt-get update && \
-#	apt-get install -y apt-transport-https build-essential curl libcurl3 libcurl4-openssl-dev libicu-dev zlib1g-dev libxml2-dev && \
-#	docker-php-ext-install curl xml zip bcmath pcntl && \
-#	apt-get clean
+RUN apt-get update && \
+    apt-get install -y zlib1g-dev git && \
+    docker-php-ext-install sockets zip && \
+    apt-get clean
 
 # Install Composer.
 COPY --from=composer:1.5 /usr/bin/composer /usr/bin/composer
@@ -17,7 +17,7 @@ WORKDIR /app
 ADD . /app
 
 # Install dependencies.
-RUN composer install --no-dev --optimize-autoloader --no-progress --no-suggest --no-interaction
+RUN composer install --no-suggest --no-progress  --no-interaction
 
 RUN ls -la
 
@@ -28,7 +28,4 @@ RUN ls -la /root
 RUN mkdir /data && chmod 777 /data
 VOLUME /data
 
-VOLUME /mnt
-WORKDIR /mnt
-
-ENTRYPOINT ["php", "/app/bin/flickr-cli"]
+ENTRYPOINT ["bash"]
