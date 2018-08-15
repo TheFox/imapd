@@ -171,11 +171,28 @@ class ClientTest extends TestCase
         $raw .= 'Message-ID Priority X-Priority References Newsgroups In-Reply-To Content-Type Reply-To)])';
 
         $expect = [
-            'UID', 'RFC822.SIZE', 'FLAGS', 'BODY.PEEK',
+            'UID',
+            'RFC822.SIZE',
+            'FLAGS',
+            'BODY.PEEK',
             [
                 'HEADER.FIELDS',
-                ['From', 'To', 'Cc', 'Bcc', 'Subject', 'Date', 'Message-ID', 'Priority', 'X-Priority',
-                    'References', 'Newsgroups', 'In-Reply-To', 'Content-Type', 'Reply-To'],
+                [
+                    'From',
+                    'To',
+                    'Cc',
+                    'Bcc',
+                    'Subject',
+                    'Date',
+                    'Message-ID',
+                    'Priority',
+                    'X-Priority',
+                    'References',
+                    'Newsgroups',
+                    'In-Reply-To',
+                    'Content-Type',
+                    'Reply-To',
+                ],
             ],
         ];
         $rv[] = [$raw, $expect];
@@ -253,7 +270,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, 'test_dir1');
 
-
         $seq = $client->createSequenceSet('0', false);
         $this->assertEquals([], $seq);
 
@@ -302,7 +318,6 @@ class ClientTest extends TestCase
         $seq = $client->createSequenceSet('8:9', false);
         $this->assertEquals([], $seq);
 
-
         $seq = $client->createSequenceSet('100001', true);
         $this->assertEquals([1], $seq);
 
@@ -350,7 +365,6 @@ class ClientTest extends TestCase
 
         $seq = $client->createSequenceSet('999999:*', true);
         $this->assertEquals([6], $seq);
-
 
         $server->shutdown();
         $filesystem = new Filesystem();
@@ -482,7 +496,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -570,7 +583,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, 'test_dir', null, false);
 
-
         $msg = $client->handleRawPacket('6 select test_dir');
 
         $expect = '';
@@ -632,7 +644,6 @@ class ClientTest extends TestCase
         $message->setSubject('my_subject 4');
         $message->setBody('my_body');
         $server->addMail($message, 'test_dir', [], false);
-
 
         $msg = $client->handleRawPacket('6 select test_dir');
 
@@ -696,7 +707,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, 'test_dir', [], true);
 
-
         $msg = $client->handleRawPacket('6 select test_dir');
 
         $expect = '';
@@ -731,7 +741,6 @@ class ClientTest extends TestCase
         $client->setId(1);
         $client->setStatus('hasAuth', true);
 
-
         $msg = $client->handleRawPacket('6 select Inbox');
 
         $expect = '';
@@ -759,7 +768,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -800,7 +808,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -834,7 +841,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -864,7 +870,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -928,7 +933,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -970,7 +974,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -1005,7 +1008,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -1046,7 +1048,6 @@ class ClientTest extends TestCase
         $msgIds = $server->getMailIdsByFlags([Storage::FLAG_SEEN]);
         $this->assertEquals(1, count($msgIds));
 
-
         $msg = $client->handleRawPacket('19 append "Sent" (' . Storage::FLAG_ANSWERED . ') {414}');
         $this->assertEquals('+ Ready for literal data' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(2, $client->getStatus('appendStep'));
@@ -1069,7 +1070,6 @@ class ClientTest extends TestCase
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
 
-
         $finder = new Finder();
         $files = $finder->in($path1 . '/Sent')->files();
         $this->assertEquals(2, count($files));
@@ -1091,7 +1091,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -1141,7 +1140,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -1172,7 +1170,6 @@ class ClientTest extends TestCase
         $msg = $client->handleRawPacket('');
         $msg = $client->handleRawPacket('test333');
 
-
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
 
@@ -1190,7 +1187,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -1222,7 +1218,6 @@ class ClientTest extends TestCase
         $msg = $client->handleRawPacket('');
         $msg = $client->handleRawPacket('test333');
 
-
         $this->assertEquals('19 OK APPEND completed' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
 
@@ -1240,7 +1235,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -1270,7 +1264,6 @@ class ClientTest extends TestCase
         $msg = $client->handleRawPacket('');
         $msg = $client->handleRawPacket('test333');
 
-
         $this->assertEquals('19 NO [TRYCREATE] Can not get folder: Sent' . Client::MSG_SEPARATOR, $msg);
         $this->assertEquals(3, $client->getStatus('appendStep'));
     }
@@ -1284,7 +1277,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -1315,7 +1307,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -1345,7 +1336,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -1363,7 +1353,6 @@ class ClientTest extends TestCase
 
         $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 OK EXPUNGE completed' . Client::MSG_SEPARATOR, $msg);
-
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -1421,7 +1410,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, 'test_dir');
 
-
         $msg = $client->handleRawPacket('14 expunge');
         $expect = '* 1 EXPUNGE' . Client::MSG_SEPARATOR;
         $expect .= '* 2 EXPUNGE' . Client::MSG_SEPARATOR;
@@ -1445,7 +1433,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -1463,7 +1450,6 @@ class ClientTest extends TestCase
 
         $msg = $client->handleRawPacket('14 expunge');
         $this->assertEquals('14 OK EXPUNGE completed' . Client::MSG_SEPARATOR, $msg);
-
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -1545,7 +1531,6 @@ class ClientTest extends TestCase
         $rv[] = [['UNKEYWORD', 'flag21'], ['UNKEYWORD flag21']];
         $rv[] = [['UNSEEN'], ['UNSEEN']];
 
-
         $rv[] = [['1', '2'], ['1', 'AND', '2']];
         $rv[] = [['BCC', 'thefox', 'BCC', '21'], ['BCC thefox', 'AND', 'BCC 21']];
         $rv[] = [['BCC', 'thefox', 'AND', 'BCC', '21'], ['BCC thefox', 'AND', 'BCC 21']];
@@ -1563,89 +1548,155 @@ class ClientTest extends TestCase
 
         #return $rv;
 
-        $rv[] = [[
-            'ALL',
-            'ANSWERED',
-            'BCC', 'thefox',
-            'BEFORE', '1987-02-21',
-            'BODY', 'fox',
-            'CC', 'fox',
-            'DELETED',
-            'DRAFT',
-            'FLAGGED',
-            'FROM', 'fox',
-            'HEADER', 'FieldName1', 'fox',
-            'KEYWORD', 'flag21',
-            'LARGER', 21,
-            'LARGER', '24',
-            'NEW',
-            'NOT', 'BCC', 'fox',
-            'OLD',
-            'ON', '1987-02-21',
-            'OR', 'BCC', 'thefox', 'BCC', '21',
-            'RECENT',
-            'SEEN',
-            'SENTBEFORE', '1987-02-21',
-            'SENTON', '1987-02-21',
-            'SENTSINCE', '1987-02-21',
-            'SMALLER', 21,
-            'SMALLER', '24',
-            'SUBJECT', 'hello',
-            'SUBJECT', '"hello world"',
-            'TEXT', 'fox',
-            'TO', 'fox',
-            'UID', '100001',
-            'UNANSWERED',
-            'UNDELETED',
-            'UNDRAFT',
-            'UNFLAGGED',
-            'UNKEYWORD', 'flag21',
-            'UNSEEN',
-        ], [
-            'ALL',
-            'AND', 'ANSWERED',
-            'AND', 'BCC thefox',
-            'AND', 'BEFORE 1987-02-21',
-            'AND', 'BODY fox',
-            'AND', 'CC fox',
-            'AND', 'DELETED',
-            'AND', 'DRAFT',
-            'AND', 'FLAGGED',
-            'AND', 'FROM fox',
-            'AND', 'HEADER FieldName1 fox',
-            'AND', 'KEYWORD flag21',
-            'AND', 'LARGER 21',
-            'AND', 'LARGER 24',
-            'AND', 'NEW',
-            'AND', 'NOT', 'BCC fox',
-            'AND', 'OLD',
-            'AND', 'ON 1987-02-21',
-            'AND', ['BCC thefox', 'OR', 'BCC 21'],
-            'AND', 'RECENT',
-            'AND', 'SEEN',
-            'AND', 'SENTBEFORE 1987-02-21',
-            'AND', 'SENTON 1987-02-21',
-            'AND', 'SENTSINCE 1987-02-21',
-            'AND', 'SMALLER 21',
-            'AND', 'SMALLER 24',
-            'AND', 'SUBJECT hello',
-            'AND', 'SUBJECT "hello world"',
-            'AND', 'TEXT fox',
-            'AND', 'TO fox',
-            'AND', 'UID 100001',
-            'AND', 'UNANSWERED',
-            'AND', 'UNDELETED',
-            'AND', 'UNDRAFT',
-            'AND', 'UNFLAGGED',
-            'AND', 'UNKEYWORD flag21',
-            'AND', 'UNSEEN',
-        ],
+        $rv[] = [
+            [
+                'ALL',
+                'ANSWERED',
+                'BCC',
+                'thefox',
+                'BEFORE',
+                '1987-02-21',
+                'BODY',
+                'fox',
+                'CC',
+                'fox',
+                'DELETED',
+                'DRAFT',
+                'FLAGGED',
+                'FROM',
+                'fox',
+                'HEADER',
+                'FieldName1',
+                'fox',
+                'KEYWORD',
+                'flag21',
+                'LARGER',
+                21,
+                'LARGER',
+                '24',
+                'NEW',
+                'NOT',
+                'BCC',
+                'fox',
+                'OLD',
+                'ON',
+                '1987-02-21',
+                'OR',
+                'BCC',
+                'thefox',
+                'BCC',
+                '21',
+                'RECENT',
+                'SEEN',
+                'SENTBEFORE',
+                '1987-02-21',
+                'SENTON',
+                '1987-02-21',
+                'SENTSINCE',
+                '1987-02-21',
+                'SMALLER',
+                21,
+                'SMALLER',
+                '24',
+                'SUBJECT',
+                'hello',
+                'SUBJECT',
+                '"hello world"',
+                'TEXT',
+                'fox',
+                'TO',
+                'fox',
+                'UID',
+                '100001',
+                'UNANSWERED',
+                'UNDELETED',
+                'UNDRAFT',
+                'UNFLAGGED',
+                'UNKEYWORD',
+                'flag21',
+                'UNSEEN',
+            ],
+            [
+                'ALL',
+                'AND',
+                'ANSWERED',
+                'AND',
+                'BCC thefox',
+                'AND',
+                'BEFORE 1987-02-21',
+                'AND',
+                'BODY fox',
+                'AND',
+                'CC fox',
+                'AND',
+                'DELETED',
+                'AND',
+                'DRAFT',
+                'AND',
+                'FLAGGED',
+                'AND',
+                'FROM fox',
+                'AND',
+                'HEADER FieldName1 fox',
+                'AND',
+                'KEYWORD flag21',
+                'AND',
+                'LARGER 21',
+                'AND',
+                'LARGER 24',
+                'AND',
+                'NEW',
+                'AND',
+                'NOT',
+                'BCC fox',
+                'AND',
+                'OLD',
+                'AND',
+                'ON 1987-02-21',
+                'AND',
+                ['BCC thefox', 'OR', 'BCC 21'],
+                'AND',
+                'RECENT',
+                'AND',
+                'SEEN',
+                'AND',
+                'SENTBEFORE 1987-02-21',
+                'AND',
+                'SENTON 1987-02-21',
+                'AND',
+                'SENTSINCE 1987-02-21',
+                'AND',
+                'SMALLER 21',
+                'AND',
+                'SMALLER 24',
+                'AND',
+                'SUBJECT hello',
+                'AND',
+                'SUBJECT "hello world"',
+                'AND',
+                'TEXT fox',
+                'AND',
+                'TO fox',
+                'AND',
+                'UID 100001',
+                'AND',
+                'UNANSWERED',
+                'AND',
+                'UNDELETED',
+                'AND',
+                'UNDRAFT',
+                'AND',
+                'UNFLAGGED',
+                'AND',
+                'UNKEYWORD flag21',
+                'AND',
+                'UNSEEN',
+            ],
         ];
 
         $rv[] = [[['1', '2'], '3'], [['1', 'AND', '2'], 'AND', '3']];
         $rv[] = [['4', ['1', '2'], '3'], ['4', 'AND', ['1', 'AND', '2'], 'AND', '3']];
         $rv[] = [[['1', '2'], 'AND', '3'], [['1', 'AND', '2'], 'AND', '3']];
-
 
         $rv[] = [['OR', '1', '2'], [['1', 'OR', '2']]];
         $rv[] = [['OR', 'OR', '1', '2', '3'], [[['1', 'OR', '2'], 'OR', '3']]];
@@ -1689,7 +1740,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -1703,7 +1753,6 @@ class ClientTest extends TestCase
         $this->assertEquals('17 NO No mailbox selected.' . Client::MSG_SEPARATOR, $msg);
 
         $client->handleRawPacket('6 select INBOX');
-
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -1878,7 +1927,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, null, [Storage::FLAG_SEEN], false);
 
-
         $msg = $client->handleRawPacket('17 uid SEARCH');
         $expect = '17 BAD Arguments invalid.' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
@@ -1891,35 +1939,51 @@ class ClientTest extends TestCase
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH ANSWERED');
-        $expect = '* SEARCH 100002 100019' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100002 100019%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH BCC apple');
         $expect = '* SEARCH 100003' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-        #$msg = $client->msgHandle('17 uid SEARCH BEFORE 1990');
-        $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
-        #$this->assertEquals($expect, $msg);
-
         $msg = $client->handleRawPacket('17 uid SEARCH BODY world');
         $expect = '* SEARCH 100006' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH CC dev3');
-        $expect = '* SEARCH 100022 100023' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100022 100023%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH DELETED');
-        $expect = '* SEARCH 100007 100020' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100007 100020%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH DRAFT');
-        $expect = '* SEARCH 100008 100021' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100008 100021%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH FLAGGED');
-        $expect = '* SEARCH 100009 100022' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100009 100022%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH FROM test@');
@@ -1927,7 +1991,11 @@ class ClientTest extends TestCase
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH HEADER Date 1987');
-        $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100004 100005%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH HEADER TO fox21');
@@ -1951,11 +2019,19 @@ class ClientTest extends TestCase
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH ON 1987-02-21');
-        $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100004 100005%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH OR 5 6');
-        $expect = '* SEARCH 100005 100006' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100005 100006%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH OR OR 5 6 7');
@@ -1978,7 +2054,11 @@ class ClientTest extends TestCase
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH SENTON 1987-02-21');
-        $expect = '* SEARCH 100004 100005' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100004 100005%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH SENTSINCE 1987-02-21');
@@ -1998,7 +2078,11 @@ class ClientTest extends TestCase
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH TEXT test');
-        $expect = '* SEARCH 100011 100015' . Client::MSG_SEPARATOR . '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
+        $expect = sprintf(
+            '* SEARCH 100011 100015%s17 OK UID SEARCH completed%s',
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $msg = $client->handleRawPacket('17 uid SEARCH TO steve');
@@ -2073,7 +2157,6 @@ class ClientTest extends TestCase
         $expect .= '17 OK UID SEARCH completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
-
         $msg = $client->handleRawPacket('17 uid SEARCH BEFORE 1985');
         $this->assertEquals('17 OK UID SEARCH completed' . Client::MSG_SEPARATOR, $msg);
 
@@ -2104,7 +2187,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2151,7 +2233,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, null, [], true);
 
-
         $msg = $client->handleRawPacket('15 UID fetch 1:* (ALL)');
         $expect = '* 1 FETCH (UID 100001)' . Client::MSG_SEPARATOR;
         $expect .= '* 2 FETCH (UID 100002)' . Client::MSG_SEPARATOR;
@@ -2186,7 +2267,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2223,7 +2303,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, null, [], true);
 
-
         $msg = $client->handleRawPacket('15 UID fetch 1:* (FLAGS)');
         $expect = '';
         $expect .= '* 1 FETCH (UID 100001 FLAGS (' . Storage::FLAG_RECENT . '))' . Client::MSG_SEPARATOR;
@@ -2243,7 +2322,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2280,7 +2358,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, null, [], true);
 
-
         $msg = $client->handleRawPacket('15 UID fetch 100002:100004 (FLAGS)');
         $expect = '';
         $expect = '* 2 FETCH (UID 100002 FLAGS (' . Storage::FLAG_RECENT . '))' . Client::MSG_SEPARATOR;
@@ -2299,7 +2376,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2337,7 +2413,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, null, [], true);
 
-
         $rawMsg = '';
         $rawMsg .= '15 UID fetch 100001';
         $rawMsg .= ' (UID RFC822.SIZE FLAGS BODY.PEEK';
@@ -2370,7 +2445,6 @@ class ClientTest extends TestCase
         $storage1->setPath($path1);
         $server->addStorage($storage1);
 
-
         $client = new Client();
         $client->setServer($server);
         $client->setId(1);
@@ -2378,15 +2452,16 @@ class ClientTest extends TestCase
         $msg = $client->handleRawPacket('18 UID store');
         $this->assertEquals('18 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
-        $msg = $client->handleRawPacket('18 uid store 100001 +FLAGS (' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_SEEN . ')');
+        $msgRaw = sprintf('18 uid store 100001 +FLAGS (%s %s)', Storage::FLAG_DELETED, Storage::FLAG_SEEN);
+        $msg = $client->handleRawPacket($msgRaw);
         $this->assertEquals('18 NO uid failure' . Client::MSG_SEPARATOR, $msg);
 
         $client->setStatus('hasAuth', true);
         $client->handleRawPacket('6 select INBOX');
 
-        $msg = $client->handleRawPacket('18 uid store 100001 +FLAGS (' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_SEEN . ')');
+        $msgRaw = sprintf('18 uid store 100001 +FLAGS (%s %s)', Storage::FLAG_DELETED, Storage::FLAG_SEEN);
+        $msg = $client->handleRawPacket($msgRaw);
         $this->assertEquals('18 OK UID STORE completed' . Client::MSG_SEPARATOR, $msg);
-
 
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
@@ -2437,7 +2512,6 @@ class ClientTest extends TestCase
         $message->setBody('my_body');
         $server->addMail($message, null, null, false);
 
-
         $this->assertEquals(5, count($server->getMailIdsByFlags([Storage::FLAG_RECENT])));
 
         $msg = $client->handleRawPacket('18 uid store 100001 -FLAGS (' . Storage::FLAG_RECENT . ')');
@@ -2446,14 +2520,12 @@ class ClientTest extends TestCase
 
         $this->assertEquals(4, count($server->getMailIdsByFlags([Storage::FLAG_RECENT])));
 
-
         $msg = $client->handleRawPacket('18 uid store 100001 +FLAGS (' . Storage::FLAG_SEEN . ')');
         $expect = '* 1 FETCH (FLAGS (' . Storage::FLAG_SEEN . '))' . Client::MSG_SEPARATOR;
         $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
         $this->assertEquals($expect, $msg);
 
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_SEEN])));
-
 
         $msg = $client->handleRawPacket('18 uid store 100002 +FLAGS (' . Storage::FLAG_SEEN . ')');
         $expect = '* 2 FETCH (FLAGS (' . Storage::FLAG_SEEN . '))' . Client::MSG_SEPARATOR;
@@ -2462,36 +2534,62 @@ class ClientTest extends TestCase
 
         $this->assertEquals(3, count($server->getMailIdsByFlags([Storage::FLAG_SEEN])));
 
-
-        $msg = $client->handleRawPacket('18 uid store 100003 +FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ')');
-        $expect = '* 3 FETCH (FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . '))' . Client::MSG_SEPARATOR;
-        $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
+        $msgRaw = sprintf(
+            '18 uid store 100003 +FLAGS (%s %s)',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED
+        );
+        $msg = $client->handleRawPacket($msgRaw);
+        $expect = sprintf(
+            '* 3 FETCH (FLAGS (%s %s))%s18 OK UID STORE completed%s',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $this->assertEquals(4, count($server->getMailIdsByFlags([Storage::FLAG_SEEN, Storage::FLAG_ANSWERED])));
 
-
-        $raw = '18 uid store 100003 +FLAGS ';
-        $raw .= '(' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ')';
-        $msg = $client->handleRawPacket($raw);
-        $expect = '* 3 FETCH (FLAGS (';
-        $expect .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . '))' . Client::MSG_SEPARATOR;
-        $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
+        $msgRaw = sprintf(
+            '18 uid store 100003 +FLAGS (%s %s %s)',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED
+        );
+        $msg = $client->handleRawPacket($msgRaw);
+        $expect = sprintf(
+            '* 3 FETCH (FLAGS (%s %s %s))%s18 OK UID STORE completed%s',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED,
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $this->assertEquals(1, count($server->getMailIdsByFlags([Storage::FLAG_FLAGGED])));
 
-
-        $raw = '18 uid store 100003 +FLAGS (';
-        $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED . ')';
-        $msg = $client->handleRawPacket($raw);
-        $expect = '* 3 FETCH (FLAGS (';
-        $expect .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED;
-        $expect .= '))' . Client::MSG_SEPARATOR . '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
+        $msgRaw = sprintf(
+            '18 uid store 100003 +FLAGS (%s %s %s %s)',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED,
+            Storage::FLAG_DELETED
+        );
+        $msg = $client->handleRawPacket($msgRaw);
+        $expect = sprintf(
+            '* 3 FETCH (FLAGS (%s %s %s %s))%s18 OK UID STORE completed%s',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED,
+            Storage::FLAG_DELETED,
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $this->assertEquals(1, count($server->getMailIdsByFlags([Storage::FLAG_DELETED])));
-
 
         $raw = '18 uid store 100003 +FLAGS (';
         $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED;
@@ -2505,14 +2603,11 @@ class ClientTest extends TestCase
 
         $this->assertEquals(1, count($server->getMailIdsByFlags([Storage::FLAG_DRAFT])));
 
-
         $raw = '18 uid store 100003 +FLAGS (';
         $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED;
         $raw .= ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . ')';
         $msg = $client->handleRawPacket($raw);
         $expect = '* 3 FETCH (FLAGS (';
-        #$expect = .' ';
-        #$expect .= Storage::FLAG_ANSWERED.' '.Storage::FLAG_SEEN..'))'.Client::MSG_SEPARATOR;
         $expect .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED;
         $expect .= ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT;
         $expect .= '))' . Client::MSG_SEPARATOR;
@@ -2522,32 +2617,44 @@ class ClientTest extends TestCase
         $this->assertEquals(1, count($server->getMailIdsByFlags([Storage::FLAG_DRAFT])));
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_RECENT])));
 
-
-        $raw = '18 uid store 100003:100004 +FLAGS (';
-        $raw .= Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ' . Storage::FLAG_FLAGGED . ' ';
-        $raw .= Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . ')';
-        $msg = $client->handleRawPacket($raw);
-        $expect = '* 3 FETCH (FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ';
-        $expect .= Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . '))' . Client::MSG_SEPARATOR;
-        $expect .= '* 4 FETCH (FLAGS (' . Storage::FLAG_SEEN . ' ' . Storage::FLAG_ANSWERED . ' ';
-        $expect .= Storage::FLAG_FLAGGED . ' ' . Storage::FLAG_DELETED . ' ' . Storage::FLAG_DRAFT . '))' . Client::MSG_SEPARATOR;
-        $expect .= '18 OK UID STORE completed' . Client::MSG_SEPARATOR;
+        $msgRaw = sprintf(
+            '18 uid store 100003:100004 +FLAGS (%s %s %s %s %s)',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED,
+            Storage::FLAG_DELETED,
+            Storage::FLAG_DRAFT
+        );
+        $msg = $client->handleRawPacket($msgRaw);
+        $expect = sprintf(
+            '* 3 FETCH (FLAGS (%s %s %s %s %s))%s* 4 FETCH (FLAGS (%s %s %s %s %s))%s18 OK UID STORE completed%s',
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED,
+            Storage::FLAG_DELETED,
+            Storage::FLAG_DRAFT,
+            Client::MSG_SEPARATOR,
+            Storage::FLAG_SEEN,
+            Storage::FLAG_ANSWERED,
+            Storage::FLAG_FLAGGED,
+            Storage::FLAG_DELETED,
+            Storage::FLAG_DRAFT,
+            Client::MSG_SEPARATOR,
+            Client::MSG_SEPARATOR
+        );
         $this->assertEquals($expect, $msg);
 
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_DRAFT])));
-
 
         $msg = $client->handleRawPacket('18 uid store 100005 +FLAGS.SILENT (' . Storage::FLAG_FLAGGED . ')');
         $this->assertEquals('18 OK UID STORE completed' . Client::MSG_SEPARATOR, $msg);
 
         $this->assertEquals(3, count($server->getMailIdsByFlags([Storage::FLAG_FLAGGED])));
 
-
         $msg = $client->handleRawPacket('18 uid store 100005 -FLAGS.SILENT (' . Storage::FLAG_FLAGGED . ')');
         $this->assertEquals('18 OK UID STORE completed' . Client::MSG_SEPARATOR, $msg);
 
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_FLAGGED])));
-
 
         #$finder = new Finder();
         #$files = $finder->in($path1)->files()->name('*')->sortByName();
@@ -2569,7 +2676,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2595,7 +2701,6 @@ class ClientTest extends TestCase
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2629,7 +2734,6 @@ class ClientTest extends TestCase
         $msg = $client->handleRawPacket('16 UID copy 1 test_dir2');
         $this->assertEquals('16 BAD No messages in selected mailbox.' . Client::MSG_SEPARATOR, $msg);
 
-
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
         $message->addTo('dev2@fox21.at');
@@ -2662,7 +2766,6 @@ class ClientTest extends TestCase
         $files = $finder->in($path1 . '/test_dir1')->files();
         $this->assertEquals(4, count($files));
 
-
         $msg = $client->handleRawPacket('15 copy 2 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
         $finder = new Finder();
@@ -2683,13 +2786,12 @@ class ClientTest extends TestCase
     public function testMsgHandleUidCopy()
     {
         $path1 = './tmp/test_data/test_mailbox_' . date('Ymd_His') . '_' . uniqid('', true);
-        
+
         $server = new Server();
 
         $storage1 = new DirectoryStorage();
         $storage1->setPath($path1);
         $server->addStorage($storage1);
-
 
         $client = new Client();
         $client->setServer($server);
@@ -2719,7 +2821,6 @@ class ClientTest extends TestCase
         $msg = $client->handleRawPacket('15 UID copy 100001 test_dir2');
         $this->assertEquals('15 BAD No messages in selected mailbox.' . Client::MSG_SEPARATOR, $msg);
 
-
         $message = new Message();
         $message->addFrom('dev1@fox21.at');
         $message->addTo('dev2@fox21.at');
@@ -2751,7 +2852,6 @@ class ClientTest extends TestCase
         $finder = new Finder();
         $files = $finder->in($path1 . '/test_dir1')->files();
         $this->assertEquals(4, count($files));
-
 
         $msg = $client->handleRawPacket('15 UID copy 100002 test_dir2');
         $this->assertEquals('15 OK COPY completed' . Client::MSG_SEPARATOR, $msg);
@@ -2806,7 +2906,10 @@ class ClientTest extends TestCase
 
         $this->assertEquals('* BAD text1' . Client::MSG_SEPARATOR, $client->sendBad('text1'));
         $this->assertEquals('tag1 BAD text1' . Client::MSG_SEPARATOR, $client->sendBad('text1', 'tag1'));
-        $this->assertEquals('tag1 BAD [code1] text1' . Client::MSG_SEPARATOR, $client->sendBad('text1', 'tag1', 'code1'));
+        
+        $expected='tag1 BAD [code1] text1' . Client::MSG_SEPARATOR;
+        $this->assertEquals($expected, $client->sendBad('text1', 'tag1', 'code1'));
+        
         $this->assertEquals('* BAD [code1] text1' . Client::MSG_SEPARATOR, $client->sendBad('text1', null, 'code1'));
     }
 
@@ -2847,7 +2950,6 @@ class ClientTest extends TestCase
         $client2 = new Client();
         $client2->setServer($server);
         $client2->setId(2);
-
 
         $client1->select('test_dir1');
         $this->assertEquals('test_dir1', $client1->getSelectedFolder());

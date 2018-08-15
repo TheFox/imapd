@@ -365,7 +365,8 @@ class Server extends Thread
 
     public function getFolders(string $baseFolder, string $searchFolder, bool $recursive = false, int $level = 0): array
     {
-        $this->logger->debug('getFolders' . $level . ': /' . $baseFolder . '/ /' . $searchFolder . '/ ' . (int)$recursive . ', ' . $level);
+        $tmp = [$level, $baseFolder, $searchFolder, intval($recursive)];
+        $this->logger->debug(vsprintf('getFolders%d: /%s/ /%s/ %d', $tmp));
 
         if ($level >= 100) {
             return []; // @todo throw exception instead
