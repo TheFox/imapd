@@ -24,7 +24,7 @@ use Zend\Mail\Message;
 class Server extends Thread
 {
     use LoggerAwareTrait;
-    
+
     const LOOP_USLEEP = 10000;
 
     /**
@@ -110,7 +110,7 @@ class Server extends Thread
         $this->options = $resolver->resolve($options);
 
         $this->logger = $this->options['logger'];
-        
+
         $this->setIp($this->options['ip']);
         $this->setPort($this->options['port']);
     }
@@ -127,31 +127,33 @@ class Server extends Thread
 
     /**
      * @return bool
+     * @throws Exception
      */
     public function listen(): bool
     {
-        if ($this->ip && $this->port) {
-            $this->logger->notice('listen on ' . $this->ip . ':' . $this->port);
-
-            // Create a new Socket object.
-            $this->socket = new Socket();
-
-            $bind = false;
-            try {
-                $bind = $this->socket->bind($this->ip, $this->port);
-
-                if ($this->socket->listen()) {
-                    $this->logger->notice('listen ok');
-                    $this->isListening = true;
-
-                    return true;
-                }
-            } catch (Exception $e) {
-                $this->logger->error($e->getMessage());
-            }
+        if (!$this->ip || !$this->port) {
+            return false;
         }
 
-        return false;
+        $this->logger->notice('listen on ' . $this->ip . ':' . $this->port);
+
+        // Create a new Socket object.
+        $this->socket = new Socket();
+
+        try {
+            $this->socket->bind($this->ip, $this->port);
+
+            if (!$this->socket->listen()) {
+                return false;
+            }
+            $this->logger->notice('listen ok');
+            $this->isListening = true;
+        } catch (Exception $e) {
+            $this->logger->error($e->getMessage());
+            throw $e;
+        }
+
+        return true;
     }
 
     /**
@@ -375,17 +377,17 @@ class Server extends Thread
 
         $storage = $this->getDefaultStorage();
         $foundFolders = $storage->getFolders($baseFolder, $searchFolder, $recursive);
-        
+
         $folders = [];
         foreach ($foundFolders as $folder) {
             $folder = str_replace('/', '.', $folder);
             $folders[] = $folder;
         }
-        
+
         usort($folders, function (string $a, string $b) {
             return $a <=> $b;
         });
-        
+
         return $folders;
     }
 
@@ -495,7 +497,7 @@ class Server extends Thread
         if (!$folder) {
             $folder = '';
         }
-        
+
         $this->executeEvent(Event::TRIGGER_MAIL_ADD_PRE);
 
         $storage = $this->getDefaultStorage();
@@ -583,17 +585,17 @@ class Server extends Thread
     {
         /** @var DirectoryStorage $storage */
         $storage = $this->getDefaultStorage();
-        
+
         $mailStr = $storage->getPlainMailById($msgId);
         if (!$mailStr) {
             return null;
         }
-        
+
         try {
             $mail = ZendMailMessage::fromString($mailStr);
             return $mail;
         } catch (\Error $e) {
-            print 'ZendMailMessage::fromString ERROR: '.$e."\n";
+            print 'ZendMailMessage::fromString ERROR: ' . $e . "\n";
         }
 
         return null;

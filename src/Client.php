@@ -21,6 +21,7 @@ use TheFox\Logic\NotGate;
 class Client
 {
     use LoggerAwareTrait;
+
     const MSG_SEPARATOR = "\r\n";
 
     /**
@@ -454,9 +455,6 @@ class Client
                         }
                     }
                 }
-                /*else{
-                    throw new RuntimeException('Invalid minimum sequence length: "'.$seqLen.'" ('.$seqMin.'/'.$seqMax.')', 2);
-                }*/
             } else {
                 if ($seqLen == 1) {
                     if ($seqMin > 0 && $seqMin <= $count) {
@@ -473,9 +471,6 @@ class Client
                         }
                     }
                 }
-                /*else{
-                    throw new RuntimeException('Invalid minimum sequence length: "'.$seqLen.'" ('.$seqMin.'/'.$seqMax.')', 1);
-                }*/
             }
 
             $msgSeqNums = array_merge($msgSeqNums, $nums);
@@ -530,69 +525,67 @@ class Client
                 $this->setStatus('authMechanism', $commandArgs[0]);
 
                 return $this->sendAuthenticate();
-            } else {
-                return $this->sendNo($commandArgs[0] . ' Unsupported authentication mechanism', $tag);
             }
+            
+            return $this->sendNo($commandArgs[0] . ' Unsupported authentication mechanism', $tag);
         } elseif ($commandCmp == 'login') {
             $commandArgs = $this->parseMsgString($restArgs, 2);
 
             if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
                 return $this->sendLogin($tag);
-            } else {
-                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendBad('Arguments invalid.', $tag);
         } elseif ($commandCmp == 'select') {
             $commandArgs = $this->parseMsgString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendSelect($tag, $commandArgs[0]);
-                } else {
-                    $this->selectedFolder = '';
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
+                
                 $this->selectedFolder = '';
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            $this->selectedFolder = '';
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'create') {
             $commandArgs = $this->parseMsgString($restArgs, 1);
-
-            #$this->logger->debug('client '.$this->id.' create: '.$args[0]);
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendCreate($tag, $commandArgs[0]);
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'subscribe') {
             $commandArgs = $this->parseMsgString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendSubscribe($tag, $commandArgs[0]);
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'unsubscribe') {
             $commandArgs = $this->parseMsgString($restArgs, 1);
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendUnsubscribe($tag, $commandArgs[0]);
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'list') {
             $args = $this->parseMsgString($restArgs, 2);
 
@@ -601,30 +594,34 @@ class Client
                     $refName = $args[0];
                     $folder = $args[1];
                     return $this->sendList($tag, $refName, $folder);
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'lsub') {
             $commandArgs = $this->parseMsgString($restArgs, 1);
 
-            $this->logger->debug('client ' . $this->id . ' lsub: ' . (isset($commandArgs[0]) ? $commandArgs[0] : 'N/A'));
+            if (isset($commandArgs[0])) {
+                $this->logger->debug(sprintf('client %d lsub: %s', $this->id, $commandArgs[0]));
+            } else {
+                $this->logger->debug(sprintf('client %d lsub: N/A', $this->id));
+            }
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0]) {
                     return $this->sendLsub($tag);
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'append') {
             $commandArgs = $this->parseMsgString($restArgs, 4);
 
-            $this->logger->debug('client ' . $this->id . ' append');
+            $this->logger->debug(sprintf('client %d append',$this->id));
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($commandArgs[0]) && $commandArgs[0] && isset($commandArgs[1]) && $commandArgs[1]) {
@@ -678,59 +675,59 @@ class Client
                     $this->setStatus('appendFolder', $commandArgs[0]);
 
                     return $this->sendAppend();
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'check') {
             if ($this->getStatus('hasAuth')) {
                 return $this->sendCheck($tag);
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'close') {
-            $this->logger->debug('client ' . $this->id . ' close');
+            $this->logger->debug(sprintf('client %d close',$this->id));
 
             if ($this->getStatus('hasAuth')) {
                 if ($this->selectedFolder) {
                     return $this->sendClose($tag);
-                } else {
-                    return $this->sendNo('No mailbox selected.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendNo('No mailbox selected.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'expunge') {
-            $this->logger->debug('client ' . $this->id . ' expunge');
+            $this->logger->debug(sprintf('client %d expunge',$this->id));
 
             if ($this->getStatus('hasAuth')) {
                 if ($this->selectedFolder) {
                     return $this->sendExpunge($tag);
-                } else {
-                    return $this->sendNo('No mailbox selected.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendNo('No mailbox selected.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'search') {
-            $this->logger->debug('client ' . $this->id . ' search');
+            $this->logger->debug(sprintf('client %d search',$this->id));
 
             if ($this->getStatus('hasAuth')) {
                 if (isset($args[0]) && $args[0]) {
                     if ($this->selectedFolder) {
                         $criteriaStr = $args[0];
                         return $this->sendSearch($tag, $criteriaStr);
-                    } else {
-                        return $this->sendNo('No mailbox selected.', $tag);
                     }
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
+                    
+                    return $this->sendNo('No mailbox selected.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'store') {
             $commandArgs = $this->parseMsgString($restArgs, 3);
 
@@ -761,29 +758,26 @@ class Client
                         $seq = $commandArgs[0];
                         $folder = $commandArgs[1];
                         return $this->sendCopy($tag, $seq, $folder);
-                    } else {
-                        return $this->sendNo('No mailbox selected.', $tag);
                     }
-                } else {
-                    return $this->sendBad('Arguments invalid.', $tag);
+                    
+                    return $this->sendNo('No mailbox selected.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendBad('Arguments invalid.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } elseif ($commandCmp == 'uid') {
             if ($this->getStatus('hasAuth')) {
                 if ($this->selectedFolder) {
                     return $this->sendUid($tag, $restArgs);
-                } else {
-                    return $this->sendNo('No mailbox selected.', $tag);
                 }
-            } else {
-                return $this->sendNo($commandCmp . ' failure', $tag);
+                
+                return $this->sendNo('No mailbox selected.', $tag);
             }
+            
+            return $this->sendNo($commandCmp . ' failure', $tag);
         } else {
-            #$this->logger->debug('client '.$this->id.' auth step:   '.$this->getStatus('authStep'));
-            #$this->logger->debug('client '.$this->id.' append step: '.$this->getStatus('appendStep'));
-
             if ($this->getStatus('authStep') == 1) {
                 $this->setStatus('authStep', 2);
                 return $this->sendAuthenticate();
@@ -1733,14 +1727,16 @@ class Client
         switch (strtolower($name)) {
             case '+flags.silent':
                 $silent = true;
-                // no break
+            // no break
+            
             case '+flags':
                 $add = true;
                 break;
 
             case '-flags.silent':
                 $silent = true;
-                // no break
+            // no break
+            
             case '-flags':
                 $rem = true;
                 break;
