@@ -37,13 +37,13 @@
         "squizlabs/php_codesniffer": "^3.0"
     },
     "autoload": {
-        "psr-0": {
-            "TheFox\\": "src"
+        "psr-4": {
+            "TheFox\\Imap\\": "src"
         }
     },
     "autoload-dev": {
-        "psr-0": {
-            "TheFox\\": "tests"
+        "psr-4": {
+            "TheFox\\Test\\": "tests"
         }
     },
     "extra": {

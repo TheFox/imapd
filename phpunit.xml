@@ -20,15 +20,15 @@
 	
 	<testsuites>
 		<testsuite name="default">
-			<file>tests/TheFox/Test/AbstractStorageTest.php</file>
-			<file>tests/TheFox/Test/ClientTest.php</file>
-			<file>tests/TheFox/Test/DirectoryStorageTest.php</file>
-			<file>tests/TheFox/Test/MessageDatabaseTest.php</file>
-			<file>tests/TheFox/Test/ServerTest.php</file>
-			<file>tests/TheFox/Test/StringParserTest.php</file>
-			<file>tests/TheFox/Test/TestStorageTest.php</file>
-			<file>tests/TheFox/Test/ThreadTest.php</file>
-			<file>tests/TheFox/Test/ZendMailStorageTest.php</file>
+			<file>tests/AbstractStorageTest.php</file>
+			<file>tests/ClientTest.php</file>
+			<file>tests/DirectoryStorageTest.php</file>
+			<file>tests/MessageDatabaseTest.php</file>
+			<file>tests/ServerTest.php</file>
+			<file>tests/StringParserTest.php</file>
+			<file>tests/TestStorageTest.php</file>
+			<file>tests/ThreadTest.php</file>
+			<file>tests/ZendMailStorageTest.php</file>
 		</testsuite>
 	</testsuites>
 	<filter>
