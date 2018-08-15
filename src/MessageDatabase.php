@@ -30,21 +30,6 @@ class MessageDatabase extends YamlStorage
         $this->data['timeCreated'] = time();
     }
 
-    /*public function save(){
-        $rv = parent::save();
-        if($rv){
-            $path = $this->getFilePath();
-            $path = str_replace('.yml', '_2.yml', $path);
-            $data = $this->data;
-            foreach($data['msgs'] as $msgId => $msg){
-                unset($data['msgs'][$msgId]['path']);
-            }
-            $rv = file_put_contents($path, Yaml::dump($data));
-        }
-        
-        return $rv;
-    }*/
-
     /**
      * @return bool
      */

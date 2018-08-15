@@ -2656,12 +2656,6 @@ class ClientTest extends TestCase
 
         $this->assertEquals(2, count($server->getMailIdsByFlags([Storage::FLAG_FLAGGED])));
 
-        #$finder = new Finder();
-        #$files = $finder->in($path1)->files()->name('*')->sortByName();
-        #foreach($files as $fileId => $file){
-        #	fwrite(STDOUT, 'file: '.$file->getRealpath()."\n");
-        #}
-
         $server->shutdown();
         $filesystem = new Filesystem();
         $filesystem->remove($path1);

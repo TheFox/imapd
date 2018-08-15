@@ -1734,14 +1734,6 @@ class Client
         return $rv;
     }
 
-    /*private function sendFetch($tag, $seq, $name){
-        #$this->select();
-        $this->logger->debug('client '.$this->id.' current folder: '.$this->selectedFolder);
-        
-        $this->sendFetchRaw($tag, $seq, $name, false);
-        $this->sendOk('FETCH completed', $tag);
-    }*/
-
     /**
      * @param string $tag
      * @param string $seq
