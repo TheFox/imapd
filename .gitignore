@@ -5,3 +5,4 @@ composer.phar
 /tmp/
 /.idea/
 .env
+dev.php
