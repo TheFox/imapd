@@ -1,5 +1,9 @@
 # Release Notes for IMAPd v0.x
 
+## v0.6.0 [unreleased]
+
+- MIT License
+
 ## v0.5.0
 
 - Use thefox/network 1.0.
