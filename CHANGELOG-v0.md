@@ -3,6 +3,7 @@
 ## v0.6.0 [unreleased]
 
 - MIT License
+- Remove Travis CI support.
 
 ## v0.5.0
 
