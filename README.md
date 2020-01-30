@@ -108,10 +108,6 @@ See [`example.php`](example.php) file for more information.
 
 - [SMTPd](https://github.com/TheFox/smtpd)
 
-## Contribute
-
-You're welcome to contribute to this project. Fork this project at <https://github.com/TheFox/imapd>. You should read GitHub's [How to Fork a Repo](https://help.github.com/articles/fork-a-repo).
-
 ## Project Links
 
 - [Blog Post about IMAPd](http://blog.fox21.at/2014/08/07/imapd.html)
